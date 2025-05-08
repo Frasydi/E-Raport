@@ -4,13 +4,15 @@ import Home from "./pages/home"
 import NotFound from './pages/NotFound'
 import Login from './pages/Login'
 import Menu from './pages/Menu'
+import Dashboard from './pages/dashboard'
 
 function App() {
   return (
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path="/login" element={<Login/>}/>
-          <Route path='/Menu' element={<Menu/>}></Route>
+          <Route path='/menu' element={<Menu/>}></Route>
+          <Route path='/dashboard' element={<Dashboard/>}></Route>
           <Route path="*" element={<NotFound/>}/>
         </Routes>
   )
