@@ -11,27 +11,27 @@ import {
 
 const navItems = [
     {
-        path: "/dashboard",
+        path: "/menu/dashboard",
         icon: faHouse,
     },
     {
-        path: "/peserta-didik",
+        path: "/menu/peserta-didik",
         icon: faChildren,
     },
     {
-        path: "/guru-kelas",
+        path: "/menu/guru-kelas",
         icon: faChalkboardUser,
     },
     {
-        path: "/penilaian",
+        path: "/menu/penilaian",
         icon: faPenToSquare,
     },
     {
-        path: "/cetak-raport",
+        path: "/menu/cetak-raport",
         icon: faPrint,
     },
     {
-        path: "/backup-restore",
+        path: "/menu/backup-restore",
         icon: faWindowRestore,
     },
 ];

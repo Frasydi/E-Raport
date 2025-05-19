@@ -1,29 +1,36 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router";
 import { faHouse, faChildren, faChalkboardUser, faPenToSquare, faPrint, faWindowRestore } from "@fortawesome/free-solid-svg-icons";
 
 const menuItems = [
     {
         name: "Profil Sekolah",
+        path: "/menu/dashboard",
         icon: faHouse,
     },
     {
         name: "Data Peserta Didik",
+        path: "/menu/peserta-didik",
         icon: faChildren,
     },
     {
         name: "Guru & Kelas",
+        path: "/menu/guru-kelas",
         icon: faChalkboardUser,
     },
     {
         name: "Penilaian Peserta Didik",
+        path: "/menu/penilaian",
         icon: faPenToSquare,
     },
     {
         name: "Cetak Raport",
+        path: "/menu/cetak-raport",
         icon: faPrint,
     },
     {
         name: "Backup dan Restore",
+        path: "/menu/backup-restore",
         icon: faWindowRestore,
     },
 ];
@@ -39,6 +46,7 @@ const MenuCard = ({ title, icon }) => (
         <p className="text-center bg-transparent text-[#1c1c1c] group-hover:text-slate-900 font-medium text-sm font-poppins p-3 group-hover:text-shadow-md">
             {title}
         </p>
+
     </div>
 );
 
@@ -46,7 +54,9 @@ const Menu = () => {
     return (
         <div className="container w-3xl p-10 border-t border-slate-50 border-b rounded-md drop-shadow-xl flex gap-6 flex-wrap items-center justify-center">
             {menuItems.map((item, index) => (
-                <MenuCard key={index} title={item.name} icon={item.icon} />
+                <Link className="cursor-pointer" to={item.path}>
+                    <MenuCard key={index} title={item.name} icon={item.icon} />
+                </Link>
             ))}
         </div>
     );

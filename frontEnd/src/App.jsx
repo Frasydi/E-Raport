@@ -14,9 +14,9 @@ function App() {
           <Route path="/" element={<Home/>}/>
           <Route path="/login" element={<Login/>}/>
           <Route path='/menu' element={<Menu/>}></Route>
-          <Route path='/dashboard' element={<Dashboard/>}></Route>
-          <Route path='/peserta-didik' element={<PesertaDidik/>}></Route>
-          <Route path='/guru-kelas' element={<GuruKelas/>}></Route>
+          <Route path='/menu/dashboard' element={<Dashboard/>}></Route>
+          <Route path='/menu/peserta-didik' element={<PesertaDidik/>}></Route>
+          <Route path='/menu/guru-kelas' element={<GuruKelas/>}></Route>
           <Route path="*" element={<NotFound/>}/>
         </Routes>
   )
