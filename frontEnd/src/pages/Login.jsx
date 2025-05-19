@@ -3,7 +3,7 @@ const Login = () => {
         <div class="bg-gray-100 flex justify-center items-center h-screen w-full">
             <div class="w-1/2 h-screen hidden lg:block">
                 <img
-                    src="./src/assets/image/LoginPage.jpg"
+                    src="image/LoginPage.jpg"
                     alt="Placeholder Image"
                     class="object-cover w-full h-full"
                 />
