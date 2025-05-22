@@ -1,10 +1,9 @@
 import { faHouse, faCalendarWeek } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "../component/Navbar";
 import Card from "../component/Card";
 import ButtonSubmit from "../component/button/Button_submit";
 import TitleDashboard from "../component/dashboard/Title";
 import LayoutMenu from "../containers/layout";
-import Input from "../component/input";
+import InputDashboard from "../component/input/DashboardInput";
 import BasicPie from "../component/cart/Pie";
 const Dashboard = () => {
     return (
@@ -36,49 +35,75 @@ const Dashboard = () => {
                     </TitleDashboard>
                     <form
                         action=""
-                        className="px-10 text-sm self-center flex flex-col gap-4 mb-5 "
+                        className="px-10 text-sm self-center flex flex-col gap-4 mb-5"
                     >
-                        <Input
+                        <InputDashboard
                             htmlFor={"nama_sekolah"}
                             type={"text"}
                             children={"Nama Sekolah"}
                             placeholder={"masukkan nama sekolah"}
-                        ></Input>
+                        ></InputDashboard>
 
-                        <Input
+                        <InputDashboard
                             htmlFor={"nsip"}
                             type={"text"}
                             children={"NSIP"}
                             placeholder={"contoh: 198502152020011001"}
-                        ></Input>
+                        ></InputDashboard>
 
-                        <Input
-                            htmlFor={"alamat"}
-                            type={"text"}
-                            children={"Alamat"}
-                            placeholder={"Masukkan alamat"}
-                        ></Input>
-
-                        <Input
+                        <label htmlFor="">Alamat :</label>
+                        <div className="ml-8 flex flex-col gap-3">
+                            <InputDashboard
+                                htmlFor={"provinsi"}
+                                type={"text"}
+                                children={"provinsi"}
+                                placeholder={"Masukkan nama provinsi"}
+                            ></InputDashboard>
+                            <InputDashboard
+                                htmlFor={"kabupaten"}
+                                type={"text"}
+                                children={"kabupaten"}
+                                placeholder={"Masukkan nama kabupaten"}
+                            ></InputDashboard>
+                            <InputDashboard
+                                htmlFor={"kecamatan"}
+                                type={"text"}
+                                children={"kecamatan"}
+                                placeholder={"Masukkan nama kecamatan"}
+                            ></InputDashboard>
+                            <InputDashboard
+                                htmlFor={"nama_desa"}
+                                type={"text"}
+                                children={"Desa"}
+                                placeholder={"Masukkan nama desa"}
+                            ></InputDashboard>
+                            <InputDashboard
+                                htmlFor={"jalan"}
+                                type={"text"}
+                                children={"jalan"}
+                                placeholder={"Masukkan nama jalan"}
+                            ></InputDashboard>
+                        </div>
+                        <InputDashboard
                             htmlFor={"kode_pos"}
                             type={"number"}
-                            children={"kode_pos"}
+                            children={"Kode pos"}
                             placeholder={"Masukkan kode pos"}
-                        ></Input>
+                        ></InputDashboard>
 
-                        <Input
+                        <InputDashboard
                             htmlFor={"nomor_hp"}
                             type={"tel"}
                             children={"Nomor Hp"}
                             placeholder={"08xxxxxxxxxx"}
-                        ></Input>
+                        ></InputDashboard>
 
-                        <Input
+                        <InputDashboard
                             htmlFor={"Email"}
                             type={"text"}
                             children={"Email"}
                             placeholder={"Contoh: TKalikhlas@gmail.com"}
-                        ></Input>
+                        ></InputDashboard>
 
                         <div className="flex gap-2 justify-end">
                             <ButtonSubmit

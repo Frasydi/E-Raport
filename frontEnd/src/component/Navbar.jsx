@@ -1,40 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { NavLink, useLocation } from "react-router";
-import {
-    faHouse,
-    faChildren,
-    faChalkboardUser,
-    faPenToSquare,
-    faPrint,
-    faWindowRestore,
-} from "@fortawesome/free-solid-svg-icons";
+import navItems from "../data/navigasi";
+import { NavLink,  } from "react-router";
 
-const navItems = [
-    {
-        path: "/menu/dashboard",
-        icon: faHouse,
-    },
-    {
-        path: "/menu/peserta-didik",
-        icon: faChildren,
-    },
-    {
-        path: "/menu/guru-kelas",
-        icon: faChalkboardUser,
-    },
-    {
-        path: "/menu/penilaian",
-        icon: faPenToSquare,
-    },
-    {
-        path: "/menu/cetak-raport",
-        icon: faPrint,
-    },
-    {
-        path: "/menu/backup-restore",
-        icon: faWindowRestore,
-    },
-];
 
 const NavbarComponent = ({ path, icon }) => {
     return (

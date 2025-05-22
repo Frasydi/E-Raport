@@ -1,4 +1,4 @@
-import Button from "../component/Button/Button";
+import {Button} from "../component/button/Button";
 const Home = () => {
     return (
         <div className="w-full h-full flex  bg-[url(images/tk_belajar.jpg)] bg-cover backdrop-brightness-[0.5] justify-center items-center flex-col">
