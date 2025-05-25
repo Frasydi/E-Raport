@@ -10,20 +10,20 @@ const Dashboard = () => {
         <LayoutMenu>
             {/* Card untuk menampilkan jumlah siswa */}
             <div className="flex gap-0">
-                <Card bg="bg-[#36AE7C]">
+                <Card bg="bg-[#36AE7C]" width={'w-64'}>
                     <h1 className="text-5xl font-semibold">80</h1>
                     <p>Total Siswa</p>
                 </Card>
-                <Card bg="bg-[#F9D923]">
+                <Card bg="bg-[#F9D923]" width={'w-64'}>
                     <h1 className="text-5xl font-semibold">80</h1>
                     <p>Siswa Laki Laki</p>
                 </Card>
-                <Card bg="bg-[#EB5353]">
+                <Card bg="bg-[#EB5353]" width={'w-64'}>
                     <h1 className="text-5xl font-semibold">80</h1>
                     <p>Siswa Perempuan</p>
                 </Card>
-                <Card bg="bg-[#187498]">
-                    <h1 className="text-5xl font-semibold">80</h1>
+                <Card bg="bg-[#187498]" width={'w-64'}>
+                    <h1 className="text-5xl font-semibold" >80</h1>
                     <p>Siswa Baru 2024/2025</p>
                 </Card>
             </div>

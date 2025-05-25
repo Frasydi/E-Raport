@@ -10,6 +10,7 @@ import InputDashboard from "../component/input/DashboardInput";
 import ButtonSubmit from "../component/button/Button_submit";
 import { AddStudentButton } from "../component/button/Button";
 import Modal from "../component/Modal/Modal";
+import CardProfil from "../component/card/cardProfil";
 
 import { useState } from "react";
 
@@ -21,7 +22,7 @@ const PesertaDidik = () => {
             {openModal && <Modal CloseOpenModal={setOpenModal}></Modal>}
             <LayoutMenu blur={openModal}>
                 {/* Container */}
-                <div className="w-5/6 mt-10">
+                <div className="w-5/6 mt-1">
                     {/* memilih tahun ajaran */}
                     <div className="w-96 flex gap-5 items-center justify-between text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5">
                         <label htmlFor="tahun_ajaran">Tahun Ajaran</label>
@@ -38,8 +39,8 @@ const PesertaDidik = () => {
                     </div>
 
                     {/* menambahkan, mendownload, dan upload */}
-                    <div className=" h-96 mt-10 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 text-sm">
-                        <div className="flex justify-between ">
+                    <div className=" mt-10 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 text-sm">
+                        <div className="flex justify-between">
                             <div className="flex gap-2">
                                 <AddStudentButton
                                     icon={faPlus}
@@ -82,6 +83,13 @@ const PesertaDidik = () => {
                                     ></FontAwesomeIcon>
                                 </ButtonSubmit>
                             </div>
+                        </div>
+                        <div className="flex flex-wrap gap-[61px] mt-15">
+                            <CardProfil></CardProfil>
+                            <CardProfil></CardProfil>
+                            <CardProfil></CardProfil>
+                            <CardProfil></CardProfil>
+                            <CardProfil></CardProfil>
                         </div>
                     </div>
                 </div>

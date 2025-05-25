@@ -5,8 +5,8 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const Modal = ({ CloseOpenModal }) => {
     return (
-        <div className="w-full bg-gray-900/50 absolute z-50 flex justify-center items-center top-0">
-            <div className="flex flex-col justify-center items-center drop-shadow-xl rounded-2xl bg-[#ffffff] w-6/12 mt-5 pb-10 relative h-11/12">
+        <div className="w-full bg-gray-900/50 z-50 fixed top-0 flex justify-center h-screen">
+            <div className="flex flex-col items-center drop-shadow-xl rounded-2xl bg-[#ffffff] w-6/12 mt-5 pb-10 h-[95%] overflow-auto">
                 <FontAwesomeIcon
                     icon={faXmark}
                     className="text-2xl absolute top-3 right-3 text-gray-800/80 hover:text-gray-800 cursor-pointer"
@@ -14,11 +14,12 @@ const Modal = ({ CloseOpenModal }) => {
                         CloseOpenModal(false);
                     }}
                 ></FontAwesomeIcon>
-                <h2 className="flex font-semibold text-lg text-gray-800 mb-4 mt-8">
+
+                <h2 className="flex font-semibold text-lg text-gray-800 mb-4 mt-8 ">
                     Tambah Peserta Didik
                 </h2>
                 <form action="#" className="w-2/3 text-sm">
-                    <div className="flex mt-1 flex-col  w-full">
+                    <div className="flex mt-1 flex-col w-full">
                         <p className="text-sm text-gray-900/80 font-semibold border-t-2 pt-1 border-t-gray-900/80">
                             Informasi peserta didik
                         </p>
