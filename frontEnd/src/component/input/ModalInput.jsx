@@ -1,12 +1,13 @@
 import Input from "./Input";
+import Select from "./Select";
 
 const ModalInput = ({
     type,
     placeholder,
     htmlFor,
     children,
-    options = [],
     required,
+    options = [],
 }) => {
     return (
         <div className="flex flex-col gap-1 w-full">
@@ -18,17 +19,7 @@ const ModalInput = ({
                     >
                         {children}
                     </label>
-                    <select
-                        name="jenis_kelamin"
-                        id="jenis_kelamin"
-                        className={`p-1.5 outline-1 rounded-md outline-gray-300 focus:outline-2 focus:outline-blue-300 ${"w-full"} placeholder:italic placeholder:text-sm placeholder:font-light`} required={required}
-                    >
-                        {options.map((value, index) => (
-                            <option key={index} value={value}>
-                                {value}
-                            </option>
-                        ))}
-                    </select>
+                    <Select id={'jenis_kelamin'} type={true} name={'jenis_kelamin'} options={options}/>
                 </div>
             ) : (
                 <>

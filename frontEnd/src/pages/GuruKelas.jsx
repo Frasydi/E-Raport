@@ -86,7 +86,7 @@ const GuruKelas = () => {
                     </h1>
                     <div className="overflow-x-auto bg-white shadow-xl rounded-2xl">
                         <table className="min-w-full text-sm text-gray-700">
-                            <thead className="bg-blue-600 text-white">
+                            <thead className="bg-sky-800 text-white">
                                 <tr>
                                     <th
                                         className="px-6 py-4 text-left cursor-pointer"
@@ -132,7 +132,7 @@ const GuruKelas = () => {
                                             />
                                         </div>
                                     </th>
-                                    <th className="px-6 py-4 text-left">
+                                    <th className="px-6 py-4 text-center">
                                         Aksi
                                     </th>
                                 </tr>
@@ -160,7 +160,7 @@ const GuruKelas = () => {
                                             {teacher.class}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex gap-2">
+                                            <div className="flex gap-2 justify-center">
                                                 <button
                                                     onClick={() =>
                                                         handleEdit(teacher.id)
