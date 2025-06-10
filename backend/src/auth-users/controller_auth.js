@@ -22,7 +22,7 @@ router.post("/auth/login", async (req, res, next) => {
     }
 });
 
-router.get("/auth/token", async (req, res) => {
+router.get("/auth/token", async (req, res, next) => {
     const getToken = req.cookies.refresh_token;
     try {
         const { success, msg, token } = await refreshToken(getToken);
@@ -33,6 +33,19 @@ router.get("/auth/token", async (req, res) => {
         });
     } catch (error) {
         next(error);
+    }
+});
+
+router.post("/auth/logout", (req, res, next) => {
+    try {
+        res.clearCookie("refresh_token", {
+            httpOnly: true,
+            sameSite: "Strict", // atau "Lax" tergantung kebutuhan
+            secure: process.env.NODE_ENV === "production", // hanya HTTPS di production
+        });
+        res.status(200).json({ status: 'success', message: "Logged out successfully" });
+    } catch (error) {
+        next(error)
     }
 });
 
