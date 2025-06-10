@@ -1,67 +1,176 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { login } from "../api/Auth";
+import { useAuth } from "../context/authContext";
 const Login = () => {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const { setAccessToken } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError("");
+            }, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+
+    const handleSubmit = async (e) => {
+        setError("");
+        e.preventDefault();
+        try {
+            const res = await login(username, password);
+            setAccessToken(res.accessToken);
+            navigate("/menu/dashboard");
+        } catch (error) {
+            setError(error.response.data.msg);
+        }
+    };
     return (
-        <div class="bg-gray-100 flex justify-center items-center h-screen w-full">
-            <div class="w-1/2 h-screen hidden lg:block">
-                <img
-                    src="images/LoginPage.jpg"
-                    alt="Placeholder Image"
-                    class="object-cover w-full h-full"
-                />
-            </div>
-            <div class="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
-                <h1 class="text-2xl font-semibold mb-4">Login</h1>
-                <form action="#" method="POST">
-                    <div class="mb-4">
-                        <label for="username" class="block text-gray-600">
-                            Username
-                        </label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-                            autocomplete="off"
-                        />
-                    </div>
-                    <div class="mb-4">
-                        <label for="password" class="block text-gray-600">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-                            autocomplete="off"
-                        />
-                    </div>
-                    <div class="mb-4 flex items-center">
-                        <input
-                            type="checkbox"
-                            id="remember"
-                            name="remember"
-                            class="text-blue-500"
-                        />
-                        <label for="remember" class="text-gray-600 ml-2">
-                            Remember Me
-                        </label>
-                    </div>
-                    <div class="mb-6 text-blue-500">
-                        <a href="#" class="hover:underline">
-                            Forgot Password?
-                        </a>
-                    </div>
-                    <button
-                        type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full"
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex justify-center items-center min-h-screen w-full p-4 sm:p-6 overflow-auto">
+            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row relative max-h-[90vh]">
+                <a
+                    href="/"
+                    className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 bg-white/80 hover:bg-white p-2 rounded-full shadow-md transition-all duration-300 hover:scale-105"
+                    aria-label="Back to home"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                     >
-                        Login
-                    </button>
-                </form>
-                <div class="mt-6 text-blue-500 text-center">
-                    <a href="#" class="hover:underline">
-                        Sign up Here
-                    </a>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
+                    </svg>
+                </a>
+                <div className="w-full lg:w-1/2 h-[30vh] sm:h-[35vh] lg:h-auto lg:max-h-[90vh] relative group overflow-hidden">
+                    <img
+                        src="images/LoginPage.jpg"
+                        alt="Login Visual"
+                        className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-4 sm:p-6 md:p-8">
+                        <h2 className="text-white text-xl sm:text-2xl md:text-3xl font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                            Welcome Back
+                        </h2>
+                    </div>
+                </div>
+
+                <div className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center overflow-y-auto">
+                    <div className="mb-6 sm:mb-8 text-center lg:text-left">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
+                            Sign In
+                        </h1>
+                        <p className="text-sm sm:text-base text-gray-600">
+                            Please enter your credentials
+                        </p>
+                    </div>
+
+                    {error && (
+                        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 sm:p-4 mb-4 sm:mb-6 rounded-lg animate-fade-in">
+                            <div className="flex items-center">
+                                <svg
+                                    className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                <span className="text-xs sm:text-sm">
+                                    {error}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-4 sm:space-y-6"
+                    >
+                        <div className="space-y-1">
+                            <label
+                                htmlFor="username"
+                                className="text-xs sm:text-sm font-medium text-gray-700"
+                            >
+                                Username
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
+                                    autoComplete="off"
+                                    onChange={(e) =>
+                                        setUsername(e.target.value)
+                                    }
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg
+                                        className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label
+                                htmlFor="password"
+                                className="text-xs sm:text-sm font-medium text-gray-700"
+                            >
+                                Password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
+                                    autoComplete="off"
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg
+                                        className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 sm:py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base"
+                        >
+                            Sign In
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
