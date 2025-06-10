@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { login } from "../api/Auth";
+import { login } from "../api/auth";
 import { useAuth } from "../context/authContext";
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -24,7 +24,7 @@ const Login = () => {
         try {
             const res = await login(username, password);
             setAccessToken(res.accessToken);
-            navigate("/menu/dashboard");
+            navigate("/menu");
         } catch (error) {
             setError(error.response.data.msg);
         }

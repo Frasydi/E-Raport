@@ -1,7 +1,7 @@
 import "./css/App.css";
 import { Routes, Route } from "react-router";
 import ProtectedRoute from "./component/protectedRoute";
-import Home from "./pages/home";
+import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Menu from "./pages/Menu";
