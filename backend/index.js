@@ -26,9 +26,11 @@ app.get("/", (req, res) => {
 
 const auth = require("./src/auth-users/controller_auth");
 const user = require("./src/peserta-didik/controller_peserta");
+const profilSekolah = require("./src/profil-sekolah/controller_sekolah");
 
 app.use("/", auth);
-app.use("/", verifyToken, user);
+app.use("/profil-sekolah", profilSekolah);
+app.use("/", verifyToken,user);
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;
