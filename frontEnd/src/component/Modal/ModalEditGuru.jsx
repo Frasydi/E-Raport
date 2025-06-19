@@ -43,7 +43,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         setIsLoading(true);
 
         if (!form.nama_guru || !form.NSIP) {
-            setError("Silahkan lengkapi datanya terlebih dahulu");
+            setError("Silakan lengkapi datanya terlebih dahulu");
             setIsLoading(false);
             return;
         }
@@ -55,47 +55,37 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         }
 
         try {
+            const result = await Swal.fire({
+                title: "Update Data?",
+                text: "Pastikan data yang dimasukkan sudah benar.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#0e7490",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, update",
+                cancelButtonText: "Batal",
+            });
+
+            if (!result.isConfirmed) {
+                setIsLoading(false);
+                return;
+            }
+
             await updateDataGuru(teacherData.id_guru, {
                 nama_guru: form.nama_guru,
                 NSIP: form.NSIP,
                 nama_kelas: form.nama_kelas,
             });
-            
-            const { value: isConfirmed } = await Swal.fire({
-                title: "Update Data?",
-                text: "Pastikan data yang dimasukkan sudah benar",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonColor: "#0e7490",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Ya, Update!",
-                cancelButtonText: "Batal",
-            });
-
-            if (!isConfirmed) {
-                setIsLoading(false);
-                return;
-            }
-
-            //Swal.fire({
-            //    title: "Memperbarui Data...",
-            //    allowOutsideClick: false,
-            //    didOpen: () => Swal.showLoading(),
-            //});
-
 
             Swal.fire({
                 icon: "success",
-                title: "Berhasil Diupdate!",
-                text: "Data guru telah diperbarui",
-                confirmButtonColor: "#0e7490",
+                title: "Berhasil",
+                text: "Data guru berhasil diperbarui.",
                 timer: 2000,
-                timerProgressBar: true,
-                willClose: ()=> {
-                    onSave();
-                }
+                showConfirmButton: false,
             });
 
+            onSave();
             onClose();
         } catch (error) {
             console.error("Update error:", error);
@@ -105,13 +95,22 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         }
     };
 
+    const resetForm = (teacherData) => {
+        setForm({
+            nama_guru: teacherData.nama_guru,
+            NSIP: teacherData.NSIP,
+            nama_kelas: teacherData.nama_kelas,
+        });
+    };
     const handleClose = () => {
         setError("");
         onClose();
+        resetForm(teacherData);
     };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
+            if (isLoading) return;
             if (
                 modalRef.current &&
                 !modalRef.current.contains(event.target) &&
@@ -130,7 +129,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, onClose, isLoading]);
 
     if (!isOpen) return null;
 

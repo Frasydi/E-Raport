@@ -23,13 +23,26 @@ const GuruKelas = () => {
     const [openModal, setOpenModal] = useState(false);
     const [openEditModal, setOpenEditModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
-
+    const [searchTerm, setSearchTerm] = useState("");
     const [error, setError] = useState("");
     const {
         items: data,
         requestSort,
         getSortDirection,
     } = useSortableData(originalData);
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const filteredData = data.filter((item) => {
+        const keyword = searchTerm.toLowerCase();
+        return (
+            item.nama_guru.toLowerCase().includes(keyword) ||
+            item.NSIP.toLowerCase().includes(keyword) ||
+            item.nama_kelas.toLowerCase().includes(keyword)
+        );
+    });
 
     const fetchData = async () => {
         try {
@@ -94,7 +107,6 @@ const GuruKelas = () => {
                 },
             });
         } catch (error) {
-            console.error("Delete error:", error);
             Swal.fire({
                 icon: "error",
                 title: "Gagal",
@@ -106,7 +118,7 @@ const GuruKelas = () => {
 
     const handleSaveGuru = async () => {
         fetchData();
-        showToast("success", "data berhasil ditambahkan")
+        showToast("success", "data berhasil ditambahkan");
     };
 
     const handleUpdateGuru = async () => {
@@ -149,10 +161,11 @@ const GuruKelas = () => {
                             <Search
                                 htmlFor={"cari-guru"}
                                 placeholder={"cari guru"}
+                                onChange={handleSearchChange}
+                                value={searchTerm}
                             />
                         </div>
                     </div>
-
                     <div className="p-6 max-w-6xl mx-auto">
                         <h1 className="text-3xl font-semibold text-gray-700 mb-6">
                             📚 Data Guru TK
@@ -222,7 +235,7 @@ const GuruKelas = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.map((teacher, index) => (
+                                        {filteredData.map((teacher, index) => (
                                             <tr
                                                 key={teacher.id_guru}
                                                 className={`border-b ${

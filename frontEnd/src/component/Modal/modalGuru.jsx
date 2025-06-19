@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import ErrorMessage from "../Error";
 const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false)
     const [form, setForm] = useState({
         nama_guru: "",
         NSIP: "",
@@ -27,19 +28,21 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true)
 
         if (!form.nama_guru || !form.NSIP) {
             setError("silahkan lengkapi datanya terlebih dahulu");
+            setIsLoading(false)
             return;
         }
 
         if (!/^\d+$/.test(form.NSIP)) {
             setError("NSIP hanya boleh berisi angka");
+            setIsLoading(false)
             return;
         }
 
         try {
-            await postDataGuru(form);
             const { value: isConfirmed } = await Swal.fire({
                 title: "Simpan Data?",
                 text: "Pastikan data yang dimasukkan sudah benar",
@@ -51,30 +54,26 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
                 cancelButtonText: "Batal",
             });
 
-            if (!isConfirmed) return;
+            if (!isConfirmed){
+              setIsLoading(false)
+              return  
+            } 
 
-            //Swal.fire({
-            //    title: "Menyimpan Data...",
-            //    allowOutsideClick: false,
-            //    didOpen: () => Swal.showLoading(),
-            //});
-
+            await postDataGuru(form);
             Swal.fire({
                 icon: "success",
-                title: "Berhasil Disimpan!",
-                text: "Data guru telah ditambahkan",
-                confirmButtonColor: "#0e7490",
+                title: "Berhasil",
+                text: "Data guru berhasil diperbarui.",
                 timer: 2000,
-                timerProgressBar: true,
-                willClose: () => {
-                    onSave();
-                    resetForm();
-                    onClose();
-                },
+                showConfirmButton: false,
             });
+            onSave();
+            onClose();
         } catch (error) {
-            console.log(error.message)
-            setError(error.message)
+            console.log(error.message);
+            setError(error.message);
+        } finally {
+            setIsLoading(false)
         }
     };
 
@@ -94,6 +93,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
+            if (isLoading) return;
             if (
                 modalRef.current &&
                 !modalRef.current.contains(event.target) &&
@@ -112,7 +112,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, onClose, isLoading]);
 
     if (!isOpen) return null;
 
@@ -165,6 +165,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
                             onChange={handleChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                             placeholder="Masukkan nama guru"
+                            disabled={isLoading}
                         />
                     </div>
                     <div className="space-y-2">
@@ -178,6 +179,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
                             onChange={handleChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                             placeholder="Masukkan NSIP"
+                            disabled={isLoading}
                         />
                     </div>
                     <div className="space-y-2">
@@ -189,6 +191,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
                             value={form.nama_kelas}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all appearance-none"
+                            disabled={isLoading}
                         >
                             <option value="kelompok A">Kelompok A</option>
                             <option value="kelompok B">Kelompok B</option>
@@ -204,9 +207,36 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
                         </button>
                         <button
                             type="submit"
-                            className="px-5 py-2.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-colors font-medium shadow-sm"
+                            className="px-5 py-2.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-colors font-medium shadow-sm flex items-center justify-center"
+                            disabled={isLoading}
                         >
-                            Simpan Data
+                            {isLoading ? (
+                                <>
+                                    <svg
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                    Memproses...
+                                </>
+                            ) : (
+                                "Simpan data"
+                            )}
                         </button>
                     </div>
                 </form>

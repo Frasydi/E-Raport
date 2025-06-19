@@ -3,7 +3,6 @@ import axiosInstance from "./axiosInstance";
 export const getGuruKelas = async () => {
     try {
         const res = await axiosInstance.get("/guru");
-        console.log(res.data.data);
         return res.data.data;
     } catch (error) {
         throw error.response.data;
