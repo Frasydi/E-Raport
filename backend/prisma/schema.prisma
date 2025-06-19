@@ -11,6 +11,11 @@ enum Role {
   Operator
 }
 
+enum Kelas {
+  kelompokA @map("Kelompok A")
+  kelompokB @map("Kelompok B")
+}
+
 model Users {
     id  String @id @default(cuid())
     username String
@@ -35,4 +40,11 @@ model ProfilSekolah {
   website           String? @db.VarChar(100)              
   created_at        DateTime @default(now())             
   updated_at        DateTime @updatedAt                   
+}
+
+model Guru {
+  id_guru String @id @default(cuid())
+  nama_guru String @db.VarChar(25)
+  NSIP String @db.VarChar(25)
+  nama_kelas Kelas @default(kelompokA)
 }

@@ -3,13 +3,25 @@ const validator = require("validator");
 
 const validateEmail = (email) => {
     if (!email) {
-        return
+        return;
     }
     if (!validator.isEmail(email)) {
         throwWithStatus(
             "Email harus menggunakan format yang benar, seperti example@mail.com",
             400
         );
+    }
+};
+
+const validatorField = (obj) => {
+    for (const [key, value] of Object.entries(obj)) {
+        if (
+            value === undefined ||
+            value === null ||
+            (typeof value === "string" && value.trim() === "")
+        ) {
+            throwWithStatus(`Field '${key}' tidak boleh kosong`, 400);
+        }
     }
 };
 
@@ -32,8 +44,30 @@ const validateNumbers = (obj) => {
     }
 };
 
+const validateUpdatePayload = (newData, existingData) => {
+    // 1. Cek data kosong
+    if (!newData || Object.keys(newData).length === 0) {
+        throwWithStatus("Tidak ada data yang dikirim untuk diupdate", 400);
+    }
+    // 2. Cek data lama dari DB
+    if (!existingData) {
+        throwWithStatus("Data tidak ditemukan", 404);
+    }
+
+    // 3. Cek apakah ada yang berubah
+    const hasChanged = Object.keys(newData).some((key) => {
+        return newData[key] !== existingData[key];
+    });
+
+    if (!hasChanged) {
+        throwWithStatus("Tidak ada data yang berubah", 403);
+    }
+};
+
 module.exports = {
     validateEmail,
     validateNumbers,
     validatePhoneNumber,
+    validatorField,
+    validateUpdatePayload
 };

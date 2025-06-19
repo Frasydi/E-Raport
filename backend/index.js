@@ -27,16 +27,18 @@ app.get("/", (req, res) => {
 const auth = require("./src/auth-users/controller_auth");
 const user = require("./src/peserta-didik/controller_peserta");
 const profilSekolah = require("./src/profil-sekolah/controller_sekolah");
+const guru = require("./src/guru/controller_guru");
 
 app.use("/", auth);
 app.use("/profil-sekolah", profilSekolah);
-app.use("/", verifyToken,user);
+app.use("/guru", guru);
+app.use("/", verifyToken, user);
 
 app.use((err, req, res, next) => {
-    const status = err.status || 500;
-    res.status(status).json({
+    console.error(err.message); // log simple
+    res.status(err.status || 500).json({
         success: false,
-        msg: err.message || "Terjadi kesalahan server",
+        message: err.message || "Terjadi kesalahan server",
     });
 });
 
