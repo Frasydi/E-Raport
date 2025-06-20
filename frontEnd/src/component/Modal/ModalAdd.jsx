@@ -9,6 +9,27 @@ const Modal = ({ CloseOpenModal }) => {
                 Tambah Peserta Didik
             </h2>
             <form action="#" className="w-2/3 text-sm">
+                <div className="w-full h-15 flex gap-5 mb-7">
+                    <ModalInput
+                        type={"select"}
+                        options={["suhari", "aseprocky", "cihuyy"]}
+                        id={'kelas'}
+                        //placeholder={'asdasd'}
+                        name={'kelas'}
+                        required
+                    >
+                        Kelas <span className="text-red-500">*</span>
+                    </ModalInput>
+                    <ModalInput
+                        type={"select"}
+                        options={["suhari", "aseprocky", "cihuyy"]}
+                        id={'tahun_ajaran'}
+                        initialName={"pilih nama guru"}
+                        required
+                    >
+                        Tahun Ajaran <span className="text-red-500">*</span>
+                    </ModalInput>
+                </div>
                 <div className="flex mt-1 flex-col w-full">
                     <p className="text-sm text-gray-900/80 font-semibold border-t-2 pt-1 border-t-gray-900/80">
                         Informasi peserta didik
@@ -65,9 +86,10 @@ const Modal = ({ CloseOpenModal }) => {
                         Tanggal Lahir <span className="text-red-500">*</span>
                     </ModalInput>
                 </div>
-                <div className="flex gap-5 mt-5 w-full ">
+                <div className="flex gap-5 mt-5 w-full">
                     <ModalInput
                         type={"select"}
+                        typeOption={true}
                         options={["Laki-Laki", "Perempuan"]}
                         htmlFor={"jenis-kelamin"}
                         required
@@ -76,6 +98,7 @@ const Modal = ({ CloseOpenModal }) => {
                     </ModalInput>
                     <ModalInput
                         type={"select"}
+                        typeOption={true}
                         options={[
                             "Islam",
                             "Kristen",

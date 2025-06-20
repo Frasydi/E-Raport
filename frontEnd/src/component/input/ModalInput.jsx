@@ -1,30 +1,32 @@
 import Input from "./Input";
-import Select from "./Select";
-
+import CustomSelect from "../CustomSelect";
 const ModalInput = ({
     type,
     placeholder,
-    htmlFor,
     children,
     required,
+    value,
+    onChange,
+    id,
+    name,
     options = [],
 }) => {
     return (
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex flex-col gap-1 w-full flex-1">
             {type == "select" ? (
-                <div type={"radio"}>
+                <div className="flex flex-col gap-1.5">
                     <label
-                        htmlFor={htmlFor}
+                        htmlFor={id}
                         className="text-xs text-gray-500 font-semibold"
                     >
                         {children}
                     </label>
-                    <Select id={'jenis_kelamin'} type={true} name={'jenis_kelamin'} options={options}/>
+                    <CustomSelect id={id} name={name} options={options} placeholder={placeholder} value={value} onChange={onChange}></CustomSelect>
                 </div>
             ) : (
                 <>
                     <label
-                        htmlFor={htmlFor}
+                        htmlFor={id}
                         className="text-xs text-gray-500 font-semibold"
                     >
                         {children}
@@ -33,6 +35,8 @@ const ModalInput = ({
                     <Input
                         type={type}
                         placeholder={placeholder}
+                        id={id}
+                        name={name}
                         required={required}
                     ></Input>
                 </>
