@@ -28,10 +28,12 @@ const auth = require("./src/auth-users/controller_auth");
 const user = require("./src/peserta-didik/controller_peserta");
 const profilSekolah = require("./src/profil-sekolah/controller_sekolah");
 const guru = require("./src/guru/controller_guru");
+const tahun_ajaran = require("./src/tahun-ajaran/controller_tahun_ajaran")
 
 app.use("/", auth);
 app.use("/profil-sekolah", profilSekolah);
 app.use("/guru", guru);
+app.use("/tahun-ajaran", tahun_ajaran)
 app.use("/", verifyToken, user);
 
 app.use((err, req, res, next) => {

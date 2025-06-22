@@ -11,6 +11,20 @@ enum Role {
   Operator
 }
 
+
+enum JenisKelamin {
+  LakiLaki @map("Laki-Laki")
+  Perempuan 
+}
+
+enum Agama {
+  Islam
+  Kristen
+  Hindu
+  Buddha
+  Konghucu
+}
+
 enum Kelas {
   kelompokA @map("Kelompok A")
   kelompokB @map("Kelompok B")
@@ -43,8 +57,61 @@ model ProfilSekolah {
 }
 
 model Guru {
-  id_guru String @id @default(cuid())
-  nama_guru String @db.VarChar(25)
-  NSIP String @db.VarChar(25)
-  nama_kelas Kelas @default(kelompokA)
+  id_guru         String @id @default(cuid())
+  nama_guru       String @db.VarChar(25)
+  NSIP            String @db.VarChar(25)
+  nama_kelas      Kelas @default(kelompokA)
+  rekapNilai      RekapNilai[]  // relasi many ke RekapNila
+}
+
+model PesertaDidik {
+  id_peserta_didik            String        @id
+  nama_lengkap                String        @db.VarChar(50)
+  nama_panggilan              String?       @db.VarChar(50)
+  nis                         String?       @db.VarChar(50)
+  nisn                        String?       @db.VarChar(50)
+  tempat_lahir                String?       @db.VarChar(50)
+  tanggal_lahir               DateTime?       
+  jenis_kelamin               JenisKelamin  @default(LakiLaki)
+  agama                       Agama         @default(Islam)
+  anakKe                      Int?         
+  nama_ayah                   String?       @db.VarChar(50)
+  nama_ibu                    String?       @db.VarChar(50)
+  nama_wali                   String?       @db.VarChar(50)
+  pekerjaanAyah               String?       @db.VarChar(20)
+  pekerjaanIbu                String?       @db.VarChar(20)
+  jalan                       String?       @db.VarChar(50)
+  desa_atau_kelurahan         String?       @db.VarChar(50)
+  kecamatan                   String?       @db.VarChar(50)
+  kabupaten                   String?       @db.VarChar(50)
+  provinsi                    String?       @db.VarChar(50)
+
+  rekapNilai      RekapNilai[] 
+}
+
+
+model TahunAjaran {
+  id_tahun_ajaran   String      @id  @db.VarChar(25)
+  tahun_ajaran      String      @unique
+  semester       Semester[] // relasi one-to-many
+  rekapNilai      RekapNilai[] // relasi one-to-many ke RekapNilai
+}
+
+model Semester {
+  id_semester    String      @id @default(uuid())
+  nama           String
+  tahunAjaranId  String
+  tahunAjaran    TahunAjaran @relation(fields: [tahunAjaranId], references: [id_tahun_ajaran], onDelete: Cascade, onUpdate: Cascade)
+  @@unique([nama, tahunAjaranId])
+}
+
+model RekapNilai {
+  id_rekap_nilai             String           @id
+  pesertaDidikId             String
+  tahunAjaranId              String
+  guruId                     String
+
+  pesertaDidik   PesertaDidik   @relation(fields: [pesertaDidikId], references: [id_peserta_didik])
+  tahunAjaran    TahunAjaran    @relation(fields: [tahunAjaranId], references: [id_tahun_ajaran])
+  guru           Guru           @relation(fields: [guruId], references: [id_guru])
 }
