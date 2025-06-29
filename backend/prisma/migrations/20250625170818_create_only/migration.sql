@@ -66,6 +66,7 @@ CREATE TABLE `PesertaDidik` (
     `kabupaten` VARCHAR(50) NULL,
     `provinsi` VARCHAR(50) NULL,
 
+    UNIQUE INDEX `PesertaDidik_nis_key`(`nis`),
     PRIMARY KEY (`id_peserta_didik`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -94,18 +95,71 @@ CREATE TABLE `RekapNilai` (
     `pesertaDidikId` VARCHAR(191) NOT NULL,
     `tahunAjaranId` VARCHAR(191) NOT NULL,
     `guruId` VARCHAR(191) NOT NULL,
+    `semesterId` VARCHAR(191) NOT NULL,
 
+    UNIQUE INDEX `RekapNilai_pesertaDidikId_semesterId_key`(`pesertaDidikId`, `semesterId`),
     PRIMARY KEY (`id_rekap_nilai`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
-ALTER TABLE `Semester` ADD CONSTRAINT `Semester_tahunAjaranId_fkey` FOREIGN KEY (`tahunAjaranId`) REFERENCES `TahunAjaran`(`id_tahun_ajaran`) ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateTable
+CREATE TABLE `Kategori` (
+    `id_kategori` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama_kategori` VARCHAR(50) NOT NULL,
+
+    PRIMARY KEY (`id_kategori`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SubKategori` (
+    `id_sub_kategori` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama_sub_kategori` VARCHAR(100) NOT NULL,
+    `kategoriId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id_sub_kategori`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Indikator` (
+    `id_indikator` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama_indikator` VARCHAR(191) NOT NULL,
+    `subKategoriId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id_indikator`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Penilaian` (
+    `id_penilaian` VARCHAR(191) NOT NULL,
+    `nilai` ENUM('B', 'C', 'P') NOT NULL DEFAULT 'B',
+    `rekapNilaiId` VARCHAR(191) NOT NULL,
+    `indikatorId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id_penilaian`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `RekapNilai` ADD CONSTRAINT `RekapNilai_pesertaDidikId_fkey` FOREIGN KEY (`pesertaDidikId`) REFERENCES `PesertaDidik`(`id_peserta_didik`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Semester` ADD CONSTRAINT `Semester_tahunAjaranId_fkey` FOREIGN KEY (`tahunAjaranId`) REFERENCES `TahunAjaran`(`id_tahun_ajaran`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `RekapNilai` ADD CONSTRAINT `RekapNilai_pesertaDidikId_fkey` FOREIGN KEY (`pesertaDidikId`) REFERENCES `PesertaDidik`(`id_peserta_didik`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `RekapNilai` ADD CONSTRAINT `RekapNilai_tahunAjaranId_fkey` FOREIGN KEY (`tahunAjaranId`) REFERENCES `TahunAjaran`(`id_tahun_ajaran`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `RekapNilai` ADD CONSTRAINT `RekapNilai_semesterId_fkey` FOREIGN KEY (`semesterId`) REFERENCES `Semester`(`id_semester`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `RekapNilai` ADD CONSTRAINT `RekapNilai_guruId_fkey` FOREIGN KEY (`guruId`) REFERENCES `Guru`(`id_guru`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SubKategori` ADD CONSTRAINT `SubKategori_kategoriId_fkey` FOREIGN KEY (`kategoriId`) REFERENCES `Kategori`(`id_kategori`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Indikator` ADD CONSTRAINT `Indikator_subKategoriId_fkey` FOREIGN KEY (`subKategoriId`) REFERENCES `SubKategori`(`id_sub_kategori`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Penilaian` ADD CONSTRAINT `Penilaian_indikatorId_fkey` FOREIGN KEY (`indikatorId`) REFERENCES `Indikator`(`id_indikator`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Penilaian` ADD CONSTRAINT `Penilaian_rekapNilaiId_fkey` FOREIGN KEY (`rekapNilaiId`) REFERENCES `RekapNilai`(`id_rekap_nilai`) ON DELETE RESTRICT ON UPDATE CASCADE;

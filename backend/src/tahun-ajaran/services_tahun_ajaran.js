@@ -1,4 +1,4 @@
-const { findManyTahun, insertDataTahun, deleteDataTahun } = require("./repository_tahun_ajaran");
+const { findManyTahun, insertDataTahun, deleteDataTahun, updateDataTahun } = require("./repository_tahun_ajaran");
 const throwWithStatus = require("../utils/throwWithStatus");
 const { validatorField, isValidTahunAjaran } = require("../utils/validator");
 
@@ -35,8 +35,21 @@ const removeTahun = async (id)=> {
     }
 }
 
+const updateTahunAjaran = async (data, id)=> {
+    const { tahun_ajaran } = data;
+    if (tahun_ajaran) {
+        validatorField({
+            tahun_ajaran,
+        });
+        isValidTahunAjaran(tahun_ajaran);
+        return await updateDataTahun(data, id);
+    }
+    throwWithStatus("kesalahan server", 500)
+}
+
 module.exports = {
     displayTahun,
     addDataTahun,
-    removeTahun
+    removeTahun,
+    updateTahunAjaran
 };

@@ -56,7 +56,23 @@ const validateUpdatePayload = (newData, existingData) => {
 
     // 3. Cek apakah ada yang berubah
     const hasChanged = Object.keys(newData).some((key) => {
-        return newData[key] !== existingData[key];
+        const newValue = newData[key];
+        const oldValue = existingData[key];
+
+        // Handle khusus untuk tanggal (bandingkan dalam format ISO string)
+        if (key === "tanggal_lahir") {
+            const oldDate =
+                oldValue instanceof Date
+                    ? oldValue.toISOString().split("T")[0]
+                    : oldValue;
+            return newValue !== oldDate;
+        }
+
+        // Handle null/undefined
+        if (newValue == null && oldValue == null) return false;
+
+        // Bandingkan nilai secara normal
+        return newValue != oldValue;
     });
 
     if (!hasChanged) {
@@ -85,11 +101,26 @@ function isValidTahunAjaran(tahun) {
     }
 }
 
+const sanitizeData = (data) => {
+    const sanitized = {};
+
+    for (const key in data) {
+        if (typeof data[key] === "string" && data[key].trim().length === 0) {
+            sanitized[key] = null;
+        } else {
+            sanitized[key] = data[key];
+        }
+    }
+
+    return sanitized;
+};
+
 module.exports = {
     validateEmail,
     validateNumbers,
     validatePhoneNumber,
     validatorField,
     validateUpdatePayload,
-    isValidTahunAjaran
+    isValidTahunAjaran,
+    sanitizeData,
 };

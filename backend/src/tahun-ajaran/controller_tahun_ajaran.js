@@ -3,6 +3,7 @@ const {
     displayTahun,
     addDataTahun,
     removeTahun,
+    updateTahunAjaran
 } = require("./services_tahun_ajaran");
 
 router.get("/", async (req, res, next) => {
@@ -42,5 +43,19 @@ router.delete("/hapus-tahun-ajaran/:id", async (req, res, next) => {
         next(error);
     }
 });
+
+router.patch("/update-tahun-ajaran/:id", async(req,res,next)=>{
+    try {
+        await updateTahunAjaran(req.body, req.params.id)
+        res.json({
+            success: true,
+            message: 'data berhasil di update'
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+
 
 module.exports = router;

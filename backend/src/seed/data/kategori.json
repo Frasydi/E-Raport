@@ -1,0 +1,195 @@
+[
+    {
+        "nama_kategori": "Nilai Nilai Agama dan Moral",
+        "sub_kategori": [
+            {
+                "nama": "Nilai Nilai Agama dan Moral",
+                "indikator": [
+                    "Mengetahui Agama yang dianutnya",
+                    "Meniru gerakan beribadah dengan urutan yang benar",
+                    "Mengucapkan doa sebelum dan/atau sesudah melalukan sesuatu",
+                    "Mengenai perilaku baik/sopan dan buruk",
+                    "Membiasakan diri berperilaku baik",
+                    "Mengucapkan salam dan membalas salam"
+                ]
+            }
+        ]
+    },
+    {
+        "nama_kategori": "Fisik Motorik",
+        "sub_kategori": [
+            {
+                "nama": "Motorik Kasar",
+                "indikator": [
+                    "Menirukan gerakan binatang, pohon tertiup angin, pesawat terbang, dsb",
+                    "Melakukan gerakan menggantung (bergelayut)",
+                    "Melakukan gerakan melompat, meloncat, dan berlari secara terkoordinasi",
+                    "Melempar sesuatu secara terarah",
+                    "Menangkap sesuatu secara tepat",
+                    "Melakukan gerakan antisipasi",
+                    "Menendang sesuatu secara terarah",
+                    "Memanfaatkan alat permainan di luar kelas"
+                ]
+            },
+            {
+                "nama": "Motorik Halus",
+                "indikator": [
+                    "Membuat garis vertikal, horizontal, lengkung kiri/kanan, miring kiri/kanan, dan lingkaran",
+                    "Menjiplak bentuk",
+                    "Mengkoordinasikan mata dan tangan untuk melakukan gerakan yang rumit",
+                    "Melakukan gerakan manipulatif untuk menghasilkan suatu bentuk dengan menggunakan berbagai media",
+                    "Mengekspresikan diri dengan berkarya seni menggunakan berbagai media",
+                    "Mengkoordinasikan mata dan tangan untuk melakukan gerakan yang rumit"
+                ]
+            },
+            {
+                "nama": "Kesehatan dan Perilaku Keselamatan",
+                "indikator": [
+                    "Berat badan sesuai tingkat usia",
+                    "Tinggi badan sesusai tingkat usia",
+                    "Berat badan sesuai dengan standar tinggi badan",
+                    "Lingkar kepala sesuai tingkat usia",
+                    "Menggunakan toilet(penggunaan air, membersihkan diri) dengan bantuan minimal",
+                    "Memahami berbagai alarm bahaya (kebakaran, banjir, gempa)",
+                    "Mengenal rambu lalu lintas yang ada di jalan)"
+                ]
+            }
+        ]
+    },
+    {
+        "nama_kategori": "Kognitif",
+        "sub_kategori": [
+            {
+                "nama": "Belajar dan Pemecahan Masalah",
+                "indikator": [
+                    "Mengenal benda berdasarkan fungsi (pisau untuk memotong, pensil untuk menulis)",
+                    "Menggunakan benda-benda sebagai permainan simbolik (kursi sebagai mobil)",
+                    "Mengenal konsep sederhana dalam kehidupan sehari-hari (gerimis, hujan, gelap, terang, temaram, dsb)",
+                    "Mengetahui konsep banyak dan sedikit",
+                    "Mengkreasikan sesuatu sesuai dengan idenya sendiri yang terkait dengan berbagai pemecahan masalah",
+                    "Mengamati benda dan gejala dengan rasa ingin tahu",
+                    "Mengenal pola kegiatan dan menyadari pentingnya waktu",
+                    "Memahami posisi/kedudukan dalam keluarga, ruang, lingkungan sosial (misal: sebagai peserta didik/anak/teman)"
+                ]
+            },
+            {
+                "nama": "Berpikir Logis",
+                "indikator": [
+                    "Mengklasifikasikan benda berdasarkan fungsi, bentuk atau warna atau ukuran",
+                    "Mengenal gejala sebab-akibat yang terkait dengan dirinya",
+                    "Mengklasifikasikan benda ke dalam kelompok yang sama atau kelompok yang sejenis atau kelompok yang berpasangan dengan 2 variasi",
+                    "Mengenal pola (misal, AB-AB dan ABC-ABC) dan mengulanginya",
+                    "Mengurutkan benda berdasarkan 5 seriasi ukuran atau warna"
+                ]
+            },
+            {
+                "nama": "Berpikir Simbolik",
+                "indikator": [
+                    "Membilang banyak benda satu sampai sepuluh",
+                    "Mengenal konsep bilangan",
+                    "Mengenal lambang bilangan",
+                    "Mengenal lambang huruf"
+                ]
+            }
+        ]
+    },
+    {
+        "nama_kategori": "Bahasa",
+        "sub_kategori": [
+            {
+                "nama": "Memahami Bahasa",
+                "indikator": [
+                    "Menyimak perkataan orang lain (bahasa ibu atau bahasa lainnya)",
+                    "Mengerti dua perintah yang diberikan bersamaan",
+                    "Memahami cerita yang dibacakan",
+                    "Mengenal perbendaharaan kata mengenai kata sifat (nakal, pelit, baik hati, berani, baik, jelek, dsb)",
+                    "Mendengar dan membedakan bunyi- bunyian dalam  Bahasa Indonesia (contoh, bunyi dan ucapan harus sama)"
+                ]
+            },
+            {
+                "nama": "Mengungkapkan Bahasa",
+                "indikator": [
+                    "Mengulang kalimat sederhana",
+                    "Bertanya dengan kalimat yang benar",
+                    "Menjawab pertanyaan sesuai pertanyaan",
+                    "Mengungkapkan perasaan dengan kata sifat (baik, senang, nakal, pelit, baik hati, berani, baik, jelek, dsb)",
+                    "Menyebutkan kata-kata yang dikenal",
+                    "Mengutarakan pendapat kepada orang lain",
+                    "Menyatakan alasan terhadap sesuatu yang diinginkan atau ketidaksetujuan",
+                    "Menceritakan kembali cerita/dongeng yang pernah didengar",
+                    "Memperkaya perbendaharaan kata",
+                    "Berpartisipasi dalam percakapan"
+                ]
+            },
+            {
+                "nama": "Keaksaraan",
+                "indikator": [
+                    "Mengenal simbol-simbol",
+                    "Mengenal suara–suara hewan/benda yang ada di sekitarnya",
+                    "Membuat coretan yang bermakna",
+                    "Meniru (menuliskan dan mengucapkan) huruf A-Z"
+                ]
+            }
+        ]
+    },
+    {
+        "nama_kategori": "Sosial Emosional",
+        "sub_kategori": [
+            {
+                "nama": "kesadaran Diri",
+                "indikator": [
+                    "Menunjukkan sikap mandiri dalam memilih kegiatan",
+                    "Mengendalikan perasaan",
+                    "Menunjukkan rasa percaya diri",
+                    "Memahami peraturan dan disiplin",
+                    "Memiliki sikap gigih (tidak mudah menyerah)",
+                    "Bangga terhadap hasil karya sendiri"
+                ]
+            },
+            {
+                "nama": "Rasa Tanggung Jawab Diri Sendiri dan Orang Lain",
+                "indikator": [
+                    "Menjaga diri sendiri dari lingkungannya",
+                    "Menghargai keunggulan orang lain",
+                    "Mau berbagi, menolong, dan membantu teman"
+                ]
+            },
+            {
+                "nama": "Perilaku Prososial",
+                "indikator": [
+                    "Menunjukan antusiasme dalam melakukan permainan kompetitif secara positif",
+                    "Menaati aturan yang berlaku dalam suatu permainan",
+                    "Menghargai orang lain",
+                    "Menunjukkan rasa empati"
+                ]
+            }
+        ]
+    },
+    {
+        "nama_kategori": "Seni",
+        "sub_kategori": [
+            {
+                "nama": "Anak Mampu Menikmati Berbagai Alunan Lagu atau Suara",
+                "indikator": [
+                    "Senang mendengarkan berbagai macam musik atau lagu kesukaannya",
+                    "Memainkan alat musik/instrumen/benda yang dapat membentuk irama yang teratur"
+                ]
+            },
+            {
+                "nama": "Tertarik dengan Kegiatan Seni",
+                "indikator": [
+                    "Memilih jenis lagu yang disukai",
+                    "Bernyanyi sendiri",
+                    "Menggunakan imajinasi untuk mencerminkan perasaan dalam sebuah peran",
+                    "Membedakan peran fantasi dan kenyataan",
+                    "Menggunakan dialog, perilaku, dan berbagai materi dalam menceritakan suatu cerita",
+                    "Mengekspresikan  gerakan dengan irama yang bervariasi",
+                    "Menggambar objek di sekitarnya",
+                    "Membentuk berdasarkan objek yang dilihatnya (mis. dengan plastisin, tanah liat)",
+                    "Mendeskripsikan sesuatu (seperti binatang) dengan ekspresif yang berirama (contoh, anak menceritakan gajah dengan gerak dan mimik tertentu)",
+                    "Mengkombinasikan berbagai warna ketika menggambar atau mewarnai"
+                ]
+            }
+        ]
+    }
+]

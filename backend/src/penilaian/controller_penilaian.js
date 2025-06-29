@@ -1,0 +1,98 @@
+const router = require("express").Router();
+const {
+    displayPesertaDidikByTahunSemester,
+    postPenilaian,
+    displayKategori,
+    displaySubKategori,
+    displayIndikator,
+    updateNilai
+} = require("./services_penilaian");
+router.get("/", async (req, res, next) => {
+    const { tahunAjaranId, semester } = req.query;
+    try {
+        const response = await displayPesertaDidikByTahunSemester(
+            tahunAjaranId,
+            semester
+        );
+        res.json({
+            data: response,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/:id_rekap_nilai", async (req, res, next) => {
+    try {
+        const response = await displayKategori(req.params.id_rekap_nilai);
+        res.json({
+            data: response,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get("/:id_rekap_nilai/:id_kategori", async (req, res, next) => {
+    try {
+        const { id_rekap_nilai, id_kategori } = req.params;
+        const response = await displaySubKategori(
+            id_rekap_nilai,
+            Number(id_kategori)
+        );
+        res.json({
+            success: true,
+            data: response,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get(
+    "/:id_rekap_nilai/:id_kategori/:id_sub_kategori",
+    async (req, res, next) => {
+        try {
+            const { id_rekap_nilai, id_kategori, id_sub_kategori } = req.params;
+            const response = await displayIndikator(
+                id_rekap_nilai,
+                Number(id_kategori),
+                Number(id_sub_kategori)
+            );
+            res.json({
+                success: true,
+                data: response,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+router.post("/tambah-penilaian/:id_rekap_niai", async (req, res, next) => {
+    const { id_rekap_niai } = req.params;
+    try {
+        await postPenilaian(id_rekap_niai);
+        res.json({
+            success: true,
+            message: "data berhasil di tambahkan",
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.patch("/update-nilai/:id_rekap_nilai/:id_sub_kategori", async(req,res,next)=> {
+    const {id_rekap_nilai, id_sub_kategori} = req.params
+    const {nilai_list} = req.body
+    try {
+        await updateNilai(id_rekap_nilai,id_sub_kategori, nilai_list)
+        res.json({
+            success: true,
+            message: 'data berhasil di update'
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+module.exports = router;

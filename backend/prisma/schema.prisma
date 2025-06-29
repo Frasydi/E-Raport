@@ -30,6 +30,12 @@ enum Kelas {
   kelompokB @map("Kelompok B")
 }
 
+enum Nilai {
+  B
+  C
+  P
+}
+
 model Users {
     id  String @id @default(cuid())
     username String
@@ -68,7 +74,7 @@ model PesertaDidik {
   id_peserta_didik            String        @id
   nama_lengkap                String        @db.VarChar(50)
   nama_panggilan              String?       @db.VarChar(50)
-  nis                         String?       @db.VarChar(50)
+  nis                         String?       @unique @db.VarChar(50)
   nisn                        String?       @db.VarChar(50)
   tempat_lahir                String?       @db.VarChar(50)
   tanggal_lahir               DateTime?       
@@ -93,15 +99,16 @@ model PesertaDidik {
 model TahunAjaran {
   id_tahun_ajaran   String      @id  @db.VarChar(25)
   tahun_ajaran      String      @unique
-  semester       Semester[] // relasi one-to-many
-  rekapNilai      RekapNilai[] // relasi one-to-many ke RekapNilai
+  semester          Semester[] // relasi one-to-many
+  rekapNilai        RekapNilai[] // relasi one-to-many ke RekapNilai
 }
 
 model Semester {
-  id_semester    String      @id @default(uuid())
-  nama           String
-  tahunAjaranId  String
-  tahunAjaran    TahunAjaran @relation(fields: [tahunAjaranId], references: [id_tahun_ajaran], onDelete: Cascade, onUpdate: Cascade)
+  id_semester      String      @id @default(uuid())
+  nama            String
+  tahunAjaranId   String
+  tahunAjaran     TahunAjaran @relation(fields: [tahunAjaranId], references: [id_tahun_ajaran], onDelete: Cascade, onUpdate: Cascade)
+  rekapNilai      RekapNilai[]
   @@unique([nama, tahunAjaranId])
 }
 
@@ -110,8 +117,44 @@ model RekapNilai {
   pesertaDidikId             String
   tahunAjaranId              String
   guruId                     String
+  semesterId                 String
+  
+  pesertaDidik               PesertaDidik   @relation(fields: [pesertaDidikId], references: [id_peserta_didik], onDelete: Cascade, onUpdate: Cascade)
+  tahunAjaran                TahunAjaran    @relation(fields: [tahunAjaranId], references: [id_tahun_ajaran], onDelete: Restrict, onUpdate: Cascade)
+  semester                   Semester     @relation(fields: [semesterId], references: [id_semester], onDelete: Cascade, onUpdate: Cascade)
+  guru                       Guru           @relation(fields: [guruId], references: [id_guru], onDelete: Restrict, onUpdate: Cascade)
 
-  pesertaDidik   PesertaDidik   @relation(fields: [pesertaDidikId], references: [id_peserta_didik])
-  tahunAjaran    TahunAjaran    @relation(fields: [tahunAjaranId], references: [id_tahun_ajaran])
-  guru           Guru           @relation(fields: [guruId], references: [id_guru])
+  penilaian     Penilaian[]
+  @@unique([pesertaDidikId, semesterId])
+}
+
+model Kategori {
+  id_kategori     Int  @id  @default(autoincrement())
+  nama_kategori   String   @db.VarChar(50)
+  subKategori     SubKategori[]
+}
+
+model SubKategori {
+  id_sub_kategori     Int  @id  @default(autoincrement())
+  nama_sub_kategori   String  @db.VarChar(100)
+  kategoriId          Int 
+  kategori            Kategori @relation(fields: [kategoriId], references: [id_kategori], onDelete: Cascade, onUpdate: Cascade)
+  indikator           Indikator[]
+}
+
+model Indikator {
+  id_indikator        Int @id @default(autoincrement())
+  nama_indikator      String
+  subKategoriId       Int
+  subKategori         SubKategori  @relation(fields: [subKategoriId], references: [id_sub_kategori], onDelete: Cascade, onUpdate: Cascade)
+  penilaian           Penilaian[]
+}
+
+model Penilaian {
+  id_penilaian  String @id
+  nilai         Nilai?
+  rekapNilaiId  String
+  indikatorId   Int
+  indikator     Indikator @relation(fields: [indikatorId], references: [id_indikator])
+  rekapNilai    RekapNilai @relation(fields: [rekapNilaiId], references: [id_rekap_nilai])
 }

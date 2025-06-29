@@ -15,15 +15,15 @@ const findManyTahun = async () => {
                         nama: true,
                     },
                     orderBy: {
-                        nama:'asc'
-                    }
+                        nama: "asc",
+                    },
                 },
             },
         });
 
         // Bersihkan hasil jika ingin pakai format custom
         const formatted = data.map((item) => ({
-            id: item.id,
+            id_tahun_ajaran: item.id_tahun_ajaran,
             tahun_ajaran: item.tahun_ajaran,
             semester: item.semester.map((s) => s.nama), // hanya ambil nama semester
         }));
@@ -82,16 +82,41 @@ const deleteDataTahun = async (id) => {
     try {
         return await prisma.tahunAjaran.delete({
             where: {
-                id_tahun_ajaran: id
-            }
-        })
+                id_tahun_ajaran: id,
+            },
+        });
     } catch (error) {
-        throwWithStatus(errorPrisma(error), 404)
+        throwWithStatus(errorPrisma(error), 404);
     }
-}
+};
+
+const updateDataTahun = async (data, id) => {
+    const existing = await prisma.tahunAjaran.findUnique({
+        where: { id_tahun_ajaran: id },
+    });
+    const same = await prisma.tahunAjaran.findFirst({
+        where: {
+            tahun_ajaran: data.tahun_ajaran,
+        },
+    });
+    validateUpdatePayload(data, existing);
+    if (same) {
+        throwWithStatus("data ini sudah ada di tabel", 409);
+    }
+    try {
+        const response = await prisma.tahunAjaran.update({
+            where: { id_tahun_ajaran: id },
+            data,
+        });
+        return response;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error), 404);
+    }
+};
 
 module.exports = {
     findManyTahun,
     insertDataTahun,
     deleteDataTahun,
+    updateDataTahun
 };

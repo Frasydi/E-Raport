@@ -15,10 +15,29 @@ function errorPrisma(error) {
         return "Ada field yang wajib tapi belum diisi.";
     }
 
-    if (message.includes("Unique constraint failed")) {
-        return "Data sudah ada, tidak boleh duplikat.";
+     if (message.includes("Unique constraint failed")) {
+        // Handle both old and new Prisma error formats
+        const matchFields = message.match(/Unique constraint failed on the fields: \(`([^`]+)`\)/);
+        const matchConstraint = message.match(/Unique constraint failed on the constraint: `(\w+)`/);
+        
+        if (matchFields) {
+            const field = matchFields[1];
+            return `Data dengan ${field} yang sama sudah ada. Tidak boleh duplikat.`;
+        } else if (matchConstraint) {
+            // Extract field name from constraint name (assuming standard naming)
+            const constraintName = matchConstraint[1];
+            const fieldMatch = constraintName.match(/PesertaDidik_(\w+)_key/);
+            const field = fieldMatch ? fieldMatch[1] : "data tertentu";
+            return `Data dengan ${field} yang sama sudah ada. Tidak boleh duplikat.`;
+        } else {
+            return "Data yang sama sudah ada. Tidak boleh duplikat.";
+        }
     }
 
+
+    if (message.includes("Foreign key constraint failed")) {
+        return "Data tidak dapat dihapus karena masih digunakan di tabel lain.";
+    }
     return message.split("\n")[0];
 }
 
