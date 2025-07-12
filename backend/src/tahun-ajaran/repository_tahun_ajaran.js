@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const findManyTahun = async () => {
     try {
         const data = await prisma.tahunAjaran.findMany({
-            orderBy: { tahun_ajaran: "asc" },
+            orderBy: { tahun_ajaran: "desc" },
             include: {
                 semester: {
                     select: {

@@ -33,7 +33,6 @@ function App() {
                 element={<PesertaDidik />}
             ></Route>
             <Route path="/menu/guru-kelas" element={<GuruKelas />}></Route>
-            <Route path="/menu/guru-kelas" element={<GuruKelas />}></Route>
             <Route path="/menu/penilaian" element={<Penilaian />}>
                 <Route
                     path="kategori-penilaian"

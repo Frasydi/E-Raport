@@ -1,6 +1,8 @@
-const ErrorMessage = ({error}) => {
+import { forwardRef } from "react";
+const ErrorMessage = forwardRef(({error}, ref) => {
+    if(!error) return null
     return (
-        <div className="bg-red-50 border-l-4 border-red-500 text-red-700  sm:p-4 mb-4 sm:mb-6 rounded-lg animate-fade-in">
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700  sm:p-4 mb-4 sm:mb-6 rounded-lg animate-fade-in" ref={ref} tabIndex={-1}>
             <div className="flex items-center">
                 <svg
                     className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
@@ -17,6 +19,6 @@ const ErrorMessage = ({error}) => {
             </div>
         </div>
     );
-};
+});
 
 export default ErrorMessage;

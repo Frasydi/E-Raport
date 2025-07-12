@@ -40,10 +40,10 @@ const Penilaian = () => {
                                 pathname: `/menu/penilaian/kategori-penilaian`,
                             }}
                         >
-                            <CardProfil
+                            {/*<CardProfil
                                 titik_tiga={false}
                                 hover={"hover:brightness-75"}
-                            ></CardProfil>
+                            ></CardProfil>*/}
                         </Link>
                     </div>
                 </Container>

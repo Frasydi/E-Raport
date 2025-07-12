@@ -9,6 +9,15 @@ input[type="search"]::-webkit-search-cancel-button:hover {
     cursor: pointer;
 }
 
+html, body {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.95; }
+  to { opacity: 1; }
+}
+
 @theme {
     --font-poppins: Poppins, sans-serif;
 }

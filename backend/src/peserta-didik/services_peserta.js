@@ -3,7 +3,7 @@ const {
     findManyDataPesertaDidik,
     findByTahunAjaran,
     updatePesertaDidik,
-    deleteDataById
+    deleteDataById,
 } = require("./repository_peserta");
 const {
     validatorField,
@@ -11,6 +11,7 @@ const {
     sanitizeData,
 } = require("../utils/validator");
 const throwWithStatus = require("../utils/throwWithStatus");
+const { pesertaDidik } = require("../../prisma/prismaClient");
 
 const displayDataPesertaDidik = async () => {
     try {
@@ -74,7 +75,7 @@ const addDataPesertaDidik = async (data) => {
             guruId,
             ...dataValidator,
         });
-        // mengubah data kosong menjadi null
+        
         const cleaned = sanitizeData(pesertaDidik);
         if (cleaned.jenis_kelamin) {
             cleaned.jenis_kelamin = cleaned.jenis_kelamin.replace(/-/g, "");
@@ -105,55 +106,78 @@ const displayByTahunAjaran = async (tahunAjaranId) => {
         if (!response || response.length == 0) {
             throwWithStatus("data peserta didik di tahun ini belum ada", 404);
         }
-        return response;
+        const modifiedResponse = response.map((item) => {
+            // Ubah jenis_kelamin dari "LakiLaki" menjadi "Laki-Laki"
+            if (
+                item.pesertaDidik &&
+                item.pesertaDidik.jenis_kelamin === "LakiLaki"
+            ) {
+                item.pesertaDidik.jenis_kelamin = "Laki-Laki";
+            }
+
+            // Ubah format tanggal_lahir
+            if (item.pesertaDidik && item.pesertaDidik.tanggal_lahir) {
+                const date = new Date(item.pesertaDidik.tanggal_lahir);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                item.pesertaDidik.tanggal_lahir = `${year}-${month}-${day}`;
+            }
+
+            return item;
+        });
+
+        return modifiedResponse;
     } catch (error) {
         throw error;
     }
 };
 
-const updateData = async (data, id) => {
+const updateData = async (data, id_peserta_didik, id_tahun_ajaran) => {
     const dataValidator = {
-        nama_lengkap: data.nama_lengkap,
-        nis: data.nis,
+        nama_lengkap: data.pesertaDidik.nama_lengkap,
+        nis: data.pesertaDidik.nis,
     };
-    validatorField({
-        ...dataValidator,
-    });
-
+    validatorField(dataValidator);
     try {
-        const cleaned = sanitizeData(data);
+        const cleaned = sanitizeData(data.pesertaDidik);
         if (cleaned.jenis_kelamin) {
             cleaned.jenis_kelamin = cleaned.jenis_kelamin.replace(/-/g, "");
         }
-        if (data.nis) {
+        if (data.pesertaDidik.nis) {
             validateNumbers({
-                nis: data.nis,
+                nis: data.pesertaDidik.nis,
             });
         }
-        if (data.nisn) {
+        if (data.pesertaDidik.nisn) {
             validateNumbers({
-                nisn: data.nisn,
+                nisn: data.pesertaDidik.nisn,
             });
         }
-
-        return await updatePesertaDidik(cleaned, id)
+        return await updatePesertaDidik({
+            tahunAjaranId: data.tahunAjaranId,
+            guruId: data.guruId,
+            pesertaDidik: {...cleaned}
+        }, id_peserta_didik, id_tahun_ajaran);
     } catch (error) {
-        console.log(error)
         throw error;
     }
 };
 
-const deleteDataPeserta = async(id)=> {
+const deleteDataPeserta = async (id_peserta_didik, id_tahun_ajaran) => {
     try {
-        return await deleteDataById(id)        
+        if(!id_peserta_didik || !id_tahun_ajaran) {
+            throwWithStatus('not found', 404)
+        }
+        return await deleteDataById(id_peserta_didik, id_tahun_ajaran);
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};
 module.exports = {
     addDataPesertaDidik,
     displayDataPesertaDidik,
     displayByTahunAjaran,
     updateData,
-    deleteDataPeserta
+    deleteDataPeserta,
 };

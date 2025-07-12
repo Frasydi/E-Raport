@@ -33,22 +33,50 @@ const getSemester = async (tahunAjaranId) => {
     }
 };
 
-// Fungsi untuk menyisipkan data peserta didik dan rekap nilai
 const insertDataPesertaDidik = async (data) => {
     const { tahunAjaranId, guruId, pesertaDidik } = data;
+
     try {
         const semesterId = await getSemester(tahunAjaranId);
-        const id = `PD-${uuidv4().split("-")[0]}`;
+
+        const peserta_didik = await prisma.rekapNilai.findFirst({
+            where: {
+                pesertaDidik: {
+                    nis: pesertaDidik.nis,
+                    nama_lengkap: pesertaDidik.nama_lengkap,
+                },
+            },
+            include: {
+                pesertaDidik: true,
+            },
+        });
+
         if (pesertaDidik.tanggal_lahir) {
             pesertaDidik.tanggal_lahir = new Date(pesertaDidik.tanggal_lahir);
         }
-        const created = await prisma.$transaction(async (tx) => {
-            const peserta = await tx.pesertaDidik.create({
-                data: {
-                    id_peserta_didik: id,
-                    ...pesertaDidik,
-                },
-            });
+
+        return await prisma.$transaction(async (tx) => {
+            let peserta;
+
+            if (peserta_didik) {
+                if (tahunAjaranId === peserta_didik.tahunAjaranId) {
+                    // NIS sama & tahun ajaran sama → error
+                    throw new Error(
+                        "peserta didik pada tahun ajaran ini sudah ada"
+                    );
+                } else {
+                    // NIS sama & tahun ajaran berbeda → pakai peserta lama
+                    peserta = peserta_didik.pesertaDidik;
+                }
+            } else {
+                // NIS belum ada sama sekali → buat pesertaDidik baru
+                peserta = await tx.pesertaDidik.create({
+                    data: {
+                        id_peserta_didik: `PD-${uuidv4().split("-")[0]}`,
+                        ...pesertaDidik,
+                    },
+                });
+            }
 
             const rekap1 = await tx.rekapNilai.create({
                 data: {
@@ -72,7 +100,6 @@ const insertDataPesertaDidik = async (data) => {
 
             return { peserta, rekap1, rekap2 };
         });
-        return created;
     } catch (error) {
         throwWithStatus(errorPrisma(error));
     }
@@ -98,7 +125,9 @@ const findByTahunAjaran = async (tahunAjaranId) => {
                 tahunAjaranId: tahunAjaranId,
             },
             include: {
+                tahunAjaran: true,
                 pesertaDidik: true,
+                guru: true,
             },
             distinct: ["pesertaDidikId"], // hanya ambil satu untuk setiap pesertaDidik
         });
@@ -108,20 +137,90 @@ const findByTahunAjaran = async (tahunAjaranId) => {
     }
 };
 
-const updatePesertaDidik = async (data, id_peserta_didik) => {
-    const existing = await prisma.pesertaDidik.findUnique({
-        where: { id_peserta_didik },
+const updatePesertaDidik = async (data, id_peserta_didik, tahun_ajaran_id) => {
+    // Cari semua rekapNilai lama
+    const existing = await prisma.rekapNilai.findMany({
+        where: {
+            pesertaDidikId: id_peserta_didik,
+            tahunAjaranId: tahun_ajaran_id,
+        },
+        include: {
+            pesertaDidik: true,
+        },
     });
-    console.log(existing)
-    console.log(data)
-    validateUpdatePayload(data, existing);
+
+    if (!existing || existing.length < 2) {
+        throwWithStatus(
+            "Data rekap nilai tidak lengkap untuk peserta ini.",
+            400
+        );
+    }
+
+    const dupeCheck = await prisma.rekapNilai.findFirst({
+        where: {
+            pesertaDidik: { id_peserta_didik },
+            tahunAjaranId: data.tahunAjaranId,
+            NOT: {
+                id_rekap_nilai: { in: existing.map((x) => x.id_rekap_nilai) },
+            },
+        },
+        include: { tahunAjaran: true },
+    });
+
+    if (dupeCheck) {
+        throwWithStatus(
+            `Peserta didik ini sudah punya data pada tahun ajaran ${dupeCheck.tahunAjaran.tahun_ajaran}: harap cek`,
+            400
+        );
+    }
+
+    if (existing[0].tahunAjaranId !== data.tahunAjaranId) {
+        const semesterId = await getSemester(data.tahunAjaranId);
+
+        await prisma.$transaction([
+            prisma.rekapNilai.update({
+                where: { id_rekap_nilai: existing[0].id_rekap_nilai },
+                data: {
+                    tahunAjaranId: data.tahunAjaranId,
+                    guruId: data.guruId,
+                    semesterId: semesterId[0],
+                },
+            }),
+            prisma.rekapNilai.update({
+                where: { id_rekap_nilai: existing[1].id_rekap_nilai },
+                data: {
+                    tahunAjaranId: data.tahunAjaranId,
+                    guruId: data.guruId,
+                    semesterId: semesterId[1],
+                },
+            }),
+        ]);
+    }
+
+    console.log("existing", existing[0]);
+    const newExisting = {
+        tahunAjaranId: existing[0].tahunAjaranId,
+        guruId: existing[0].guruId,
+        ...existing[0].pesertaDidik,
+    };
+
     try {
-        if (data.tanggal_lahir) {
-            data.tanggal_lahir = new Date(data.tanggal_lahir);
+        if (data.pesertaDidik.tanggal_lahir) {
+            data.pesertaDidik.tanggal_lahir = new Date(
+                data.pesertaDidik.tanggal_lahir
+            );
         }
+
+        const newData = {
+            tahunAjaranId: data.tahunAjaranId,
+            guruId: data.guruId,
+            ...data.pesertaDidik,
+        };
+        validateUpdatePayload(newData, newExisting);
+
         const update = await prisma.pesertaDidik.update({
             where: { id_peserta_didik },
-            data,
+            data: data.pesertaDidik,
         });
         return update;
     } catch (error) {
@@ -129,54 +228,156 @@ const updatePesertaDidik = async (data, id_peserta_didik) => {
     }
 };
 
-const deleteDataById = async (id) => {
+const findPesertaDidik = async (id_peserta_didik, id_tahun_ajaran) => {
     try {
-        const existing = await prisma.pesertaDidik.findUnique({
-            where: { id_peserta_didik: id },
-        });
-        if(!existing) {
-            throwWithStatus("data tidak ditemukan", 400)
-        }
-        return await prisma.pesertaDidik.delete({
+        const response = await prisma.rekapNilai.findFirst({
             where: {
-                id_peserta_didik: id,
+                AND: [
+                    { pesertaDidikId: id_peserta_didik },
+                    { tahunAjaranId: id_tahun_ajaran },
+                ],
             },
         });
+        if (!response || response.length == 0) {
+            console.log("halo");
+            throwWithStatus("peserta didik tidak ditemukan", 404);
+        }
+        return response.id_rekap_nilai;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error), 500);
+    }
+};
+
+const deleteDataById = async (id_peserta_didik, id_tahun_ajaran) => {
+    try {
+        await findPesertaDidik(id_peserta_didik, id_tahun_ajaran);
+        await prisma.rekapNilai.deleteMany({
+            where: {
+                pesertaDidikId: id_peserta_didik,
+                tahunAjaranId: id_tahun_ajaran,
+            },
+        });
+        const existing = await prisma.rekapNilai.findFirst({
+            where: {
+                pesertaDidikId: id_peserta_didik,
+            },
+        });
+        if (!existing || existing.length == 0) {
+            await prisma.pesertaDidik.delete({
+                where: {
+                    id_peserta_didik: id_peserta_didik,
+                },
+            });
+        }
     } catch (error) {
         throwWithStatus(errorPrisma(error));
     }
 };
 
-const finByTahunSemester = async(tahunAjaranId, semester)=> {
+const finByTahunSemester = async (tahunAjaranId, semester) => {
     try {
         const response = await prisma.rekapNilai.findMany({
-            where:{
+            where: {
                 tahunAjaranId: tahunAjaranId,
-                semester:{
-                    is:{
-                        nama:semester
-                    }
-                }
+                semester: {
+                    is: {
+                        nama: semester,
+                    },
+                },
             },
             select: {
-                id_rekap_nilai:true,
+                id_rekap_nilai: true,
                 tahunAjaranId: true,
                 guruId: true,
-                semesterId:true,
-                pesertaDidik: true
-            }
-        })
+                semesterId: true,
+                pesertaDidik: true,
+            },
+        });
+        return response;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error));
+    }
+};
+
+const searchPesertaDidik = async (data) => {
+    if (!data || typeof data !== "string" || data.trim() === "") {
+        throwWithStatus("Query pencarian tidak valid", 400);
+    }
+    try {
+        const hasil = await prisma.rekapNilai.findMany({
+            where: {
+                pesertaDidik: {
+                    is: {
+                        OR: [
+                            {
+                                nama_lengkap: {
+                                    contains: data,
+                                },
+                            },
+                            {
+                                nis: {
+                                    contains: data,
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+            include: {
+                pesertaDidik: true,
+                guru: true,
+                tahunAjaran: true,
+            },
+            distinct: ["tahunAjaranId"],
+        });
+        if (hasil.length == 0) {
+            throwWithStatus("pencarian tidak ditemukan", 404);
+        }
+        return hasil;
+    } catch (error) {
+        console.log(error);
+        throwWithStatus(errorPrisma(error), 400);
+    }
+};
+
+const allPesertaDidik = async (data) => {
+    try {
+        if (!data || typeof data !== "string" || data.trim() === "") {
+            throwWithStatus("Query pencarian tidak valid", 400);
+        }
+
+        const response = await prisma.pesertaDidik.findMany({
+            where: {
+                OR: [
+                    {
+                        nama_lengkap: {
+                            contains: data,
+                        },
+                    },
+                    {
+                        nis: {
+                            contains: data,
+                        },
+                    },
+                ],
+            },
+        });
+        if (!response || response.length == 0) {
+            throwWithStatus("pencarian tidak ditemukan", 404);
+        }
         return response
     } catch (error) {
-        throwWithStatus(errorPrisma(error))
+        throwWithStatus(errorPrisma(error));
     }
-}
+};
 
 module.exports = {
     insertDataPesertaDidik,
     findManyDataPesertaDidik,
     findByTahunAjaran,
     updatePesertaDidik,
+    searchPesertaDidik,
     deleteDataById,
-    finByTahunSemester
+    finByTahunSemester,
+    allPesertaDidik
 };

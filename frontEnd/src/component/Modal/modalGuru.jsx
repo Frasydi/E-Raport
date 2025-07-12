@@ -70,7 +70,6 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
             onSave();
             onClose();
         } catch (error) {
-            console.log(error.message);
             setError(error.message);
         } finally {
             setIsLoading(false)

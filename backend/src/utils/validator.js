@@ -45,34 +45,50 @@ const validateNumbers = (obj) => {
 };
 
 const validateUpdatePayload = (newData, existingData) => {
-    // 1. Cek data kosong
+    // 1. Validasi newData tidak kosong
     if (!newData || Object.keys(newData).length === 0) {
         throwWithStatus("Tidak ada data yang dikirim untuk diupdate", 400);
     }
-    // 2. Cek data lama dari DB
+
+    // 2. Validasi existingData dari DB
     if (!existingData) {
         throwWithStatus("Data tidak ditemukan", 404);
     }
 
-    // 3. Cek apakah ada yang berubah
+    // 3. Cek apakah ada data yang berubah
     const hasChanged = Object.keys(newData).some((key) => {
         const newValue = newData[key];
         const oldValue = existingData[key];
 
-        // Handle khusus untuk tanggal (bandingkan dalam format ISO string)
+        // Khusus untuk tanggal: normalize ke YYYY-MM-DD
         if (key === "tanggal_lahir") {
+            const newDate = newValue
+                ? new Date(newValue).toISOString().split("T")[0]
+                : null;
+
             const oldDate =
                 oldValue instanceof Date
                     ? oldValue.toISOString().split("T")[0]
                     : oldValue;
-            return newValue !== oldDate;
+
+            return newDate !== oldDate;
         }
 
-        // Handle null/undefined
+        // Jika keduanya null/undefined, anggap sama
         if (newValue == null && oldValue == null) return false;
 
-        // Bandingkan nilai secara normal
-        return newValue != oldValue;
+        // Handle string: trim dan bandingkan
+        if (typeof newValue === "string" && typeof oldValue === "string") {
+            return newValue.trim() !== oldValue.trim();
+        }
+
+        // Handle array/object: stringify dulu
+        if (typeof newValue === "object" && typeof oldValue === "object") {
+            return JSON.stringify(newValue) !== JSON.stringify(oldValue);
+        }
+
+        // Bandingkan nilai primitive (number, boolean, dll)
+        return newValue !== oldValue;
     });
 
     if (!hasChanged) {
