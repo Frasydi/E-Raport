@@ -1,35 +1,42 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ConfirmModal = ({ isOpen, onCancel, onConfirm, title, text }) => {
+    const [isVisible, setIsVisible] = useState(false);
+
     useEffect(() => {
         if (isOpen) {
+            setIsVisible(true);
             document.body.style.overflow = "hidden";
         } else {
+            setIsVisible(false);
             document.body.style.overflow = "";
         }
-        return () => {
-            document.body.style.overflow = "";
-        };
     }, [isOpen]);
 
-    if (!isOpen) return null;
+    if (!isOpen && !isVisible) return null;
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/25 flex items-end justify-center p-4 sm:items-center">
-            <div className="bg-white rounded-t-2xl sm:rounded-2xl p-6 w-full max-w-md shadow-2xl animate-slide-up">
+        <div
+            className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
+                isVisible ? "opacity-100" : "opacity-0"
+            }`}
+        >
+            {/* Overlay */}
+            <div
+                className="fixed inset-0 bg-black/50 transition-opacity duration-300"
+                onClick={onCancel}
+            />
+
+            {/* Modal dengan animasi mirip SweetAlert2 */}
+            <div
+                className={`bg-white rounded-xl p-6 w-full max-w-md shadow-xl transition-all duration-300 transform ${
+                    isVisible ? "animate-swal2-show" : "animate-swal2-hide"
+                }`}
+            >
                 <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                        <svg
-                            className="w-6 h-6 text-red-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
+                    {/* Icon dengan animasi */}
+                    <div className="swal2-icon animate-bounceIn mb-4">
+                        <div className="swal2-icon-content">!</div>
                     </div>
 
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
@@ -39,13 +46,13 @@ const ConfirmModal = ({ isOpen, onCancel, onConfirm, title, text }) => {
 
                     <div className="flex gap-3 w-full">
                         <button
-                            className="flex-1 px-4 py-3 rounded-xl bg-gray-100 text-gray-800 font-medium hover:bg-gray-200 transition-all"
+                            className="flex-1 px-4 py-2.5 rounded-lg bg-gray-100 text-gray-800 font-medium hover:bg-gray-200 transition-all duration-200"
                             onClick={onCancel}
                         >
                             Cancel
                         </button>
                         <button
-                            className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-all shadow hover:shadow-md"
+                            className="flex-1 px-4 py-2.5 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-all duration-200 shadow hover:shadow-md"
                             onClick={onConfirm}
                         >
                             Confirm

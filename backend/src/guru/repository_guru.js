@@ -44,8 +44,8 @@ const deleteDataById = async (id) => {
         const existing = await prisma.guru.findUnique({
             where: { id_guru: id },
         });
-        if(!existing) {
-            throwWithStatus("data tidak ditemukan", 400)
+        if (!existing) {
+            throwWithStatus("data tidak ditemukan", 400);
         }
         return await prisma.guru.delete({
             where: {
@@ -57,9 +57,40 @@ const deleteDataById = async (id) => {
     }
 };
 
+const searchDataGuru = async (data) => {
+    if (!data || typeof data !== "string" || data.trim() === "") {
+        throwWithStatus("Query pencarian tidak valid", 400);
+    }
+    try {
+        const response = await prisma.guru.findMany({
+            where: {
+                OR: [
+                    {
+                        nama_guru: {
+                            contains:data
+                        }
+                    },
+                    {
+                        NSIP: {
+                            contains:data
+                        }
+                    }
+                ]
+            },
+        });
+        if (!response || response.length == 0) {
+            throwWithStatus("data tidak ditemukan", 403);
+        }
+        return response;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error), 500);
+    }
+};
+
 module.exports = {
     getDataGuru,
     insertDataGuru,
     updateDataGuru,
     deleteDataById,
+    searchDataGuru
 };

@@ -77,7 +77,6 @@ const PesertaDidik = () => {
 
     const handleSearch = async () => {
         if (!search.trim()) {
-            alert("Masukkan kata kunci!");
             return;
         }
         await searchPeserta(search);
@@ -158,7 +157,7 @@ const PesertaDidik = () => {
                                     upload data
                                 </AddStudentButton>
                             </div>
-                            <div className="flex text-sm items-center gap-1.5">
+                            <div className="flex text-sm items-center gap-1.5 w-sm">
                                 <Search
                                     htmlFor={"cari_peserta_didik"}
                                     placeholder={"cari peserta didik"}
@@ -226,6 +225,9 @@ const PesertaDidik = () => {
             <ConfirmModal
                 isOpen={showConfirm}
                 onConfirm={handleConfirmDelete}
+                onCancel={()=> {
+                    setShowConfirm(false)
+                }}
                 title={`hapus peserta didik`}
                 text={"menghapus peserta didik dari tahun ajaran ini"}
             ></ConfirmModal>

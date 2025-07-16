@@ -3,6 +3,7 @@ import { getAccessToken } from "./auth";
 
 const axiosInstance = axios.create({
     baseURL: "http://localhost:8000",
+    timeout: 10000,
     withCredentials: true,
 });
 
@@ -20,6 +21,18 @@ export const setupInterceptors = (getToken, setToken, onLogout) => {
         (res) => res,
         async (err) => {
             const originalRequest = err.config;
+            if (!navigator.onLine) {
+                return Promise.reject(
+                    new Error("Kamu sedang offline. Periksa koneksi internet.")
+                );
+            }
+
+            // ✅ Kalau server unreachable (server mati)
+            if (err.code === "ERR_NETWORK") {
+                return Promise.reject(
+                    new Error("Server tidak bisa dihubungi. Coba lagi nanti.")
+                );
+            }
             if (err.response?.status === 401 && !originalRequest._retry) {
                 originalRequest._retry = true;
                 try {
@@ -28,7 +41,7 @@ export const setupInterceptors = (getToken, setToken, onLogout) => {
                     originalRequest.headers.Authorization = `Bearer ${newToken}`;
                     return axiosInstance(originalRequest);
                 } catch (refreshError) {
-                    onLogout(); // force logout
+                    onLogout();
                     return Promise.reject(refreshError);
                 }
             }

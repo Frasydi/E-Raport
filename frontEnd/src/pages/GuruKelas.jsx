@@ -1,56 +1,82 @@
 import LayoutMenu from "../containers/layout";
 import { getGuruKelas, deleteData } from "../api/guru_kelas";
-import {
-    faPlus,
-    faSortUp,
-    faSortDown,
-    faSort,
-    faPen,
-    faTrash,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { AddStudentButton } from "../component/button/Button";
 import Search from "../component/input/Search";
 import { useEffect, useState } from "react";
 import ModalFormGuru from "../component/Modal/modalGuru";
-import Swal from "sweetalert2";
-import useSortableData from "../hooks/useSortableData";
 import showToast from "../hooks/showToast";
 import ModalEditGuru from "../component/Modal/ModalEditGuru";
+import Loading from "../component/Loading";
+import ModernTable from "../component/table/modernTable";
+import usePagination from "../hooks/usePagination";
+import PaginationControls from "../component/PaginationControls";
+import ConfirmModal from "../component/Modal/confirmModal";
+import { searchDataGuru } from "../api/guru_kelas";
 
 const GuruKelas = () => {
     const [originalData, setOriginalData] = useState([]);
     const [openModal, setOpenModal] = useState(false);
+    const [isLoading, setLoading] = useState(false);
+    const [emptyData, setEmptyData] = useState("");
     const [openEditModal, setOpenEditModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedId, setSelectedId] = useState("");
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [search, setSearch] = useState("");
     const [error, setError] = useState("");
     const {
-        items: data,
-        requestSort,
-        getSortDirection,
-    } = useSortableData(originalData);
+        currentPage,
+        totalPages,
+        currentData,
+        handlePageChange,
+        resetPagination,
+        startIndex,
+    } = usePagination(originalData, 5);
 
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
-    };
-
-    const filteredData = data.filter((item) => {
-        const keyword = searchTerm.toLowerCase();
-        return (
-            item.nama_guru.toLowerCase().includes(keyword) ||
-            item.NSIP.toLowerCase().includes(keyword) ||
-            item.nama_kelas.toLowerCase().includes(keyword)
-        );
+    //sorting
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: "asc",
     });
+    const handleSort = (key) => {
+        let direction = "asc";
+        if (sortConfig.key === key && sortConfig.direction === "asc") {
+            direction = "desc";
+        }
+        setSortConfig({ key, direction });
+
+        const sorted = [...originalData].sort((a, b) => {
+            if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+            if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+            return 0;
+        });
+
+        setOriginalData(sorted);
+    };
+    //end Sorting
+
+    const columns = [
+        { header: "Nama Guru", accessor: "nama_guru", sortable: true },
+        { header: "NSIP", accessor: "NSIP", sortable: true },
+    ];
 
     const fetchData = async () => {
+        setLoading(true);
         try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            setEmptyData("");
             const result = await getGuruKelas();
-            setError("");
             setOriginalData(result);
+            if (result.length === 0) {
+                setEmptyData("Data Guru Kosong");
+            } else {
+                setEmptyData("");
+            }
         } catch (error) {
             setError(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -58,61 +84,29 @@ const GuruKelas = () => {
         fetchData();
     }, []);
 
-    const getSortIcon = (key) => {
-        const direction = getSortDirection(key);
-        if (!direction) return faSort;
-        return direction === "asc" ? faSortUp : faSortDown;
-    };
-
     const handleEdit = (teacher) => {
         setSelectedTeacher(teacher);
         setOpenEditModal(true);
     };
-    const handleDelete = async (id_guru) => {
-        const { isConfirmed } = await Swal.fire({
-            title: "Hapus Data Guru?",
-            text: "Data yang dihapus tidak dapat dikembalikan",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Ya, Hapus!",
-            cancelButtonText: "Batal",
-        });
-        if (!isConfirmed) {
-            return;
-        }
 
+    const handleDelete = (id_guru) => {
+        setSelectedId(id_guru);
+        setShowConfirmDelete(true);
+    };
+    const handleConfirm = async () => {
+        setLoading(true);
+        setError("");
         try {
-            Swal.fire({
-                title: "Menghapus Data...",
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading(),
-            });
-
-            await deleteData(id_guru);
-            setOriginalData((prev) =>
-                prev.filter((item) => item.id_guru !== id_guru)
-            );
-
-            Swal.fire({
-                icon: "success",
-                title: "Berhasil Dihapus!",
-                text: "Data guru telah dihapus",
-                confirmButtonColor: "#0e7490",
-                timer: 2000,
-                timerProgressBar: true,
-                willClose: () => {
-                    showToast("error", "Data berhasil dihapus"), fetchData();
-                },
-            });
+            await deleteData(selectedId);
+            setShowConfirmDelete(false);
+            showToast("success", "berhasil menghapus data");
+            await fetchData();
         } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Gagal",
-                text: error.message || "Gagal menghapus data guru",
-                confirmButtonColor: "#d33",
-            });
+            setError(error.message);
+            setShowConfirmDelete(false);
+            showToast("error", "gagal menghapus data");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -121,15 +115,31 @@ const GuruKelas = () => {
         showToast("success", "data berhasil ditambahkan");
     };
 
-    const handleUpdateGuru = async () => {
+    const handleSearch = async () => {
+        setLoading(true);
+        setError("");
+        if (!search.trim()) {
+            setLoading(false);
+            return;
+        }
+
         try {
-            const result = await getGuruKelas();
-            setOriginalData(result);
-            showToast("success", "Data berhasil diperbarui");
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            const response = await searchDataGuru(search);
+            setOriginalData(response.data);
+            resetPagination();
         } catch (error) {
-            showToast("error", error.message || "Gagal memperbarui data");
+            setError(error || "gagal search");
+        } finally {
+            setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (search.length == 0) {
+            fetchData();
+        }
+    }, [search]);
 
     return (
         <>
@@ -142,7 +152,7 @@ const GuruKelas = () => {
                 <ModalEditGuru
                     isOpen={openEditModal}
                     onClose={() => setOpenEditModal(false)}
-                    onSave={handleUpdateGuru}
+                    onSave={handleSaveGuru}
                     teacherData={selectedTeacher}
                 />
             )}
@@ -161,8 +171,11 @@ const GuruKelas = () => {
                             <Search
                                 htmlFor={"cari-guru"}
                                 placeholder={"cari guru"}
-                                onChange={handleSearchChange}
-                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearch(e.target.value);
+                                }}
+                                onSearch={handleSearch}
+                                value={search}
                             />
                         </div>
                     </div>
@@ -170,131 +183,38 @@ const GuruKelas = () => {
                         <h1 className="text-3xl font-semibold text-gray-700 mb-6">
                             📚 Data Guru TK
                         </h1>
-                        <div className="overflow-x-auto bg-white shadow-xl rounded-2xl">
-                            {error ? (
-                                <div className="h-54 flex justify-center items-center">
-                                    <h1 className="text-xl text-gray-800 font-semi-bold">
-                                        {error}
-                                    </h1>
-                                </div>
-                            ) : (
-                                <table className="min-w-full text-sm text-gray-700">
-                                    <thead className="bg-sky-800 text-white">
-                                        <tr>
-                                            <th className="px-6 py-4 text-left">
-                                                No
-                                            </th>
-                                            <th
-                                                className="px-6 py-4 text-left cursor-pointer"
-                                                onClick={() =>
-                                                    requestSort("nama_guru")
-                                                }
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Nama Guru{" "}
-                                                    <FontAwesomeIcon
-                                                        icon={getSortIcon(
-                                                            "nama_guru"
-                                                        )}
-                                                    />
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="px-6 py-4 text-left cursor-pointer"
-                                                onClick={() =>
-                                                    requestSort("NSIP")
-                                                }
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    NSIP{" "}
-                                                    <FontAwesomeIcon
-                                                        icon={getSortIcon(
-                                                            "NSIP"
-                                                        )}
-                                                    />
-                                                </div>
-                                            </th>
-                                            <th
-                                                className="px-6 py-4 text-left cursor-pointer"
-                                                onClick={() =>
-                                                    requestSort("nama_kelas")
-                                                }
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    Kelas{" "}
-                                                    <FontAwesomeIcon
-                                                        icon={getSortIcon(
-                                                            "nama_kelas"
-                                                        )}
-                                                    />
-                                                </div>
-                                            </th>
-                                            <th className="px-6 py-4 text-center">
-                                                Aksi
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredData.map((teacher, index) => (
-                                            <tr
-                                                key={teacher.id_guru}
-                                                className={`border-b ${
-                                                    index % 2 === 0
-                                                        ? "bg-gray-50"
-                                                        : "bg-white"
-                                                } hover:bg-blue-50 transition duration-150`}
-                                            >
-                                                <td className="px-6 py-4">
-                                                    {index + 1}
-                                                </td>
-                                                <td className="px-6 py-4 font-medium">
-                                                    {teacher.nama_guru}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {teacher.NSIP}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {teacher.nama_kelas}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex gap-2 justify-center">
-                                                        <button
-                                                            onClick={() =>
-                                                                handleEdit(
-                                                                    teacher
-                                                                )
-                                                            }
-                                                            className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={faPen}
-                                                            />
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    teacher.id_guru
-                                                                )
-                                                            }
-                                                            className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition"
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={faTrash}
-                                                            />
-                                                            Hapus
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
+                        {isLoading && <Loading />}
+
+                        <ModernTable
+                            columns={columns}
+                            data={currentData}
+                            emptyData={emptyData}
+                            startIndex={startIndex}
+                            onSort={handleSort}
+                            onDelete={(item) => {
+                                handleDelete(item.id_guru);
+                            }}
+                            sortConfig={sortConfig}
+                            onEdit={(item) => {
+                                handleEdit(item);
+                            }}
+                        />
+
+                        <PaginationControls
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
                     </div>
                 </div>
             </LayoutMenu>
+            <ConfirmModal
+                isOpen={showConfirmDelete}
+                text={"anda akan menghapus data guru. Apakah anda yakin?"}
+                title={"menghapus data guru"}
+                onConfirm={handleConfirm}
+                onCancel={() => setShowConfirmDelete(false)}
+            />
         </>
     );
 };

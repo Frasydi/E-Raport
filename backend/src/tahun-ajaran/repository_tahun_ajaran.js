@@ -114,9 +114,31 @@ const updateDataTahun = async (data, id) => {
     }
 };
 
+const searchDataTahun = async (data) => {
+    if (!data || typeof data !== "string" || data.trim() === "") {
+        throwWithStatus("Query pencarian tidak valid", 400);
+    }
+    try {
+        const response = await prisma.tahunAjaran.findMany({
+            where: {
+                tahun_ajaran: {
+                    contains: data,
+                },
+            },
+        });
+        if(!response || response.length == 0) {
+            throwWithStatus("data tidak ditemukan", 403)
+        }
+        return response
+    } catch (error) {
+        throwWithStatus(errorPrisma(error), 500)
+    }
+};
+
 module.exports = {
     findManyTahun,
     insertDataTahun,
     deleteDataTahun,
-    updateDataTahun
+    updateDataTahun,
+    searchDataTahun
 };

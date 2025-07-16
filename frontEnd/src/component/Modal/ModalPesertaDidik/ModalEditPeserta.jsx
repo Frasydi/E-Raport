@@ -6,7 +6,6 @@ import { useSelectedTahunAjaran } from "../../../hooks/useSelectedTahunAjaran";
 import ButtonSubmit from "../../button/Button_submit";
 import ButtonSpinLoading from "../../button/ButtonSpinLoading";
 import { updatePesertaDidik } from "../../../api/peserta_didik";
-import { confirmAndNotify } from "../../../utils/confirmAndNotify";
 import { useFocusError } from "../../../hooks/useFocusError";
 import ConfirmModal from "../confirmModal";
 import { validatePesertaDidik } from "../../../helpers/pesertaDidikValidator";

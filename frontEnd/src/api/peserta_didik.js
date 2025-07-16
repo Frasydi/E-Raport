@@ -1,4 +1,3 @@
-import PesertaDidik from "../pages/PesertaDidik";
 import axiosInstance from "./axiosInstance";
 
 export const getDataTahunAjaran = async () => {

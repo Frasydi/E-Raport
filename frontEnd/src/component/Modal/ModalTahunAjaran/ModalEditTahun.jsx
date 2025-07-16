@@ -1,39 +1,28 @@
-import { useState, useRef, useEffect } from "react";
-import { updateDataGuru } from "../../api/guru_kelas"; // Import the update function
-import Swal from "sweetalert2";
-import ErrorMessage from "../Error";
-import ConfirmModal from "./confirmModal";
+import { useState, useEffect } from "react";
+import ConfirmModal from "../confirmModal";
+import { updateTahunAjaran } from "../../../api/tahun_ajaran";
+import ErrorMessage from "../../Error";
+import showToast from "../../../hooks/showToast";
 
-const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
+const ModalEditTahun = ({ isOpen, onClose, id_tahun_ajaran, data, onSuccess }) => {
+    const [form, setForm] = useState({ tahun_ajaran: "" });
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [form, setForm] = useState({
-        nama_guru: "",
-        NSIP: "",
-        nama_kelas: "kelompok A",
-    });
 
-    const modalRef = useRef();
-
+    // Sync data setiap kali modal dibuka atau data berubah
     useEffect(() => {
-        if (teacherData) {
-            setForm({
-                nama_guru: teacherData.nama_guru,
-                NSIP: teacherData.NSIP,
-                nama_kelas: teacherData.nama_kelas,
-            });
+        if (data) {
+            setForm({ tahun_ajaran: data });
         }
-    }, [teacherData]);
+        setError("");
+    }, [data, isOpen]);
 
-    useEffect(() => {
-        if (error) {
-            const timer = setTimeout(() => {
-                setError("");
-            }, 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [error]);
+    const handleClose = () => {
+        setForm({ tahun_ajaran: "" });
+        setError("");
+        onClose();
+    };
 
 
     const handleChange = (e) => {
@@ -43,13 +32,8 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.nama_guru.trim() || !form.NSIP.trim()) {
-            setError("harap lengkapi data terlebih dahulu");
-            return;
-        }
-        if (!/^\d+$/.test(form.NSIP)) {
-            setError("NSIP hanya boleh berisi angka");
-            setIsLoading(false);
+        if (!form.tahun_ajaran.trim()) {
+            setError("Tahun ajaran tidak boleh kosong");
             return;
         }
         setError("");
@@ -59,52 +43,29 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
     const handleConfirm = async () => {
         setShowConfirm(false);
         setIsLoading(true);
-
         try {
-            await updateDataGuru(teacherData.id_guru, {
-                nama_guru: form.nama_guru,
-                NSIP: form.NSIP,
-                nama_kelas: form.nama_kelas,
-            });
-            onSave();
-            onClose();
-        } catch (error) {
-            setError(error.message || "Gagal memperbarui data guru");
+            await updateTahunAjaran(form, id_tahun_ajaran);
+            showToast("success", "Data berhasil di edit");
+            onSuccess()
+            onClose()
+        } catch (err) {
+            setError(err || "Gagal edit data");
         } finally {
             setIsLoading(false);
         }
     };
 
-    const resetForm = (teacherData) => {
-        setForm({
-            nama_guru: teacherData.nama_guru,
-            NSIP: teacherData.NSIP,
-            nama_kelas: teacherData.nama_kelas,
-        });
-    };
-    const handleClose = () => {
-        setError("");
-        onClose();
-        resetForm(teacherData);
-    };
-
-    if (!isOpen) return null;
-
     return (
         <>
             <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-                <div
-                    ref={modalRef}
-                    className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in"
-                >
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
                     <div className="flex justify-between items-center p-6 pb-0">
                         <h2 className="text-2xl font-bold text-gray-800">
-                            Edit Data Guru
+                            Edit Tahun Ajaran
                         </h2>
                         <button
                             onClick={handleClose}
                             className="text-gray-500 hover:text-gray-700 transition-colors"
-                            disabled={isLoading}
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -123,55 +84,27 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
                         </button>
                     </div>
 
-                    <div className="flex flex-col mt-3 w-11/12 px-6 p-1">
+                    <div className="flex flex-col mt-3 w-11/12 px-6">
                         {error && <ErrorMessage error={error} />}
                     </div>
+
                     <form
                         onSubmit={handleSubmit}
                         className="px-6 mb-5 flex flex-col gap-4"
                     >
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
-                                Nama Guru
+                                Tahun Ajaran
                             </label>
                             <input
                                 type="text"
-                                name="nama_guru"
-                                value={form.nama_guru}
+                                name="tahun_ajaran"
+                                value={form.tahun_ajaran}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                placeholder="Masukkan nama guru"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                                placeholder="contoh: 2025/2026"
                                 disabled={isLoading}
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">
-                                NSIP
-                            </label>
-                            <input
-                                type="text"
-                                name="NSIP"
-                                value={form.NSIP}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                placeholder="Masukkan NSIP"
-                                disabled={isLoading}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Kelas
-                            </label>
-                            <select
-                                name="nama_kelas"
-                                value={form.nama_kelas}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all appearance-none"
-                                disabled={isLoading}
-                            >
-                                <option value="kelompok A">kelompok A</option>
-                                <option value="kelompok B">kelompok B</option>
-                            </select>
                         </div>
                         <div className="flex justify-end gap-3 pt-6">
                             <button
@@ -212,24 +145,23 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
                                         Memproses...
                                     </>
                                 ) : (
-                                    "Update Data"
+                                    "Simpan Data"
                                 )}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+
             <ConfirmModal
+                title="Update Data"
+                text="Pastikan data sudah benar."
                 isOpen={showConfirm}
-                onCancel={() => {
-                    setShowConfirm(false);
-                }}
                 onConfirm={handleConfirm}
-                text={'Pastikan data sudah benar'}
-                title={'Update Data'}
+                onCancel={() => setShowConfirm(false)}
             />
         </>
     );
 };
 
-export default ModalEditGuru;
+export default ModalEditTahun;

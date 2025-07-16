@@ -1,8 +1,12 @@
 import { forwardRef } from "react";
-const ErrorMessage = forwardRef(({error}, ref) => {
-    if(!error) return null
+const ErrorMessage = forwardRef(({ error }, ref) => {
+    if (!error) return null;
     return (
-        <div className="bg-red-50 border-l-4 border-red-500 text-red-700  sm:p-4 mb-4 sm:mb-6 rounded-lg animate-fade-in" ref={ref} tabIndex={-1}>
+        <div
+            className="bg-red-50 border-l-4 border-red-500 text-red-700  sm:p-4 mb-4 sm:mb-6 rounded-lg animate-fade-in"
+            ref={ref}
+            tabIndex={-1}
+        >
             <div className="flex items-center">
                 <svg
                     className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
@@ -15,7 +19,10 @@ const ErrorMessage = forwardRef(({error}, ref) => {
                         clipRule="evenodd"
                     />
                 </svg>
-                <span className="text-xs sm:text-sm">{error}</span>
+                <span className="text-xs sm:text-sm">
+                    {" "}
+                    {typeof error === "string" ? error : "Terjadi kesalahan"}
+                </span>
             </div>
         </div>
     );

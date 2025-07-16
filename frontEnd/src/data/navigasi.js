@@ -5,6 +5,7 @@ import {
     faPenToSquare,
     faPrint,
     faWindowRestore,
+    faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 
 const navItems = [
@@ -14,14 +15,21 @@ const navItems = [
         icon: faHouse,
     },
     {
-        name: "Data Peserta Didik",
-        path: "/menu/peserta-didik",
-        icon: faChildren,
-    },
-    {
         name: "Guru & Kelas",
         path: "/menu/guru-kelas",
         icon: faChalkboardUser,
+    },
+
+    {
+        name: "Tahun Ajaran",
+        path: "/menu/tahun-ajaran",
+        icon: faCalendar,
+    },
+
+    {
+        name: "Data Peserta Didik",
+        path: "/menu/peserta-didik",
+        icon: faChildren,
     },
     {
         name: "Penilaian Peserta Didik",
