@@ -41,8 +41,6 @@ async function main() {
             await prisma.indikator.createMany({ data: indikatorData });
         }
     }
-
-    console.log("✅ Seed berhasil untuk kategori, subkategori, dan indikator.");
 }
 
 main()
