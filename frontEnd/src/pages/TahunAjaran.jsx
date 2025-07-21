@@ -69,6 +69,7 @@ const TahunAjaran = () => {
             focusError();
         }
     }, [isError]);
+    console.log(emptyData)
 
     const fetchData = async () => {
         setIsloading(true);
@@ -77,13 +78,8 @@ const TahunAjaran = () => {
             setEmptyData("");
             const result = await getTahunAjaran();
             setOriginalData(result.data);
-            if (result.data.length === 0) {
-                setEmptyData("Data tahun ajaran kosong");
-            } else {
-                setEmptyData("");
-            }
         } catch (error) {
-            setEmptyData(error.message);
+            setEmptyData('data belum ada, harap tambahkan data');
         } finally {
             setIsloading(false);
         }

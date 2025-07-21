@@ -1,8 +1,8 @@
 function StepProgress({ currentStep }) {
-    const steps = ["Pilih Kategori", "Nilai Peserta Didik"];
+    const steps = ["pilih kategori", "pilih sub kategori", "nilai peserta didik"];
 
     return (
-        <div className="w-full max-w-md mx-auto mt-6 px-6">
+        <div className="w-full max-w-md mx-auto mt-6 px-6 ">
             <div className="flex justify-between items-center mb-2">
                 {steps.map((step, idx) => (
                     <div

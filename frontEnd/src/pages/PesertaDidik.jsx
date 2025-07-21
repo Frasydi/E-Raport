@@ -53,7 +53,6 @@ const PesertaDidik = () => {
         fetchByTahunAjaran(selectedTahunAjaran);
     }, [selectedTahunAjaran, fetchByTahunAjaran]);
 
-
     const handleEditPesertaDidik = (data) => {
         setSelectedPesertaDidik(data);
         setOpenEditModal(true);
@@ -71,7 +70,7 @@ const PesertaDidik = () => {
             await deletePeserta(selectedPesertaId, selectedTahunAjaran);
             showToast("success", "data berhasil di hapus");
         } catch (error) {
-            showToast("error", "gagal menghapus peserta didik")
+            showToast("error", "gagal menghapus peserta didik");
         }
     };
 
@@ -87,8 +86,8 @@ const PesertaDidik = () => {
         <>
             {openModal && (
                 <Modal
-                    CloseOpenModal={setOpenModal}
-                    onClose={() => {
+                    onClose={() => setOpenModal(false)}
+                    onSuccess={() => {
                         setOpenModal(false);
                         fetchByTahunAjaran(selectedTahunAjaran);
                     }}
@@ -97,10 +96,10 @@ const PesertaDidik = () => {
 
             {openEditModal && (
                 <ModalEditPesertaDidik
-                    closeOpenModal={setOpenEditModal}
+                    onClose={() => setOpenEditModal(false)}
                     selectedPesertaDidik={selectedPesertaDidik}
                     tahunAjaranId={selectedTahunAjaran}
-                    onClose={() => {
+                    onSuccess={() => {
                         setOpenEditModal(false);
                         fetchByTahunAjaran(selectedTahunAjaran);
                     }}
@@ -225,8 +224,8 @@ const PesertaDidik = () => {
             <ConfirmModal
                 isOpen={showConfirm}
                 onConfirm={handleConfirmDelete}
-                onCancel={()=> {
-                    setShowConfirm(false)
+                onCancel={() => {
+                    setShowConfirm(false);
                 }}
                 title={`hapus peserta didik`}
                 text={"menghapus peserta didik dari tahun ajaran ini"}

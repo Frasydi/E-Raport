@@ -13,8 +13,8 @@ import ErrorMessage from "../../Error";
 import showToast from "../../../hooks/showToast";
 
 const ModalEditPesertaDidik = ({
-    closeOpenModal,
     onClose,
+    onSuccess,
     selectedPesertaDidik,
     tahunAjaranId,
 }) => {
@@ -81,7 +81,7 @@ const ModalEditPesertaDidik = ({
                 formEdit
             );
             showToast("success", "Data berhasil diupdate");
-            onClose();
+            onSuccess();
         } catch (err) {
             setError(err.message || "Gagal Tambah Data");
         } finally {
@@ -91,7 +91,7 @@ const ModalEditPesertaDidik = ({
 
     return (
         <>
-            <ModalContainer CloseOpenModal={closeOpenModal} size={'w-6/12'} height={'h-[95%]'}>
+            <ModalContainer onClose={onClose} size={'w-6/12'} height={'h-[95%]'}>
                 <h2 className="flex font-semibold text-lg text-gray-800 mb-4 mt-8 ">
                     Edit Peserta Didik
                 </h2>

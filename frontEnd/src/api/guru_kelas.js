@@ -5,7 +5,11 @@ export const getGuruKelas = async () => {
         const res = await axiosInstance.get("/guru");
         return res.data.data;
     } catch (error) {
-        throw error.response.data;
+        if (error.response && error.response.data) {
+            throw error.response.data || "Terjadi kesalahan";
+        } else {
+            throw error;
+        }
     }
 };
 
@@ -47,9 +51,7 @@ export const deleteData = async (id_guru) => {
 
 export const searchDataGuru = async (keyword) => {
     try {
-        const response = await axiosInstance.get(
-            `/guru/searchData/${keyword}`
-        );
+        const response = await axiosInstance.get(`/guru/searchData/${keyword}`);
         return response.data;
     } catch (error) {
         if (error.response && error.response.data) {

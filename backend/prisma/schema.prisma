@@ -156,5 +156,6 @@ model Penilaian {
   rekapNilaiId  String
   indikatorId   Int
   indikator     Indikator @relation(fields: [indikatorId], references: [id_indikator])
-  rekapNilai    RekapNilai @relation(fields: [rekapNilaiId], references: [id_rekap_nilai])
+  rekapNilai    RekapNilai @relation(fields: [rekapNilaiId], references: [id_rekap_nilai], onDelete: Cascade, onUpdate: Cascade)
+  @@unique([indikatorId, rekapNilaiId])
 }

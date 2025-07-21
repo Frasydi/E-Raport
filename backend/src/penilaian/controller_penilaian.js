@@ -69,10 +69,10 @@ router.get(
     }
 );
 
-router.post("/tambah-penilaian/:id_rekap_niai", async (req, res, next) => {
-    const { id_rekap_niai } = req.params;
+router.post("/tambah-penilaian/:id_rekap_nilai", async (req, res, next) => {
+    const { id_rekap_nilai } = req.params;
     try {
-        await postPenilaian(id_rekap_niai);
+        await postPenilaian(id_rekap_nilai);
         res.json({
             success: true,
             message: "data berhasil di tambahkan",

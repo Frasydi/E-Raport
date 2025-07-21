@@ -13,7 +13,7 @@ import { useSelectedGuru } from "../../../hooks/useSelectedGuru";
 import { insertPesertaDidik } from "../../../api/peserta_didik";
 import { useFocusError } from "../../../hooks/useFocusError";
 import { validatePesertaDidik } from "../../../helpers/pesertaDidikValidator";
-const Modal = ({ CloseOpenModal, onClose }) => {
+const Modal = ({ onClose, onSuccess }) => {
     const [tahunAjaran, setTahunAjaran] = useState("");
     const [guru, setGuru] = useState("");
     const [formAdd, setFormAdd] = useState({});
@@ -74,7 +74,7 @@ const Modal = ({ CloseOpenModal, onClose }) => {
             await insertPesertaDidik(tahunAjaran, guru, formAdd);
             showToast("success", "Data berhasil ditambahkan");
             setDisabled(false)
-            onClose();
+            onSuccess()
         } catch (err) {
             setError(err.message || "Gagal Tambah Data");
             setDisabled(true)
@@ -86,7 +86,7 @@ const Modal = ({ CloseOpenModal, onClose }) => {
     return (
         <>
             <ModalContainer
-                CloseOpenModal={CloseOpenModal}
+                onClose={onClose}
                 size={"w-6/12"}
                 height={"h-[95%]"}
             >

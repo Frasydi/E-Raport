@@ -59,7 +59,9 @@ const GuruKelas = () => {
     const columns = [
         { header: "Nama Guru", accessor: "nama_guru", sortable: true },
         { header: "NSIP", accessor: "NSIP", sortable: true },
+        { header: "Kelas", accessor: "nama_kelas", sortable: true },
     ];
+    console.log('emptyData, ', emptyData)
 
     const fetchData = async () => {
         setLoading(true);
@@ -68,13 +70,8 @@ const GuruKelas = () => {
             setEmptyData("");
             const result = await getGuruKelas();
             setOriginalData(result);
-            if (result.length === 0) {
-                setEmptyData("Data Guru Kosong");
-            } else {
-                setEmptyData("");
-            }
         } catch (error) {
-            setError(error.message);
+            setEmptyData(error.message);
         } finally {
             setLoading(false);
         }

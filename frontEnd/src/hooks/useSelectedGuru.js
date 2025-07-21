@@ -11,10 +11,8 @@ export const useSelectedGuru = () => {
     );
 
     useEffect(() => {
-        if (!dataGuru || dataGuru.length === 0) {
-            fetchDataGuru();
-        }
-    }, [dataGuru]);
+        fetchDataGuru();
+    }, []);
 
     const guruOptions =
         dataGuru?.map((item) => ({

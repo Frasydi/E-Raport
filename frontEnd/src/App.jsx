@@ -13,6 +13,7 @@ import CetakRaport from "./pages/CetakRaport";
 import BackupRestore from "./pages/BackupRestore";
 import TahunAjaran from "./pages/tahunAjaran";
 import KategoriPenilaian from "./component/penilaian/KategoriPenilaian";
+import SubKategoriPenilaian from "./component/penilaian/SubKategoriPenilaian";
 import Nilai from "./component/penilaian/Nilai";
 import OfflineIndicator from "./component/OfflineIndicator";
 
@@ -43,11 +44,15 @@ function App() {
                 <Route path="/menu/guru-kelas" element={<GuruKelas />}></Route>
                 <Route path="/menu/penilaian" element={<Penilaian />}>
                     <Route
-                        path="kategori-penilaian"
+                        path=":id_rekap_nilai"
                         element={<KategoriPenilaian />}
                     ></Route>
                     <Route
-                        path="kategori-penilaian/:label"
+                        path=":id_rekap_nilai/:id_kategori"
+                        element={<SubKategoriPenilaian />}
+                    ></Route>
+                    <Route
+                        path=":id_rekap_nilai/:id_kategori/:id_sub_kategori"
                         element={<Nilai />}
                     ></Route>
                 </Route>

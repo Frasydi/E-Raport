@@ -15,12 +15,13 @@ const ModalInput = forwardRef(
             id,
             name,
             emptyMessage,
+            classname,
             options = [],
         },
         ref
     ) => {
         return (
-            <div className="flex flex-col gap-1 w-full flex-1">
+            <div className={`flex flex-col w-full flex-1 ${classname}`}>
                 {type === "select" ? (
                     <div className="flex flex-col gap-1.5">
                         <label
@@ -42,7 +43,7 @@ const ModalInput = forwardRef(
                         />
                     </div>
                 ) : (
-                    <>
+                    <div className="flex flex-col gap-1.5">
                         <label
                             htmlFor={id}
                             className="text-xs text-gray-500 font-semibold"
@@ -60,7 +61,7 @@ const ModalInput = forwardRef(
                             onChange={onChange}
                             required={required}
                         />
-                    </>
+                    </div>
                 )}
             </div>
         );

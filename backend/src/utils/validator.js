@@ -45,56 +45,112 @@ const validateNumbers = (obj) => {
 };
 
 const validateUpdatePayload = (newData, existingData) => {
+    // Cek validitas awal
+    if (!newData || (typeof newData !== "object" && !Array.isArray(newData))) {
+        throwWithStatus("Format data tidak valid.", 400);
+    }
+
     // 1. Validasi newData tidak kosong
-    if (!newData || Object.keys(newData).length === 0) {
-        throwWithStatus("Tidak ada data yang dikirim untuk diupdate", 400);
+    if (
+        (Array.isArray(newData) && newData.length === 0) ||
+        (!Array.isArray(newData) && Object.keys(newData).length === 0)
+    ) {
+        throwWithStatus("Tidak ada data yang dikirim. Mohon isi data terlebih dahulu.", 400);
     }
 
-    // 2. Validasi existingData dari DB
-    if (!existingData) {
-        throwWithStatus("Data tidak ditemukan", 404);
+    // 2. Validasi existingData
+    if (!existingData || Object.keys(existingData).length === 0) {
+        throwWithStatus("Data yang ingin diperbarui tidak ditemukan.", 404);
     }
 
-    // 3. Cek apakah ada data yang berubah
-    const hasChanged = Object.keys(newData).some((key) => {
-        const newValue = newData[key];
-        const oldValue = existingData[key];
+    // 3. Jika array, bandingkan item by id_penilaian
+    if (Array.isArray(newData) && Array.isArray(existingData)) {
+        const existingMap = new Map(existingData.map(item => [item.id_penilaian, item]));
 
-        // Khusus untuk tanggal: normalize ke YYYY-MM-DD
-        if (key === "tanggal_lahir") {
-            const newDate = newValue
-                ? new Date(newValue).toISOString().split("T")[0]
-                : null;
+        const uniqueNewData = new Map();
+        newData.forEach(item => {
+            if (item?.id_penilaian) uniqueNewData.set(item.id_penilaian, item);
+        });
 
-            const oldDate =
-                oldValue instanceof Date
+        for (const [id, newItem] of uniqueNewData.entries()) {
+            const oldItem = existingMap.get(id);
+            if (!oldItem) continue;
+
+            // Bandingkan semua key yg ada di newItem
+            for (const key in newItem) {
+                const newVal = newItem[key];
+                const oldVal = oldItem[key];
+
+                if (
+                    typeof newVal === "string" &&
+                    typeof oldVal === "string" &&
+                    newVal.trim() !== oldVal.trim()
+                ) {
+                    return; // Ada perubahan
+                }
+
+                if (
+                    typeof newVal === "object" &&
+                    typeof oldVal === "object" &&
+                    JSON.stringify(newVal) !== JSON.stringify(oldVal)
+                ) {
+                    return;
+                }
+
+                if (newVal !== oldVal) {
+                    return;
+                }
+            }
+        }
+
+        // Tidak ada perubahan
+        throwWithStatus(
+            "Data tidak mengalami perubahan. Silakan ubah data terlebih dahulu sebelum menyimpan.",
+            403
+        );
+    }
+
+    // 4. Jika object, bandingkan langsung field-fieldnya
+    if (!Array.isArray(newData) && !Array.isArray(existingData)) {
+        const hasChanged = Object.keys(newData).some((key) => {
+            const newValue = newData[key];
+            const oldValue = existingData[key];
+
+            if (key === "tanggal_lahir") {
+                const newDate = newValue ? new Date(newValue).toISOString().split("T")[0] : null;
+                const oldDate = oldValue instanceof Date
                     ? oldValue.toISOString().split("T")[0]
                     : oldValue;
+                return newDate !== oldDate;
+            }
 
-            return newDate !== oldDate;
+            if (newValue == null && oldValue == null) return false;
+
+            if (typeof newValue === "string" && typeof oldValue === "string") {
+                return newValue.trim() !== oldValue.trim();
+            }
+
+            if (typeof newValue === "object" && typeof oldValue === "object") {
+                return JSON.stringify(newValue) !== JSON.stringify(oldValue);
+            }
+
+            return newValue !== oldValue;
+        });
+
+        if (!hasChanged) {
+            throwWithStatus(
+                "Data tidak mengalami perubahan. Silakan ubah data terlebih dahulu sebelum menyimpan.",
+                403
+            );
         }
 
-        // Jika keduanya null/undefined, anggap sama
-        if (newValue == null && oldValue == null) return false;
-
-        // Handle string: trim dan bandingkan
-        if (typeof newValue === "string" && typeof oldValue === "string") {
-            return newValue.trim() !== oldValue.trim();
-        }
-
-        // Handle array/object: stringify dulu
-        if (typeof newValue === "object" && typeof oldValue === "object") {
-            return JSON.stringify(newValue) !== JSON.stringify(oldValue);
-        }
-
-        // Bandingkan nilai primitive (number, boolean, dll)
-        return newValue !== oldValue;
-    });
-
-    if (!hasChanged) {
-        throwWithStatus("Tidak ada data yang berubah", 403);
+        return; // Valid dan berubah
     }
+
+    // Jika tipe tidak cocok (misal satu array dan satunya object)
+    throwWithStatus("Tipe data tidak sesuai antara data baru dan data lama.", 400);
 };
+
 
 function isValidTahunAjaran(tahun) {
     const regex = /^(\d{4})\/(\d{4})$/;

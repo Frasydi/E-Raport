@@ -3,7 +3,7 @@ const ErrorMessage = forwardRef(({ error }, ref) => {
     if (!error) return null;
     return (
         <div
-            className="bg-red-50 border-l-4 border-red-500 text-red-700  sm:p-4 mb-4 sm:mb-6 rounded-lg animate-fade-in"
+            className="bg-red-50 border-l-4 border-red-500 text-red-700 sm:p-4 mb-4  rounded-lg animate-fade-in"
             ref={ref}
             tabIndex={-1}
         >

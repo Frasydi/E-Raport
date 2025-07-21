@@ -9,17 +9,13 @@ const finByTahunSemester = async (tahunAjaranId, semester) => {
             where: {
                 tahunAjaranId: tahunAjaranId,
                 semester: {
-                    is: {
-                        nama: semester,
-                    },
+                    nama: semester,
                 },
             },
-            select: {
-                id_rekap_nilai: true,
-                tahunAjaranId: true,
-                guruId: true,
-                semesterId: true,
+            include: {
+                tahunAjaran: true,
                 pesertaDidik: true,
+                guru: true,
             },
         });
         return response;
@@ -31,13 +27,12 @@ const finByTahunSemester = async (tahunAjaranId, semester) => {
 const createPenilaian = async (id_rekap_nilai) => {
     try {
         const indikatorList = await getIndikator();
-
         const results = await Promise.all(
             indikatorList.map((indikator) =>
-                prisma.penilaian.create({
+                prisma.penilaian.createMany({
                     data: {
                         id_penilaian: `pnl-${uuidv4()}`,
-                        indikatorId: indikator.id_indikator,
+                        indikatorId: indikator.indikator.id_indikator,
                         rekapNilaiId: id_rekap_nilai,
                         nilai: null,
                     },
@@ -50,11 +45,36 @@ const createPenilaian = async (id_rekap_nilai) => {
     }
 };
 
+const getAllIndikator = async () => {
+    return await prisma.indikator.findMany({
+        select: {
+            id_indikator: true,
+            nama_indikator: true,
+        },
+    });
+};
+
 const getDataKategori = async (id_rekap_nilai) => {
     try {
+        const jumlahPenilaian = await prisma.penilaian.count({
+            where: { rekapNilaiId: id_rekap_nilai },
+        });
+        if (jumlahPenilaian === 0) {
+            const indikatorList = await getAllIndikator();
+            await prisma.penilaian.createMany({
+                data: indikatorList.map((indikator) => ({
+                    id_penilaian: `pnl-${uuidv4()}`,
+                    indikatorId: indikator.id_indikator,
+                    rekapNilaiId: id_rekap_nilai,
+                    nilai: null,
+                })),
+                skipDuplicates: true,
+            });
+        }
+
         const response = await prisma.penilaian.findMany({
             where: {
-                rekapNilaiId: id_rekap_nilai, // ganti dengan ID yang kamu maksud
+                rekapNilaiId: id_rekap_nilai,
             },
             select: {
                 indikator: {
@@ -71,9 +91,21 @@ const getDataKategori = async (id_rekap_nilai) => {
                         },
                     },
                 },
+                rekapNilai: {
+                    select: {
+                        pesertaDidik: true,
+                        tahunAjaran: true,
+                        semester: true,
+                    },
+                },
             },
         });
-        return response;
+        const sorted = response.sort((a, b) => {
+            const idA = a.indikator.subKategori.kategori.id_kategori;
+            const idB = b.indikator.subKategori.kategori.id_kategori;
+            return idA - idB;
+        });
+        return sorted;
     } catch (error) {
         throwWithStatus(errorPrisma(error), 400);
     }
@@ -93,6 +125,9 @@ const getDataSubkategori = async (id_rekap_niai, id_kategori) => {
                         },
                     },
                 },
+            },
+            include: {
+                kategori: true,
             },
         });
         return subKategoriList;
@@ -119,6 +154,16 @@ const getIndikator = async (id_rekap_nilai, id_kategori, id_sub_kategori) => {
                     select: {
                         id_indikator: true,
                         nama_indikator: true,
+                        subKategori: {
+                            include: {
+                                kategori: {
+                                    select: {
+                                        id_kategori: false,
+                                        nama_kategori: true,
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
             },
@@ -144,19 +189,32 @@ const penilaianList = async (id_rekap_nilai, id_sub_kategori) => {
     });
 };
 
+const existing = async (id_penilaian) => {
+    try {
+        const existing = await prisma.penilaian.findUnique({
+            where: { id_penilaian: id_penilaian },
+        });
+        return existing;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error), 400);
+    }
+};
+
 const updatePenilaian = async (nilai, id_penilaian) => {
     try {
         const update = await prisma.penilaian.update({
             where: { id_penilaian },
             data: {
-                nilai: nilai,
+                nilai,
             },
         });
+
         return update;
     } catch (error) {
         throwWithStatus(errorPrisma(error), 400);
     }
 };
+
 
 module.exports = {
     finByTahunSemester,
@@ -166,4 +224,5 @@ module.exports = {
     getDataSubkategori,
     updatePenilaian,
     penilaianList,
+    existing
 };
