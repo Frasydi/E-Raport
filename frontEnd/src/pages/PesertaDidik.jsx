@@ -106,7 +106,7 @@ const PesertaDidik = () => {
                 />
             )}
             <LayoutMenu blur={openModal || openEditModal}>
-                <div className="w-5/6 mt-5">
+                <div className="w-5/6 mt-10">
                     {/* Dropdown Tahun Ajaran */}
                     <div className="w-72 text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 z-10 relative">
                         <ModalInput
