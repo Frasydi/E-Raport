@@ -194,7 +194,7 @@ const TahunAjaran = () => {
                     </div>
                     <div className="p-6 max-w-6xl mx-auto">
                         <h1 className="text-3xl font-semibold text-gray-700 mb-6">
-                            Data Tahun AJaran
+                            Data Tahun Ajaran
                         </h1>
                         {isError && (
                             <ErrorMessage error={isError} ref={errorRef} />

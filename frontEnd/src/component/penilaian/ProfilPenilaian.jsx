@@ -19,7 +19,7 @@ const ProfilPenilaian = ({ data, isLocalStorage = false }) => {
                     {data?.nama_lengkap}
                 </p>
                 <div className="flex  justify-center gap-3">
-                    <p className="text-sm text-gray-500">{data?.tahunAjaran}</p>
+                    <p className="text-sm text-gray-500">{data?.tahun_ajaran}</p>
                     <p className="text-sm text-gray-500">||</p>
                     {data?.semester && (
                         <p className="text-sm text-gray-500">

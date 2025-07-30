@@ -4,7 +4,6 @@ const throwWithStatus = require("../utils/throwWithStatus");
 const { v4: uuidv4 } = require("uuid");
 const { validateUpdatePayload } = require("../utils/validator");
 
-// Fungsi untuk mengambil ID semester dari Tahun Ajaran
 const getSemester = async (tahunAjaranId) => {
     try {
         const result = await prisma.tahunAjaran.findUnique({
@@ -197,7 +196,6 @@ const updatePesertaDidik = async (data, id_peserta_didik, tahun_ajaran_id) => {
         ]);
     }
 
-    console.log("existing", existing[0]);
     const newExisting = {
         tahunAjaranId: existing[0].tahunAjaranId,
         guruId: existing[0].guruId,
@@ -239,7 +237,6 @@ const findPesertaDidik = async (id_peserta_didik, id_tahun_ajaran) => {
             },
         });
         if (!response || response.length == 0) {
-            console.log("halo");
             throwWithStatus("peserta didik tidak ditemukan", 404);
         }
         return response.id_rekap_nilai;
@@ -335,7 +332,6 @@ const searchPesertaDidik = async (data) => {
         }
         return hasil;
     } catch (error) {
-        console.log(error);
         throwWithStatus(errorPrisma(error), 400);
     }
 };

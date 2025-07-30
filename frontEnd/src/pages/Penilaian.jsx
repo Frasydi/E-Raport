@@ -4,11 +4,10 @@ import Search from "../component/input/Search";
 import CardProfil from "../component/card/cardProfil";
 import ModalInput from "../component/input/ModalInput";
 import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
-import { getByTahunSemester } from "../api/penilaian";
+import { getByTahunSemester, searhPenilaian } from "../api/penilaian";
 import { Outlet } from "react-router";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import ErrorMessage from "../component/Error";
 import Loading from "../component/Loading";
 
 const Penilaian = () => {
@@ -17,6 +16,8 @@ const Penilaian = () => {
     const [selectedSemester, setSelectedSemester] = useState("");
     const [pesertaDidik, setPesertaDidik] = useState([]);
     const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [isSearch, setIsSearch] = useState(false)
     const [isLoading, setIsLoading] = useState("");
     const navigate = useNavigate();
 
@@ -59,6 +60,38 @@ const Penilaian = () => {
         fetchData();
     }, [selectedSemester, selectedTahunAjaran]);
 
+    useEffect(()=> {
+        if(!selectedTahunAjaran || !selectedSemester) return 
+        if(search) return
+        if(!isSearch) return
+        fetchData()
+    }, [search, selectedSemester, selectedTahunAjaran])
+
+    const handleSearch = async () => {
+        setIsLoading(true);
+        setIsSearch(false)
+        setError("")
+        try {
+            if(!selectedTahunAjaran) {
+                setError("tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu")
+                return
+            }
+            if(!selectedSemester) {
+                setError("semester belum dipilih. Harap lengkapi terlebih dahulu")
+                return
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const response = await searhPenilaian(selectedTahunAjaran, selectedSemester, search)
+            setIsSearch(true)
+            setPesertaDidik(response.data)
+        } catch (error) {
+            setError(error)
+            setIsSearch(false)
+        } finally {
+            setIsLoading(false)
+        }
+    };
+
     return (
         <LayoutMenu>
             <Outlet />
@@ -73,7 +106,7 @@ const Penilaian = () => {
                         }}
                         options={tahunAjaranOptions}
                         displayKey="label"
-                        //disibled={loadingPeserta}
+                        disibled={isLoading}
                         emptyMessage={"harap isi data di menu tahun ajaran"}
                         valueKey="value"
                         id={"tahun_ajaran"}
@@ -91,6 +124,7 @@ const Penilaian = () => {
                         displayKey="label"
                         valueKey="value"
                         id={"semester"}
+                        disibled={isLoading}
                         name={"semester"}
                     >
                         Semester
@@ -119,6 +153,10 @@ const Penilaian = () => {
                             <Search
                                 htmlFor="search_student"
                                 placeholder="cari siswa....."
+                                onChange={(e) => {
+                                    setSearch(e.target.value);
+                                }}
+                                onSearch={handleSearch}
                                 label={false}
                             />
                         </div>

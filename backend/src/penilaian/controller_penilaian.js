@@ -5,8 +5,12 @@ const {
     displayKategori,
     displaySubKategori,
     displayIndikator,
-    updateNilai
+    updateNilai,
+    displayPenilaian,
+    displaySearchPenilaian,
+    displaySearhRaport,
 } = require("./services_penilaian");
+
 router.get("/", async (req, res, next) => {
     const { tahunAjaranId, semester } = req.query;
     try {
@@ -21,6 +25,59 @@ router.get("/", async (req, res, next) => {
         next(error);
     }
 });
+
+router.get(
+    "/search-penilaian/:id_tahun_ajaran/:semester",
+    async (req, res, next) => {
+        const { id_tahun_ajaran, semester } = req.params;
+        const { keyword } = req.query;
+        try {
+            const response = await displaySearchPenilaian(
+                id_tahun_ajaran,
+                semester,
+                keyword
+            );
+            res.json({
+                success: true,
+                msg: "berhasil didapatkan",
+                data: response,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+router.get("/search-raport", async (req, res, next) => {
+    const { id_tahun_ajaran, semester, keyword } = req.query;
+    try {
+        const response = await displaySearhRaport(id_tahun_ajaran, semester, keyword);
+        res.json({
+            success: true,
+            msg: "berhasil didapatkan",
+            data: response,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get(
+    "/display-penilaian/:id_tahun_ajaran/:semester",
+    async (req, res, next) => {
+        const { id_tahun_ajaran, semester } = req.params;
+        try {
+            const response = await displayPenilaian(id_tahun_ajaran, semester);
+            res.json({
+                success: true,
+                msg: "data berhasil didapatkan",
+                data: response,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 router.get("/:id_rekap_nilai", async (req, res, next) => {
     try {
@@ -82,17 +139,21 @@ router.post("/tambah-penilaian/:id_rekap_nilai", async (req, res, next) => {
     }
 });
 
-router.patch("/update-nilai/:id_rekap_nilai/:id_sub_kategori", async(req,res,next)=> {
-    const {id_rekap_nilai, id_sub_kategori} = req.params
-    const {nilai_list} = req.body
-    try {
-        await updateNilai(id_rekap_nilai,id_sub_kategori, nilai_list)
-        res.json({
-            success: true,
-            message: 'data berhasil di update'
-        })
-    } catch (error) {
-        next(error)
+router.patch(
+    "/update-nilai/:id_rekap_nilai/:id_sub_kategori",
+    async (req, res, next) => {
+        const { id_rekap_nilai, id_sub_kategori } = req.params;
+        const { nilai_list } = req.body;
+        try {
+            await updateNilai(id_rekap_nilai, id_sub_kategori, nilai_list);
+            res.json({
+                success: true,
+                message: "data berhasil di update",
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-})
+);
+
 module.exports = router;

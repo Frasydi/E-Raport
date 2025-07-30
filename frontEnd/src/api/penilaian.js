@@ -85,3 +85,55 @@ export const updatePenilaian = async (
         }
     }
 };
+
+export const getPenilaian = async (id_tahun_ajaran, semester) => {
+    try {
+        const response = await axiosInstance.get(
+            `/penilaian/display-penilaian/${id_tahun_ajaran}/${semester}`
+        );
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.data) {
+            throw error.response.data.message || "Terjadi kesalahan";
+        } else {
+            throw error;
+        }
+    }
+};
+
+export const searhPenilaian = async (id_tahun_ajaran, semester, keyword) => {
+    try {
+        const response = await axiosInstance.get(
+            `/penilaian/search-penilaian/${id_tahun_ajaran}/${semester}`,
+            {
+                params: { keyword },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.data) {
+            throw error.response.data.message || "Terjadi kesalahan";
+        } else {
+            throw error;
+        }
+    }
+};
+
+export const searchRaport = async (id_tahun_ajaran, semester, keyword) => {
+    try {
+        const response = await axiosInstance.get("/penilaian/search-raport", {
+            params: {
+                id_tahun_ajaran,
+                semester,
+                keyword,
+            },
+        });
+        return response.data?.data
+    } catch (error) {
+        if (error.response && error.response.data) {
+            throw error.response.data.message || "Terjadi kesalahan";
+        } else {
+            throw error;
+        }
+    }
+};

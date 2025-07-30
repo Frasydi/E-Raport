@@ -1,13 +1,17 @@
 const {
-    finByTahunSemester,
+    findByTahunSemester,
     createPenilaian,
     getDataKategori,
     getDataSubkategori,
     getIndikator,
     updatePenilaian,
     existing,
+    getPenilaianGrouped,
     penilaianList,
+    searhPenilaian,
+    searchRaport
 } = require("./repository_penilaian");
+const prisma = require("../../prisma/prismaClient");
 const { validatorField, sanitizeData } = require("../utils/validator");
 const { validateUpdatePayload } = require("../utils/validator");
 const throwWithStatus = require("../utils/throwWithStatus");
@@ -15,11 +19,43 @@ const throwWithStatus = require("../utils/throwWithStatus");
 const displayPesertaDidikByTahunSemester = async (tahunAjaran, semester) => {
     validatorField({ tahunAjaran, semester });
     try {
-        const response = await finByTahunSemester(tahunAjaran, semester);
+        const response = await findByTahunSemester(tahunAjaran, semester);
         if (!response || response.length == 0) {
             throwWithStatus("data peserta pada tahun ini belum ada", 404);
         }
         return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const displaySearchPenilaian = async (id_tahun_ajaran, semester, data) => {
+    validatorField({
+        id_tahun_ajaran,
+        semester,
+        data,
+    });
+
+    try {
+        const response = await searhPenilaian(id_tahun_ajaran, semester, data);
+        if (!response || response.length == 0) {
+            throwWithStatus("data tidak ditemukan", 404);
+        }
+        const newData = response.map((val)=> {
+            return {
+                id_rekap_nilai: val.id_rekap_nilai,
+                tahun_ajaran: val.tahunAjaran,
+                peserta_didik: {
+                    id_peserta_didik: val.pesertaDidik.id_peserta_didik,
+                    nama_lengkap: val.pesertaDidik.nama_lengkap,
+                    nis: val.pesertaDidik.nis
+                },
+                guru: {
+                    nama_kelas:val.guru.nama_kelas
+                }
+            }
+        })
+        return newData
     } catch (error) {
         throw error;
     }
@@ -44,34 +80,37 @@ const displayKategori = async (id_rekap_nilai) => {
     try {
         validatorField({ id_rekap_nilai });
 
-        const response = await getDataKategori(id_rekap_nilai);
-        if (!response || response.length === 0) {
+        const kategoriList = await getDataKategori(id_rekap_nilai);
+        if (!kategoriList || kategoriList.length === 0) {
             throwWithStatus("kesalahan server", 500);
         }
 
-        const kategoriMap = new Map();
+        const rekap = await prisma.rekapNilai.findUnique({
+            where: { id_rekap_nilai },
+            include: {
+                pesertaDidik: true,
+                tahunAjaran: true,
+                semester: true,
+            },
+        });
 
-        for (const item of response) {
-            const kategori = item.indikator.subKategori.kategori;
-            const pesertaDidik = item.rekapNilai.pesertaDidik;
-            const tahunAjaran = item.rekapNilai.tahunAjaran;
-            const semester = item.rekapNilai.semester;
-
-            if (!kategoriMap.has(kategori.id_kategori)) {
-                kategoriMap.set(kategori.id_kategori, {
-                    id_kategori: kategori.id_kategori,
-                    nama_kategori: kategori.nama_kategori,
-                    peserta_didik: {
-                        nama_lengkap: pesertaDidik.nama_lengkap,
-                        nis: pesertaDidik.nis,
-                        tahunAjaran: tahunAjaran.tahun_ajaran,
-                        semester: semester.nama,
-                    },
-                });
-            }
+        if (!rekap) {
+            throwWithStatus("Data rekap tidak ditemukan", 404);
         }
 
-        return Array.from(kategoriMap.values());
+        const mapped = kategoriList.map((kategori) => ({
+            id_kategori: kategori.id_kategori,
+            nama_kategori: kategori.nama_kategori,
+            status: kategori.status,
+            peserta_didik: {
+                nama_lengkap: rekap.pesertaDidik.nama_lengkap,
+                nis: rekap.pesertaDidik.nis,
+                tahun_ajaran: rekap.tahunAjaran.tahun_ajaran,
+                semester: rekap.semester.nama,
+            },
+        }));
+
+        return mapped;
     } catch (error) {
         throw error;
     }
@@ -161,7 +200,7 @@ const updateNilai = async (id_rekap_nilai, id_sub_kategori, nilai_list) => {
             const id_penilaian = penilaianMap.get(sanitizedItem.id_indikator);
             if (!id_penilaian) continue;
 
-            const existingRecord =  await existing(id_penilaian);
+            const existingRecord = await existing(id_penilaian);
 
             const existingFlat =
                 Array.isArray(existingRecord) && existingRecord.length === 1
@@ -198,6 +237,100 @@ const updateNilai = async (id_rekap_nilai, id_sub_kategori, nilai_list) => {
     }
 };
 
+const displayPenilaian = async (id_tahun_ajaran, semester) => {
+    validatorField({ id_tahun_ajaran, semester });
+
+    const penilaianList = await getPenilaianGrouped(id_tahun_ajaran, semester);
+    if (!penilaianList || penilaianList.length === 0) {
+        throwWithStatus(
+            "data peserta didik di tahun ajaran ini belum ada",
+            403
+        );
+    }
+
+    const grouped = {};
+    for (const p of penilaianList) {
+        const pd = p.rekapNilai.pesertaDidik;
+        const nama_kelas = formatNamaKelas(p.rekapNilai.guru.nama_kelas);
+
+        if (!grouped[pd.id_peserta_didik]) {
+            grouped[pd.id_peserta_didik] = {
+                pesertaDidik: {
+                    ...pd,
+                    nama_kelas, // Sudah diformat jadi "Kelompok A/B"
+                },
+                kategori: {},
+            };
+        }
+
+        const kategoriId = p.indikator.subKategori.kategori.id_kategori;
+        const kategori = p.indikator.subKategori.kategori.nama_kategori;
+        const subKategori = p.indikator.subKategori.nama_sub_kategori;
+
+        if (!grouped[pd.id_peserta_didik].kategori[kategoriId]) {
+            grouped[pd.id_peserta_didik].kategori[kategoriId] = {
+                nama: kategori,
+                subKategori: {},
+            };
+        }
+
+        if (
+            !grouped[pd.id_peserta_didik].kategori[kategoriId].subKategori[
+                subKategori
+            ]
+        ) {
+            grouped[pd.id_peserta_didik].kategori[kategoriId].subKategori[
+                subKategori
+            ] = [];
+        }
+
+        grouped[pd.id_peserta_didik].kategori[kategoriId].subKategori[
+            subKategori
+        ].push({
+            indikator: p.indikator.nama_indikator,
+            nilai: p.nilai,
+        });
+    }
+
+    return Object.values(grouped).map((g) => ({
+        pesertaDidik: g.pesertaDidik,
+        kategori: Object.keys(g.kategori).map((id) => ({
+            id_kategori: Number(id),
+            nama_kategori: g.kategori[id].nama,
+            subKategori: Object.keys(g.kategori[id].subKategori).map(
+                (namaSub) => ({
+                    nama_sub_kategori: namaSub,
+                    indikator: g.kategori[id].subKategori[namaSub],
+                })
+            ),
+        })),
+    }));
+};
+
+const formatNamaKelas = (nama_kelas) => {
+    if (!nama_kelas) return "";
+    // Pastikan huruf terakhir dipisah
+    const match = nama_kelas.match(/(kelompok)([A-Z])/i);
+    if (match) {
+        return `${match[1][0].toUpperCase()}${match[1].slice(
+            1
+        )} ${match[2].toUpperCase()}`;
+    }
+    return nama_kelas;
+};
+
+const displaySearhRaport = async(id_tahun_ajaran, semester, keyword)=> {
+    try {
+        const response = await searchRaport(id_tahun_ajaran, semester, keyword)
+        if(!response || response.length == 0) {
+            throwWithStatus("data tidak ditemukan", 404)
+        }
+        return response
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     displayPesertaDidikByTahunSemester,
     postPenilaian,
@@ -205,4 +338,7 @@ module.exports = {
     displaySubKategori,
     displayIndikator,
     updateNilai,
+    displayPenilaian,
+    displaySearchPenilaian,
+    displaySearhRaport
 };

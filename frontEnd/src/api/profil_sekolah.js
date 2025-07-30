@@ -1,15 +1,22 @@
-import axiosInstance from "./axiosInstance"
+import axiosInstance from "./axiosInstance";
 
-export const getDataProfil = async() => {
-    const res = await axiosInstance.get("/profil-sekolah")
-    return res.data
-}
-
-export const updateDataProfil = async(data)=> {
+export const getDataProfil = async () => {
     try {
-        const res = await axiosInstance.patch("/profil-sekolah/update-data", data)
-        return res
+        const res = await axiosInstance.get("/profil-sekolah");
+        return res.data;
     } catch (error) {
-        throw error.response.data     
+        return error.response.data;
     }
-}
+};
+
+export const updateDataProfil = async (data) => {
+    try {
+        const res = await axiosInstance.patch(
+            "/profil-sekolah/update-data",
+            data
+        );
+        return res;
+    } catch (error) {
+        throw error.response.data;
+    }
+};

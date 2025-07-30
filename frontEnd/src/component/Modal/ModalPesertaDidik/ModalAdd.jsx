@@ -30,9 +30,11 @@ const Modal = ({ onClose, onSuccess }) => {
         const { value, name } = e.target;
         setFormAdd((val) => ({
             ...val,
-            [name]: value,
+            [name]: name === "anakKe" ? Number(value) : value,
         }));
     };
+
+    console.log(formAdd)
 
     useEffect(() => {
         if (error) {
@@ -73,13 +75,12 @@ const Modal = ({ onClose, onSuccess }) => {
         try {
             await insertPesertaDidik(tahunAjaran, guru, formAdd);
             showToast("success", "Data berhasil ditambahkan");
-            setDisabled(false)
-            onSuccess()
+            setDisabled(false);
+            onSuccess();
         } catch (err) {
             setError(err.message || "Gagal Tambah Data");
-            setDisabled(true)
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
@@ -96,7 +97,7 @@ const Modal = ({ onClose, onSuccess }) => {
                 <div className="w-2/3">
                     {error && <ErrorMessage error={error} ref={errorRef} />}
                 </div>
-                <form onSubmit={handleSubmit} className="w-2/3 text-sm">
+                <form onSubmit={handleSubmit} className="w-2/3 text-sm ">
                     <div className="w-full h-15 flex gap-5 mb-7">
                         <ModalInput
                             type={"select"}
@@ -224,7 +225,7 @@ const Modal = ({ onClose, onSuccess }) => {
                             value={formAdd.nisn || ""}
                             name={"nisn"}
                             onChange={onChangeHandle}
-                            placeholder={"Masukkan Nomor Induk Siswa Nasional"}
+                            placeholder={"Nomor Induk Siswa Nasional"}
                             htmlFor={"NISN"}
                             disabled={loading || disabled}
                         >
@@ -270,7 +271,7 @@ const Modal = ({ onClose, onSuccess }) => {
                                 }));
                             }}
                             options={["Laki-Laki", "Perempuan"]}
-                            htmlFor={"jenis-kelamin"}
+                            htmlFor={"jenis_kelamin"}
                             disabled={loading || disabled}
                             required={true}
                         >
@@ -498,7 +499,10 @@ const Modal = ({ onClose, onSuccess }) => {
             />
             {showModalSelectPeserta && (
                 <ModalSelectPeserta
-                    closeOpenModal={setShowModalSelectPeserta}
+                    closeOpenModal={() => {
+                        setShowModalSelectPeserta(false);
+                    }}
+                    isOpen={showModalSelectPeserta}
                     onSelect={handleSelectPeserta}
                 />
             )}

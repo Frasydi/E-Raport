@@ -1,7 +1,6 @@
 import Input from "./Input";
 import CustomSelect from "../CustomSelect";
 import { forwardRef } from "react";
-
 const ModalInput = forwardRef(
     (
         {
@@ -43,7 +42,7 @@ const ModalInput = forwardRef(
                         />
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1.5 ">
                         <label
                             htmlFor={id}
                             className="text-xs text-gray-500 font-semibold"

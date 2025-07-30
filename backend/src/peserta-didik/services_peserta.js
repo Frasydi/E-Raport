@@ -11,7 +11,6 @@ const {
     sanitizeData,
 } = require("../utils/validator");
 const throwWithStatus = require("../utils/throwWithStatus");
-const { pesertaDidik } = require("../../prisma/prismaClient");
 
 const displayDataPesertaDidik = async () => {
     try {

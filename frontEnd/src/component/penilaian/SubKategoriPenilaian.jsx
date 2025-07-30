@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import { getSubKategori } from "../../api/penilaian";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import Loading from "../Loading";
 
 const SubKategoriPenilaian = () => {
     const { id_kategori, id_rekap_nilai } = useParams();
@@ -19,10 +20,12 @@ const SubKategoriPenilaian = () => {
         setIsLoading(true);
         setError("");
         try {
+            await new Promise((resolve) => setTimeout(resolve, 500));
             const response = await getSubKategori(id_rekap_nilai, id_kategori);
             const hasil = Array.isArray(response.data)
                 ? response.data.map((item) => ({
                       id: item.id_sub_kategori,
+                      status: item.status,
                       label: item.nama_sub_kategori,
                   }))
                 : [];
@@ -87,7 +90,7 @@ const SubKategoriPenilaian = () => {
                         <div className="mt-4 text-center text-sm text-gray-400">
                             <p>pilih sub kategori</p>
                         </div>
-
+                        {isLoading && <Loading />}
                         <div className="flex flex-col items-center bg-white shadow-md rounded-2xl py-6 px-4 w-full max-w-md mx-auto space-y-3">
                             {subkategoriList.map((item, index) => (
                                 <div
@@ -110,7 +113,18 @@ const SubKategoriPenilaian = () => {
                                             : ""
                                     }  cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl shadow-sm`}
                                 >
-                                    <span>{item.label}</span>
+                                    <div className="flex justify-between w-full ">
+                                        <p>{item.label}</p>
+                                        {item.status == "belum lengkap" ? (
+                                            <p className="text-red-500 font-bold">
+                                                {"!"}
+                                            </p>
+                                        ) : (
+                                            <p className="text-green-700 font-bold">
+                                                ✓
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>

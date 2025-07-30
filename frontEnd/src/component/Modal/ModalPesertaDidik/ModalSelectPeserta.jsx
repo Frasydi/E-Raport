@@ -15,7 +15,7 @@ const ModalSelectPeserta = ({ isOpen, closeOpenModal, onSelect }) => {
     const [selectedId, setSelectedId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState("");
-    
+
     const handleRowClick = (id_peserta_didik) => {
         setSelectedId(
             id_peserta_didik === selectedId ? null : id_peserta_didik
@@ -98,7 +98,7 @@ const ModalSelectPeserta = ({ isOpen, closeOpenModal, onSelect }) => {
         <ModalContainer
             size={"w-5/12 self-center"}
             height={"h-[80%]"}
-            CloseOpenModal={closeOpenModal}
+            onClose={closeOpenModal}
         >
             <div className="p-5 flex flex-col h-full w-8/12">
                 <div className="flex w-full justify-center mb-3">

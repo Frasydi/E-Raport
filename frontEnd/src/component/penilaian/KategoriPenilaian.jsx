@@ -32,6 +32,8 @@ const KategoriPenilaian = () => {
         faPaintBrush,
     ];
 
+    console.log(dataPesertaDidik);
+
     const fetchData = async () => {
         setIsLoading(true);
         setError("");
@@ -40,6 +42,7 @@ const KategoriPenilaian = () => {
             const response = await getKategori(id_rekap_nilai);
             const hasil = Array.isArray(response.data)
                 ? response.data.map((item, index) => ({
+                      status: item.status,
                       id: item.id_kategori,
                       label: item.nama_kategori,
                       icon: icon[index % icon.length],
@@ -107,9 +110,14 @@ const KategoriPenilaian = () => {
                                         "pesertaDidik",
                                         JSON.stringify(dataPesertaDidik)
                                     );
-                                    navigate(
-                                        `/menu/penilaian/${id_rekap_nilai}/${item.id}`
-                                    );
+                                    if(item.label == 'Nilai Nilai Agama dan Moral') {
+                                        navigate(`/menu/penilaian/${id_rekap_nilai}/${item.id}/${item.id}`)
+                                    } else {
+                                        navigate(
+                                            `/menu/penilaian/${id_rekap_nilai}/${item.id}`
+                                        );
+                                    }
+                                    console.log(item.label)
                                 }}
                                 key={index}
                                 className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl shadow-sm"
@@ -118,7 +126,10 @@ const KategoriPenilaian = () => {
                                     icon={item.icon}
                                     className="text-gray-600 w-5"
                                 />
-                                <span>{item.label}</span>
+                                <div className="flex justify-between w-full ">
+                                    <p>{item.label}</p>
+                                    {item.status == 'belum lengkap'?(<p className="text-red-500 font-bold">{'!'}</p>) : (<p className="text-green-700 font-bold">✓</p>)}
+                                </div>
                             </div>
                         ))}
                     </div>

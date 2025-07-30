@@ -10,35 +10,34 @@ const PaginationControls = ({
         const pageNumbers = [];
         const maxVisible = 5;
 
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = startPage + maxVisible - 1;
+        // Always show first page
+        pageNumbers.push(
+            <button
+                key={1}
+                onClick={() => onPageChange(1)}
+                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    1 === currentPage
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                }`}
+            >
+                1
+            </button>
+        );
 
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxVisible + 1);
-        }
-
-        // Add first page and ellipsis if needed
-        if (startPage > 1) {
+        // Show ellipsis if current page is far from start
+        if (currentPage > 3) {
             pageNumbers.push(
-                <button
-                    key={1}
-                    onClick={() => onPageChange(1)}
-                    className="px-3.5 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                >
-                    1
-                </button>
+                <span key="start-ellipsis" className="px-2 py-2 text-gray-400">
+                    ...
+                </span>
             );
-            if (startPage > 2) {
-                pageNumbers.push(
-                    <span key="start-ellipsis" className="px-2 py-2 text-gray-400">
-                        ...
-                    </span>
-                );
-            }
         }
 
-        // Add visible page numbers
+        // Show current page and adjacent pages
+        const startPage = Math.max(2, currentPage - 1);
+        const endPage = Math.min(totalPages - 1, currentPage + 1);
+
         for (let i = startPage; i <= endPage; i++) {
             pageNumbers.push(
                 <button
@@ -55,20 +54,26 @@ const PaginationControls = ({
             );
         }
 
-        // Add last page and ellipsis if needed
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                pageNumbers.push(
-                    <span key="end-ellipsis" className="px-2 py-2 text-gray-400">
-                        ...
-                    </span>
-                );
-            }
+        // Show ellipsis if current page is far from end
+        if (currentPage < totalPages - 2) {
+            pageNumbers.push(
+                <span key="end-ellipsis" className="px-2 py-2 text-gray-400">
+                    ...
+                </span>
+            );
+        }
+
+        // Always show last page if there's more than 1 page
+        if (totalPages > 1) {
             pageNumbers.push(
                 <button
                     key={totalPages}
                     onClick={() => onPageChange(totalPages)}
-                    className="px-3.5 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        totalPages === currentPage
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                    }`}
                 >
                     {totalPages}
                 </button>
@@ -79,7 +84,7 @@ const PaginationControls = ({
     };
 
     return (
-        <div className="flex items-center justify-center space-x-1 mt-8">
+        <div className="flex items-center justify-center space-x-1 mt-5 mb-5">
             <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}

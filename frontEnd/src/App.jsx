@@ -16,6 +16,9 @@ import KategoriPenilaian from "./component/penilaian/KategoriPenilaian";
 import SubKategoriPenilaian from "./component/penilaian/SubKategoriPenilaian";
 import Nilai from "./component/penilaian/Nilai";
 import OfflineIndicator from "./component/OfflineIndicator";
+//import KeteranganDiri from "./component/cetak_raport/KetaranganDiri";
+//import CetakNilai from "./component/cetak_raport/CetaNilai";
+import TestDoang from "./component/cetak_raport/testDoang";
 
 function App() {
     return (

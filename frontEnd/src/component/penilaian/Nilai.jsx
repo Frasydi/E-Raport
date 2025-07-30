@@ -9,11 +9,12 @@ import Loading from "../Loading";
 import ConfirmModal from "../Modal/confirmModal";
 import showToast from "../../hooks/showToast";
 import { useFocusError } from "../../hooks/useFocusError";
+import { useNavigate } from "react-router";
 import ErrorMessage from "../Error";
 
 const Nilai = () => {
     const { id_rekap_nilai, id_kategori, id_sub_kategori } = useParams();
-
+    const navigate = useNavigate()
     const [kategoriList, setKategoriList] = useState([]);
     const [subKategori, setSubKategori] = useState("");
     const [kategori, setKategori] = useState("");
@@ -127,7 +128,13 @@ const Nilai = () => {
 
     return (
         <>
-            <ModalPenilaian size="w-3xl h-11/12">
+            <ModalPenilaian
+                size="w-3xl h-11/12"
+                onClose={() => {
+                    localStorage.removeItem("pesertaDidik");
+                    navigate("/menu/penilaian");
+                }}
+            >
                 {emptyError ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-red-50 rounded-lg border border-red-100 p-4">
                         <div className="flex items-center justify-center gap-2">
@@ -194,9 +201,7 @@ const Nilai = () => {
                                                     )
                                                 }
                                             >
-                                                <option value="">
-                                                    kosong
-                                                </option>
+                                                <option value="">kosong</option>
                                                 <option value="B">B</option>
                                                 <option value="C">C</option>
                                                 <option value="P">P</option>
