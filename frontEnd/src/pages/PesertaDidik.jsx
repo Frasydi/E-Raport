@@ -35,6 +35,7 @@ const PesertaDidik = () => {
         fetchByTahunAjaran,
         searchPeserta,
         deletePeserta,
+        setError,
     } = usePesertaDidikStore(
         useShallow((state) => ({
             pesertaDidik: state.data,
@@ -43,11 +44,15 @@ const PesertaDidik = () => {
             fetchByTahunAjaran: state.fetchByTahunAjaran,
             searchPeserta: state.searchPeserta,
             deletePeserta: state.deletePeserta,
+            setError: state.setError,
         }))
     );
 
     useEffect(() => {
         if (!selectedTahunAjaran) {
+            setError(
+                "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
+            );
             return;
         }
         fetchByTahunAjaran(selectedTahunAjaran);
@@ -73,6 +78,25 @@ const PesertaDidik = () => {
             showToast("error", "gagal menghapus peserta didik");
         }
     };
+
+    useEffect(() => {
+        if (selectedTahunAjaran) {
+            localStorage.setItem("tahun_ajaran_peserta", selectedTahunAjaran);
+        }
+    }, [selectedTahunAjaran]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("tahun_ajaran_peserta");
+        const findTahunRaport = tahunAjaranOptions.find(
+            (val) => val?.value === saved
+        );
+        if (saved && findTahunRaport) {
+            setSelectedTahunAjaran(saved);
+        } else {
+            localStorage.removeItem("tahun_ajaran_peserta");
+            setSelectedTahunAjaran("");
+        }
+    }, []);
 
     const handleSearch = async () => {
         if (!search.trim()) {
@@ -141,20 +165,6 @@ const PesertaDidik = () => {
                                 >
                                     tambahkan data
                                 </AddStudentButton>
-                                <AddStudentButton
-                                    icon={faDownload}
-                                    htmlFor={"download-data"}
-                                    bg={"bg-cyan-800/80 hover:bg-cyan-800"}
-                                >
-                                    download data
-                                </AddStudentButton>
-                                <AddStudentButton
-                                    icon={faUpload}
-                                    htmlFor={"upload-data"}
-                                    bg={"bg-rose-800/80 hover:bg-rose-800"}
-                                >
-                                    upload data
-                                </AddStudentButton>
                             </div>
                             <div className="flex text-sm items-center gap-1.5 w-sm">
                                 <Search
@@ -173,8 +183,25 @@ const PesertaDidik = () => {
                         {loadingPeserta && <Loading />}
 
                         {!loadingPeserta && errorPeserta && (
-                            <div className="p-4 text-red-500">
-                                {errorPeserta}
+                            <div className=" mt-5 w-full flex flex-col items-center justify-center h-52 bg-red-50 rounded-lg border border-red-100 p-4">
+                                <div className="flex items-center justify-center gap-2">
+                                    <svg
+                                        className="w-5 h-5 text-red-500"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    <h1 className="text-sm font-medium text-red-600">
+                                        {errorPeserta}
+                                    </h1>
+                                </div>
                             </div>
                         )}
 

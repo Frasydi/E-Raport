@@ -9,6 +9,7 @@ import { Outlet } from "react-router";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import Loading from "../component/Loading";
+import ModalKesimpulan from "../component/Modal/ModalKesimpulan/ModalUpdateKesimpulan";
 
 const Penilaian = () => {
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
@@ -17,8 +18,10 @@ const Penilaian = () => {
     const [pesertaDidik, setPesertaDidik] = useState([]);
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
-    const [isSearch, setIsSearch] = useState(false)
+    const [isSearch, setIsSearch] = useState(true);
     const [isLoading, setIsLoading] = useState("");
+    const [rekapNilai, setRekapNilai] = useState("")
+    const [isOpenModalKesimpulan, setOpenModalKesimpulan] = useState(false);
     const navigate = useNavigate();
 
     const fetchData = async () => {
@@ -47,6 +50,32 @@ const Penilaian = () => {
     };
 
     useEffect(() => {
+        if (selectedTahunAjaran) {
+            localStorage.setItem("tahun_ajaran_penilaian", selectedTahunAjaran);
+        }
+        if (selectedSemester) {
+            localStorage.setItem("semester_penilaian", selectedSemester);
+        }
+    }, [selectedTahunAjaran, selectedSemester]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("tahun_ajaran_penilaian");
+        const savedSemester = localStorage.getItem("semester_penilaian");
+        const findTahunRaport = tahunAjaranOptions.find(
+            (val) => val?.value === saved
+        );
+        if (saved && findTahunRaport) {
+            setSelectedTahunAjaran(saved);
+        } else {
+            localStorage.removeItem("tahun_ajaran_raport");
+            setSelectedTahunAjaran("");
+        }
+        if (savedSemester) {
+            setSelectedSemester(savedSemester);
+        }
+    },[tahunAjaranOptions]);
+
+    useEffect(() => {
         if (!selectedTahunAjaran) {
             setError(
                 "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
@@ -60,113 +89,96 @@ const Penilaian = () => {
         fetchData();
     }, [selectedSemester, selectedTahunAjaran]);
 
-    useEffect(()=> {
-        if(!selectedTahunAjaran || !selectedSemester) return 
-        if(search) return
-        if(!isSearch) return
-        fetchData()
-    }, [search, selectedSemester, selectedTahunAjaran])
+    useEffect(() => {
+        if (!selectedTahunAjaran || !selectedSemester) return;
+        if (search) return;
+        if (!isSearch) return;
+        fetchData();
+    }, [search, selectedSemester, selectedTahunAjaran]);
 
     const handleSearch = async () => {
         setIsLoading(true);
-        setIsSearch(false)
-        setError("")
+        setIsSearch(false);
+        setError("");
         try {
-            if(!selectedTahunAjaran) {
-                setError("tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu")
-                return
+            if (!selectedTahunAjaran) {
+                setError(
+                    "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
+                );
+                return;
             }
-            if(!selectedSemester) {
-                setError("semester belum dipilih. Harap lengkapi terlebih dahulu")
-                return
+            if (!selectedSemester) {
+                setError(
+                    "semester belum dipilih. Harap lengkapi terlebih dahulu"
+                );
+                return;
             }
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            const response = await searhPenilaian(selectedTahunAjaran, selectedSemester, search)
-            setIsSearch(true)
-            setPesertaDidik(response.data)
+            const response = await searhPenilaian(
+                selectedTahunAjaran,
+                selectedSemester,
+                search
+            );
+            setIsSearch(true);
+            setPesertaDidik(response.data);
         } catch (error) {
-            setError(error)
-            setIsSearch(false)
+            setError(error);
+            setIsSearch(false);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     };
 
-    return (
-        <LayoutMenu>
-            <Outlet />
-            <div className="w-5/6 mt-10">
-                <div className="w-2xl text-sm px-5 drop-shadow-xl rounded-xl bg-[#ffffff] pt-4 z-10 relative flex gap-7">
-                    <ModalInput
-                        type={"select"}
-                        classname={"mb-5"}
-                        value={selectedTahunAjaran}
-                        onChange={(val) => {
-                            setSelectedTahunAjaran(val);
-                        }}
-                        options={tahunAjaranOptions}
-                        displayKey="label"
-                        disibled={isLoading}
-                        emptyMessage={"harap isi data di menu tahun ajaran"}
-                        valueKey="value"
-                        id={"tahun_ajaran"}
-                        name={"tahun_ajaran"}
-                    >
-                        Tahun Ajaran
-                    </ModalInput>
-                    <ModalInput
-                        type={"select"}
-                        value={selectedSemester}
-                        onChange={(val) => {
-                            setSelectedSemester(val);
-                        }}
-                        options={["semester 1", "semester 2"]}
-                        displayKey="label"
-                        valueKey="value"
-                        id={"semester"}
-                        disibled={isLoading}
-                        name={"semester"}
-                    >
-                        Semester
-                    </ModalInput>
-                </div>
-                <Container>
-                    {isLoading && <Loading />}
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="inline-flex items-center bg-[#484848] text-gray-100 px-4 py-2 rounded-full text-sm font-medium">
-                            <svg
-                                className="w-4 h-4 mr-2 text-blue-300"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                />
-                            </svg>
-                            Instruksi: pilih semester dan tahun ajaran
-                        </div>
-                        <div className="w-sm">
-                            <Search
-                                htmlFor="search_student"
-                                placeholder="cari siswa....."
-                                onChange={(e) => {
-                                    setSearch(e.target.value);
-                                }}
-                                onSearch={handleSearch}
-                                label={false}
-                            />
-                        </div>
-                    </div>
 
-                    {error ? (
-                        <div className="w-full flex flex-col items-center justify-center h-52 bg-red-50 rounded-lg border border-red-100 p-4">
-                            <div className="flex items-center justify-center gap-2">
+
+    return (
+        <>
+            <ModalKesimpulan isOpen={isOpenModalKesimpulan} data={rekapNilai} onClose={()=> {
+                setOpenModalKesimpulan(false)
+            }}/>
+            <LayoutMenu>
+                <Outlet />
+                <div className="w-5/6 mt-10">
+                    <div className="w-2xl text-sm px-5 drop-shadow-xl rounded-xl bg-[#ffffff] pt-4 z-10 relative flex gap-7">
+                        <ModalInput
+                            type={"select"}
+                            classname={"mb-5"}
+                            value={selectedTahunAjaran}
+                            onChange={(val) => {
+                                setSelectedTahunAjaran(val);
+                            }}
+                            options={tahunAjaranOptions}
+                            displayKey="label"
+                            disibled={isLoading}
+                            emptyMessage={"harap isi data di menu tahun ajaran"}
+                            valueKey="value"
+                            id={"tahun_ajaran"}
+                            name={"tahun_ajaran"}
+                        >
+                            Tahun Ajaran
+                        </ModalInput>
+                        <ModalInput
+                            type={"select"}
+                            value={selectedSemester}
+                            onChange={(val) => {
+                                setSelectedSemester(val);
+                            }}
+                            options={["semester 1", "semester 2"]}
+                            displayKey="label"
+                            valueKey="value"
+                            id={"semester"}
+                            disibled={isLoading}
+                            name={"semester"}
+                        >
+                            Semester
+                        </ModalInput>
+                    </div>
+                    <Container>
+                        {isLoading && <Loading />}
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="inline-flex items-center bg-[#484848] text-gray-100 px-4 py-2 rounded-full text-sm font-medium">
                                 <svg
-                                    className="w-5 h-5 text-red-500"
+                                    className="w-4 h-4 mr-2 text-blue-300"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -175,31 +187,67 @@ const Penilaian = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                     />
                                 </svg>
-                                <h1 className="text-sm font-medium text-red-600">
-                                    {error}
-                                </h1>
+                                Instruksi: pilih semester dan tahun ajaran
+                            </div>
+                            <div className="w-sm">
+                                <Search
+                                    htmlFor="search_student"
+                                    placeholder="cari siswa....."
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                    }}
+                                    onSearch={handleSearch}
+                                    label={false}
+                                />
                             </div>
                         </div>
-                    ) : (
-                        <div className="flex flex-wrap gap-[61px] ">
-                            {pesertaDidik.map((item) => (
-                                <CardProfil
-                                    key={item.id_rekap_nilai}
-                                    mode="penilaian"
-                                    data={item}
-                                    onNilaiClick={(data) => {
-                                        navigate(`${data.id_rekap_nilai}`);
-                                    }}
-                                ></CardProfil>
-                            ))}
-                        </div>
-                    )}
-                </Container>
-            </div>
-        </LayoutMenu>
+
+                        {error ? (
+                            <div className="w-full flex flex-col items-center justify-center h-52 bg-red-50 rounded-lg border border-red-100 p-4">
+                                <div className="flex items-center justify-center gap-2">
+                                    <svg
+                                        className="w-5 h-5 text-red-500"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    <h1 className="text-sm font-medium text-red-600">
+                                        {error}
+                                    </h1>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-wrap gap-[61px] ">
+                                {pesertaDidik.map((item) => (
+                                    <CardProfil
+                                        key={item.id_rekap_nilai}
+                                        mode="penilaian"
+                                        data={item}
+                                        onSaranClick={(data)=> {
+                                            setRekapNilai(data?.id_rekap_nilai)
+                                            setOpenModalKesimpulan(true)
+                                        }}
+                                        onNilaiClick={(data) => {
+                                            navigate(`${data.id_rekap_nilai}`);
+                                        }}
+                                    ></CardProfil>
+                                ))}
+                            </div>
+                        )}
+                    </Container>
+                </div>
+            </LayoutMenu>
+        </>
     );
 };
 

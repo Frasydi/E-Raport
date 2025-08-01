@@ -3,7 +3,7 @@ import {
     getDatabyTahunAjaran,
     searchPesertaDidik,
     deletePesertaDidik,
-    getSearchPesertaDidik
+    getSearchPesertaDidik,
 } from "../api/peserta_didik";
 
 export const usePesertaDidikStore = create((set) => ({
@@ -46,7 +46,7 @@ export const usePesertaDidikStore = create((set) => ({
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const hasil = await getSearchPesertaDidik(keyword);
-            console.log(hasil)
+            console.log(hasil);
             set({ data: hasil });
         } catch (error) {
             set({
@@ -72,5 +72,6 @@ export const usePesertaDidikStore = create((set) => ({
             set({ loading: false });
         }
     },
+    setError: (message) => set({ error: message }),
     reset: () => set({ data: [], loading: false, error: null }),
 }));

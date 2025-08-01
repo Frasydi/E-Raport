@@ -1,5 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { PDFViewer, PDFDownloadLink, pdf } from "@react-pdf/renderer";
+import {
+    PDFViewer,
+    PDFDownloadLink,
+    pdf,
+    Document,
+    Page,
+} from "@react-pdf/renderer";
 
 const ModernPDFViewer = ({
     children,
@@ -10,6 +16,7 @@ const ModernPDFViewer = ({
     showZoom = true,
     showFullscreen = true,
     showPrint = true,
+    deps = [],
 }) => {
     const [scale, setScale] = useState(1.0);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -21,30 +28,36 @@ const ModernPDFViewer = ({
     const iframeRef = useRef(null);
 
     // Hydration
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+    useEffect(() => setIsClient(true), []);
 
     // Fullscreen events
     useEffect(() => {
-        const handleFullscreenChange = () => {
+        const handleFullscreenChange = () =>
             setIsFullscreen(!!document.fullscreenElement);
-        };
         document.addEventListener("fullscreenchange", handleFullscreenChange);
-        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+        return () =>
+            document.removeEventListener(
+                "fullscreenchange",
+                handleFullscreenChange
+            );
     }, []);
 
-    // Loading saat children berubah
+    // Loading overlay
     useEffect(() => {
         setIsLoading(true);
-        const timer = setTimeout(() => setIsLoading(false), 400); // durasi loading bisa diubah
+        const timer = setTimeout(() => setIsLoading(false), 400);
         return () => clearTimeout(timer);
     }, [children]);
+
+    // Reset viewer ketika dokumen berubah
+    useEffect(() => setViewerKey((prev) => prev + 1), deps);
 
     const toggleFullscreen = () => {
         if (!document.fullscreenEnabled) return;
         if (!isFullscreen) {
-            containerRef.current?.requestFullscreen?.().catch((err) => console.error("Fullscreen error:", err));
+            containerRef.current
+                ?.requestFullscreen?.()
+                .catch((err) => console.error("Fullscreen error:", err));
         } else {
             document.exitFullscreen?.();
         }
@@ -57,7 +70,13 @@ const ModernPDFViewer = ({
     const handlePrint = async () => {
         if (!isClient) return;
         try {
-            const blob = await pdf(children).toBlob();
+            const blob = await pdf(
+                children || (
+                    <Document>
+                        <Page />
+                    </Document>
+                )
+            ).toBlob();
             const url = URL.createObjectURL(blob);
             const iframe = iframeRef.current;
             iframe.src = url;
@@ -83,7 +102,9 @@ const ModernPDFViewer = ({
             {/* Loading overlay */}
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-10">
-                    <span className="text-gray-700 font-medium">Loading PDF...</span>
+                    <span className="text-gray-700 font-medium">
+                        Loading PDF...
+                    </span>
                 </div>
             )}
 
@@ -101,7 +122,11 @@ const ModernPDFViewer = ({
                         }}
                         showToolbar={false}
                     >
-                        {children}
+                        {children || (
+                            <Document>
+                                <Page />
+                            </Document>
+                        )}
                     </PDFViewer>
                 )}
             </div>
@@ -114,12 +139,14 @@ const ModernPDFViewer = ({
                             onClick={zoomOut}
                             disabled={scale <= 0.5}
                             className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                            title="Zoom Out"
                         >
-                            −
+                            🔍➖
                         </button>
                         <button
                             onClick={resetZoom}
                             className="text-sm font-medium px-2 py-1 hover:bg-gray-100 rounded-md"
+                            title="Reset Zoom"
                         >
                             {Math.round(scale * 100)}%
                         </button>
@@ -127,8 +154,9 @@ const ModernPDFViewer = ({
                             onClick={zoomIn}
                             disabled={scale >= 3.0}
                             className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                            title="Zoom In"
                         >
-                            +
+                            🔍➕
                         </button>
                     </div>
                 )}
@@ -138,25 +166,33 @@ const ModernPDFViewer = ({
                         <button
                             onClick={toggleFullscreen}
                             className="p-2 rounded-md hover:bg-gray-100"
+                            title="Fullscreen"
                         >
-                            {isFullscreen ? "⤢" : "⤡"}
+                            {isFullscreen ? "✕" : "⛶"}
                         </button>
                     )}
                     {showPrint && (
                         <button
                             onClick={handlePrint}
                             className="p-2 rounded-md hover:bg-gray-100 flex items-center gap-1"
+                            title="Print"
                         >
-                            🖨️ <span className="hidden sm:inline">Print</span>
+                            🖨 <span className="hidden sm:inline">Print</span>
                         </button>
                     )}
                     {showDownload && isClient && (
                         <PDFDownloadLink
-                            document={children}
+                            document={
+                                children || (
+                                    <Document>
+                                        <Page />
+                                    </Document>
+                                )
+                            }
                             fileName={downloadFileName}
                             className="p-2 rounded-md hover:bg-gray-100 flex items-center gap-1"
                         >
-                            ↓ <span className="hidden sm:inline">Download</span>
+                            ⬇ <span className="hidden sm:inline">Download</span>
                         </PDFDownloadLink>
                     )}
                 </div>

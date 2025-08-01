@@ -6,7 +6,7 @@ export const getTahunAjaran = async () => {
         return res.data;
     } catch (error) {
         if (error.response && error.response.data) {
-            throw new Error(error.response.data || "Terjadi kesalahan");
+            throw new Error(error.response.data?.message || "Terjadi kesalahan");
         } else {
             throw error;
         }

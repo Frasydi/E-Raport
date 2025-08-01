@@ -113,17 +113,43 @@ const styles = StyleSheet.create({
     row: { flexDirection: "row" },
 });
 
+const toRoman = (num) => {
+  const romans = [
+    ["M", 1000],
+    ["CM", 900],
+    ["D", 500],
+    ["CD", 400],
+    ["C", 100],
+    ["XC", 90],
+    ["L", 50],
+    ["XL", 40],
+    ["X", 10],
+    ["IX", 9],
+    ["V", 5],
+    ["IV", 4],
+    ["I", 1],
+  ];
+  let result = "";
+  for (const [roman, value] of romans) {
+    while (num >= value) {
+      result += roman;
+      num -= value;
+    }
+  }
+  return result;
+};
 
 const getValuesFromNilai = (nilai) => [
   nilai === "B", // Baik
   nilai === "C", // Cukup
   nilai === "P", // Perlu bimbingan
 ];
+
 const KategoriRow = ({ index, title }) => (
-  <View style={[styles.row, {borderBottom:1, fontWeight:600, borderRight:1, borderLeft:1}]} wrap={false}>
+  <View style={[styles.row, {borderBottom:1, fontWeight:600, borderRight:1, borderLeft:1, backgroundColor:"#F5F5F5"}]} wrap={false}>
     {/* Kolom Index */}
     <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1 }}>
-      <Text>{index}</Text>
+      <Text>{toRoman(index)}</Text>
     </View>
 
     {/* Kolom Judul */}
@@ -260,8 +286,37 @@ const RenderAllKategori = ({ data }) => (
   </View>
 );
 
+function formatTanggal(tanggal) {
+  const bulanIndo = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
 
-const CetakNilaiPDF = ({kategori, pesertaDidik}) => {
+  const parts = tanggal.split("-"); // bisa [12, 02, 2004] atau [2004, 02, 12]
+  
+  let hari, bulan, tahun;
+
+  // Deteksi format berdasarkan panjang tahun
+  if (parts[0].length === 4) {
+    // format: YYYY-MM-DD
+    tahun = parts[0];
+    bulan = parts[1];
+    hari = parts[2];
+  } else {
+    // format: DD-MM-YYYY
+    hari = parts[0];
+    bulan = parts[1];
+    tahun = parts[2];
+  }
+
+  const namaBulan = bulanIndo[parseInt(bulan, 10) - 1];
+  return `${hari} ${namaBulan} ${tahun}`;
+}
+
+
+
+
+const CetakNilaiPDF = ({kategori, tanggal, pesertaDidik, profilSekolah, kesimpulan, guru}) => {
     return (
     <Document>
         <Page size="A4" style={styles.page}>
@@ -273,15 +328,15 @@ const CetakNilaiPDF = ({kategori, pesertaDidik}) => {
                         <Text style={styles.yayasan}>
                             YAYASAN PENDIDIKAN AL-IKHLAS
                         </Text>
-                        <Text style={styles.sekolah}>TK AL-IKHLAS BALLA</Text>
-                        <Text style={styles.alamat}>
-                            Desa Balla, Kecamatan Bajo ...
+                        <Text style={styles.sekolah}>TK {profilSekolah?.nama_sekolah.toUpperCase()}</Text>
+                        <Text style={[styles.alamat]}>
+                            Desa {profilSekolah?.desa}, Kecamatan {profilSekolah?.kecamatan}, {profilSekolah?.kode_pos}
                         </Text>
                         <Text style={styles.alamat}>
-                            Jln.G latimojong HP. 08123123
+                            Jl. {profilSekolah?.jalan}, HP. {profilSekolah?.nomor_hp}
                         </Text>
                         <Text style={styles.alamat}>
-                            Email: tkAlIkhlasBalla.com
+                            Email: {profilSekolah?.email}
                         </Text>
                     </View>
                 </View>
@@ -300,7 +355,7 @@ const CetakNilaiPDF = ({kategori, pesertaDidik}) => {
                     <View style={styles.infoContainer}>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>NAMA PESERTA DIDIK</Text>
-                            <Text>: {pesertaDidik?.nama_lengkap}</Text>
+                            <Text>: {pesertaDidik?.nama_lengkap.toUpperCase()}</Text>
                         </View>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>NIS</Text>
@@ -355,6 +410,152 @@ const CetakNilaiPDF = ({kategori, pesertaDidik}) => {
                         {/* table body */}
                         <RenderAllKategori data={kategori} />
                 </View>
+
+                {/* table persen */}
+                <View style={styles.tableContainer}>
+                    <View style={[styles.row, {borderBottom:1, borderTop:1,fontWeight:600, backgroundColor:"#F5F5F5", borderRight:1, borderLeft:1}]} break>
+                        <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1 }}>
+                            <Text>VII</Text>
+                        </View>
+                        <View style={{ width: "63%", justifyContent: "center", padding: 2}}>
+                            <Text>KESIMPULAN PERKEMBANGAN ANAK</Text>
+                        </View>
+                        <View style={{width:"30%", flexDirection:"row"}}>
+                              <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%", borderRight: 1, borderLeft:1 }} 
+                              >      
+                                <Text>Jumlah Skor</Text>
+                              </View>
+                               <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }} 
+                              >      
+                                <Text style={{textAlign:"center"}}>Persentase Pencapaian</Text>
+                              </View>
+                        </View>
+                    </View>
+
+                    {/* TR2*/}
+                    <View style={[styles.row, {borderBottom:1,fontWeight:"normal", borderRight:1, borderLeft:1, fontSize:8.5}]}>
+                        <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1 }}>
+                            <Text></Text>
+                        </View>
+                        <View style={{ width: "63%", justifyContent: "center", padding: 2}}>
+                            <Text>- Tingkat Pencapaian Perkembangan BAIK</Text>
+                        </View>
+                        <View style={{width:"30%", flexDirection:"row"}}>
+                              <View style={{ flex: 1, width:"100",justifyContent: "center", alignItems: "center", height: "100%", borderRight: 1, borderLeft:1 }} 
+                              >      
+                                <Text>{kesimpulan?.pencapaian_perkembangan_baik}</Text>
+                              </View>
+                               <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }} 
+                              >      
+                                <Text>{(() => {
+                                    const [a, b] = (kesimpulan?.pencapaian_perkembangan_baik || "0/0").split("/").map(Number);
+                                        return b ? ((a / b) * 100).toFixed(2) + "%" : "0%";
+                                    })()}
+                                </Text>
+                              </View>
+                        </View>
+                    </View>
+
+                    {/* TR3 */}
+                    <View style={[styles.row, {borderBottom:1,fontWeight:"normal", borderRight:1, borderLeft:1, fontSize:8.5}]}>
+                        <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1 }}>
+                            <Text></Text>
+                        </View>
+                        <View style={{ width: "63%", justifyContent: "center", padding: 2}}>
+                            <Text>- Tingkat Pencapaian Perkembangan CUKUP</Text>
+                        </View>
+                        <View style={{width:"30%", flexDirection:"row"}}>
+                              <View style={{ flex: 1, width:"100",justifyContent: "center", alignItems: "center", height: "100%", borderRight: 1, borderLeft:1 }} 
+                              >      
+                                <Text>{kesimpulan?.pencapaian_perkembangan_buruk}</Text>
+                              </View>
+                               <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }} 
+                              >      
+                                <Text>{(() => {
+                                        const [a, b] = (kesimpulan?.pencapaian_perkembangan_buruk || "0/0").split("/").map(Number);
+                                        return b ? ((a / b) * 100).toFixed(2) + "%" : "0%";
+                                    })()}
+                                </Text>
+                              </View>
+                        </View>
+                    </View>
+
+                    {/* TR4 */}
+                    <View style={[styles.row, {borderBottom:1,fontWeight:"normal", borderRight:1, borderLeft:1, fontSize:8.5}]}>
+                        <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1 }}>
+                            <Text></Text>
+                        </View>
+                        <View style={{ width: "63%", justifyContent: "center", padding: 2}}>
+                            <Text>- Tingkat Pencapaian Perkembangan PERLU DILATIH</Text>
+                        </View>
+                        <View style={{width:"30%", flexDirection:"row"}}>
+                              <View style={{ flex: 1, width:"100",justifyContent: "center", alignItems: "center", height: "100%", borderRight: 1, borderLeft:1 }} 
+                              >      
+                                <Text>{kesimpulan?.pencapaian_perkembangan_perlu_dilatih}</Text>
+                              </View>
+                               <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }} 
+                              >      
+                                <Text>{(() => {
+                                        const [a, b] = (kesimpulan?.pencapaian_perkembangan_perlu_dilatih || "0/0").split("/").map(Number);
+                                        return b ? ((a / b) * 100).toFixed(2) + "%" : "0%";
+                                    })()}
+                                </Text>
+                              </View>
+                        </View>
+                    </View>
+                    
+                    {/* TR CATATAN DAN REKOMENDASI PENDIDIK */}
+                    <View style={[styles.row, {borderBottom:1,fontWeight:600, borderRight:1, borderLeft:1, backgroundColor:"#F5F5F5"}]}>
+                        <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1, paddingVertical:2 }}>
+                            <Text>VIII</Text>
+                        </View>
+                        <View style={{ width: "93%", justifyContent: "center", padding: 2}}>
+                            <Text>CATATAN DAN REKOMENDASI PENDIDIK</Text>
+                        </View>
+                    </View>
+
+                    <View style={[styles.row, {fontWeight:"normal",borderRight:1, borderLeft:1, height:"150px", borderBottom:1}]} >
+                        <View style={{ width: "7%", justifyContent: "center", alignItems: "center", borderRight: 1 }}>
+                            <Text></Text>
+                        </View>
+                        <View style={{ width: "93%", paddingHorizontal:5, paddingVertical:1, fontSize:8}}>
+                            <Text>{kesimpulan?.saran_dan_masukan || ""}</Text>
+                        </View>
+                    </View>
+                    
+                    <View style={{marginTop:30, fontSize:8, width:"95%", alignSelf:"center"}}>
+                        <View style={{width:"100%",alignItems:"flex-end"}}>
+                            <Text></Text>
+                            <Text>{profilSekolah?.desa.toUpperCase()}, {formatTanggal(tanggal)}</Text>
+                        </View>
+                        <View style={{width:"92%", flexDirection:"row", justifyContent:"space-between", alignSelf:"center", marginTop:17}}>
+                            <View style={{height:"65px", justifyContent:"space-between"}}>
+                                <Text>Orang tua/wali</Text>
+                                <View style={{ borderStyle: "dotted", borderTopWidth: 1, borderColor: "black" }}>
+                                    <Text></Text>
+                                </View>
+                            </View>
+                            <View style={{height:"65px", justifyContent:"space-between", alignItems:"center"}}>
+                                <Text>Guru {guru?.nama_kelas}</Text>
+                                <View>
+                                    <Text style={{ fontWeight:"bold"}}>{guru?.nama_guru}</Text>
+                                </View>
+                            </View>
+                        </View>
+
+                        <View style={{width:"92%", flexDirection:"row", justifyContent:"center", alignSelf:"center", marginTop:20}}>
+                            <View style={{height:"65px", justifyContent:"space-between", alignItems:"center"}}>
+                                <View>
+                                    <Text>Mengetahui,</Text>
+                                    <Text>Kepala Sekolah</Text>
+                                </View>
+                                <View>
+                                    <Text style={{textAlign:"center", fontWeight:"bold"}}>Rahmi, S.Pd.I</Text>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </View> 
             </View>
         </Page>
     </Document>

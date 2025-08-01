@@ -2,16 +2,16 @@ import { useState, useRef, useEffect } from "react";
 
 const getBackgroundColor = (name) => {
     const colors = [
-        "bg-indigo-500",  // More professional blue
+        "bg-indigo-500", // More professional blue
         "bg-emerald-500", // Softer green
-        "bg-amber-500",   // Warm orange
-        "bg-purple-500",  // Deep purple
-        "bg-cyan-500",    // Fresh cyan
+        "bg-amber-500", // Warm orange
+        "bg-purple-500", // Deep purple
+        "bg-cyan-500", // Fresh cyan
         "bg-fuchsia-500", // Vibrant pink
-        "bg-sky-500",     // Light blue
-        "bg-rose-500",    // Soft red
-        "bg-violet-500",  // Light purple
-        "bg-teal-500",    // Muted teal
+        "bg-sky-500", // Light blue
+        "bg-rose-500", // Soft red
+        "bg-violet-500", // Light purple
+        "bg-teal-500", // Muted teal
     ];
     if (!name) return colors[0];
     const charCode = name.charCodeAt(0);
@@ -27,6 +27,7 @@ const CardProfil = ({
     onEditClick,
     onDeleteClick,
     onNilaiClick,
+    onSaranClick,
     mode = "default",
 }) => {
     const [open, setOpen] = useState(false);
@@ -98,8 +99,18 @@ const CardProfil = ({
                                 onClick={onEditClick}
                                 className=" w-full text-left px-4 py-2 hover:bg-indigo-50 text-indigo-600 flex items-center gap-2"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
                                 </svg>
                                 Edit
                             </button>
@@ -107,9 +118,24 @@ const CardProfil = ({
                                 onClick={onDeleteClick}
                                 className="w-full text-left px-4 py-2 hover:bg-indigo-50 text-indigo-600 flex items-center gap-2"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                    />
                                 </svg>
                                 Lihat Profil
                             </button>
@@ -120,19 +146,41 @@ const CardProfil = ({
 
             {/* Overlay dan Tombol Nilai di mode penilaian */}
             {mode === "penilaian" && (
-                <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onNilaiClick?.(data);
-                        }}
-                        className="relative px-6 py-2.5 rounded-xl bg-white text-indigo-600 font-semibold shadow-md transform scale-95 group-hover:scale-100 transition-all duration-300 ease-out hover:bg-indigo-50 hover:shadow-lg hover:text-indigo-700 active:scale-95 z-40 flex items-center gap-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Nilai
-                    </button>
+                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 pointer-events-none group-hover:pointer-events-auto">
+                    <div className="flex flex-col gap-5 w-10/12">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onNilaiClick?.(data);
+                            }}
+                            className="flex justify-center px-6 py-2.5 rounded-xl bg-white text-indigo-600 font-semibold shadow-md transform scale-95 group-hover:scale-100 transition-all duration-300 ease-out hover:bg-indigo-50 hover:shadow-lg hover:text-indigo-700 active:scale-95 items-center gap-2"
+                        >
+                            <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                            </svg>
+                            Nilai
+                        </button>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSaranClick?.(data);
+                            }}
+                            className="justify-center px-6 py-2.5 rounded-xl bg-white  text-indigo-600 font-semibold shadow-md transform scale-95 group-hover:scale-100 transition-all duration-300 ease-out hover:bg-indigo-50 hover:shadow-lg hover:text-indigo-700 active:scale-95 flex items-center gap-2"
+                        >
+                            <p className=" flex">Saran & Masukan</p>
+                        </button>
+                    </div>
                 </div>
             )}
 

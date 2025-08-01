@@ -21,10 +21,25 @@ const ModernTable = ({
     return (
         <div className="overflow-x-auto h-96 bg-white shadow-xl rounded-2xl border border-gray-200">
             {emptyData ? (
-                <div className="h-full flex justify-center items-center">
-                    <h1 className="text-xl text-gray-500 font-semibold">
-                        {emptyData}
-                    </h1>
+                <div className=" mt-5 w-full flex flex-col items-center justify-center h-11/12 bg-red-50 rounded-lg border border-red-100 p-4">
+                    <div className="flex items-center justify-center gap-2">
+                        <svg
+                            className="w-5 h-5 text-red-500"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <h1 className="text-sm font-medium text-red-600">
+                            {emptyData}
+                        </h1>
+                    </div>
                 </div>
             ) : (
                 <table className="min-w-full text-sm text-gray-700">
@@ -84,7 +99,7 @@ const ModernTable = ({
                     <tbody>
                         {data.map((item, index) => (
                             <tr
-                                key={item.id}
+                                key={item.id ?? index}
                                 className={`border-b border-gray-200 ${
                                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                                 } hover:bg-blue-50 hover:shadow-sm transition duration-200`}

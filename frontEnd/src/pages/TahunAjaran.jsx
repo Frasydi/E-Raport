@@ -2,11 +2,9 @@ import LayoutMenu from "../containers/layout";
 import { AddStudentButton } from "../component/button/Button";
 import Search from "../component/input/Search";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { getTahunAjaran } from "../api/tahun_ajaran";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import ModalAddTahun from "../component/Modal/ModalTahunAjaran/ModalAddTahun";
 import ConfirmModal from "../component/Modal/confirmModal";
-import { deleteTahunAjaran } from "../api/tahun_ajaran";
 import ErrorMessage from "../component/Error";
 import showToast from "../hooks/showToast";
 import { useFocusError } from "../hooks/useFocusError";
@@ -14,46 +12,46 @@ import Loading from "../component/Loading";
 import usePagination from "../hooks/usePagination";
 import PaginationControls from "../component/PaginationControls";
 import ModalEditTahun from "../component/Modal/ModalTahunAjaran/ModalEditTahun";
-import { searchDataTahun } from "../api/tahun_ajaran";
 import ModernTable from "../component/table/modernTable";
+import { useTahunAjaranStore } from "../stores/tahun-ajaran";
+import { searchDataTahun } from "../api/tahun_ajaran";
 
 const TahunAjaran = () => {
-    const [originalData, setOriginalData] = useState([]);
+    const { tahun_ajaran, loading, error, fetchData, deleteData } =
+        useTahunAjaranStore();
     const [showConfirm, setShowConfirm] = useState(false);
     const [selectedId, setSelectedId] = useState("");
     const [selectedTahun, setSelectedTahun] = useState("");
-    const [isLoading, setIsloading] = useState(false);
     const [emptyData, setEmptyData] = useState("");
-    const [isError, setIsError] = useState("");
     const { errorRef, focusError } = useFocusError();
     const [openModal, setOpenModal] = useState(false);
     const [openEditModal, setOpenEditModal] = useState(false);
     const [search, setSearch] = useState("");
-
     const [sortConfig, setSortConfig] = useState({
         key: null,
         direction: "asc",
     });
 
-    const handleSort = (key) => {
-        let direction = "asc";
-        if (sortConfig.key === key && sortConfig.direction === "asc") {
-            direction = "desc";
+    const displayData = useMemo(() => {
+        let filtered = tahun_ajaran || [];
+        if (search.trim()) {
+            filtered = filtered.filter((item) =>
+                item.tahun_ajaran.toLowerCase().includes(search.toLowerCase())
+            );
         }
-        setSortConfig({ key, direction });
-
-        const sorted = [...originalData].sort((a, b) => {
-            if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-            if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-            return 0;
-        });
-
-        setOriginalData(sorted);
-    };
-
-    const columns = [
-        { header: "Tahun Ajaran", accessor: "tahun_ajaran", sortable: true },
-    ];
+        if (sortConfig.key) {
+            filtered = [...filtered].sort((a, b) => {
+                const valueA = a[sortConfig.key];
+                const valueB = b[sortConfig.key];
+                if (valueA < valueB)
+                    return sortConfig.direction === "asc" ? -1 : 1;
+                if (valueA > valueB)
+                    return sortConfig.direction === "asc" ? 1 : -1;
+                return 0;
+            });
+        }
+        return filtered;
+    }, [tahun_ajaran, search, sortConfig]);
 
     const {
         currentPage,
@@ -62,95 +60,62 @@ const TahunAjaran = () => {
         handlePageChange,
         resetPagination,
         startIndex,
-    } = usePagination(originalData, 5);
-
-    useEffect(() => {
-        if (isError) {
-            focusError();
-        }
-    }, [isError]);
-    console.log(emptyData)
-
-    const fetchData = async () => {
-        setIsloading(true);
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            setEmptyData("");
-            const result = await getTahunAjaran();
-            setOriginalData(result.data);
-        } catch (error) {
-            setEmptyData('data belum ada, harap tambahkan data');
-        } finally {
-            setIsloading(false);
-        }
-    };
-
-    const handleDelete = async (id_tahun_ajaran, tahun_ajaran) => {
-        setSelectedId(id_tahun_ajaran);
-        setSelectedTahun(tahun_ajaran);
-        setShowConfirm(true);
-    };
-
-    useEffect(() => {
-        if (search.length == 0) {
-            fetchData();
-        }
-    }, [search]);
-
-    const handleSearch = async () => {
-        setIsloading(true);
-        setIsError("");
-        if (!search.trim()) {
-            setIsloading(false);
-            return;
-        }
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            const response = await searchDataTahun(search);
-            setOriginalData(response.data);
-            resetPagination();
-        } catch (error) {
-            setIsError(error || "gagal search");
-        } finally {
-            setIsloading(false);
-        }
-    };
-
-    const handleConfirm = async () => {
-        setIsloading(true);
-        setIsError("");
-        try {
-            await deleteTahunAjaran(selectedId);
-            setShowConfirm(false);
-            showToast("success", "berhasil menghapus data");
-            await fetchData();
-        } catch (error) {
-            setIsError(error);
-            setShowConfirm(false);
-            showToast("error", "gagal menghapus data");
-        } finally {
-            setIsloading(false);
-        }
-    };
-
-    const handleEdit = async (id_tahun_ajaran, data) => {
-        setSelectedId(id_tahun_ajaran);
-        setSelectedTahun(data);
-        setOpenEditModal(true);
-    };
+    } = usePagination(displayData, 5);
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (error) focusError();
+    }, [error]);
+
+    useEffect(() => {
+        resetPagination(); // Reset pagination saat search atau sort berubah
+    }, [search, sortConfig]);
+
+    const handleSort = (key) => {
+        let direction = "asc";
+        if (sortConfig.key === key && sortConfig.direction === "asc") {
+            direction = "desc";
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const handleDelete = (id, tahun) => {
+        setSelectedId(id);
+        setSelectedTahun(tahun);
+        setShowConfirm(true);
+    };
+
+    const handleConfirm = async () => {
+        try {
+            await deleteData(selectedId);
+            showToast("success", "berhasil menghapus data");
+        } catch (err) {
+            showToast("error", "gagal menghapus data");
+        } finally {
+            setShowConfirm(false);
+        }
+    };
+
+    const handleEdit = (id, tahun) => {
+        setSelectedId(id);
+        setSelectedTahun(tahun);
+        setOpenEditModal(true);
+    };
+
+    const columns = [
+        { header: "Tahun Ajaran", accessor: "tahun_ajaran", sortable: true },
+    ];
+
     return (
         <>
             <ModalAddTahun
                 isOpen={openModal}
-                onClose={() => {
-                    setOpenModal(false);
-                }}
-                onSuccess={async () => {
-                    await fetchData();
+                onClose={() => setOpenModal(false)}
+                onSuccess={() => {
+                    fetchData();
                     showToast("success", "data berhasil ditambahkan");
                 }}
             />
@@ -160,15 +125,14 @@ const TahunAjaran = () => {
                     isOpen={openEditModal}
                     data={selectedTahun}
                     id_tahun_ajaran={selectedId}
-                    onClose={() => {
-                        setOpenEditModal(false);
+                    onClose={() => setOpenEditModal(false)}
+                    onSuccess={() => {
+                        fetchData();
+                        showToast("success", "data berhasil diubah");
                     }}
-                    onSuccess={async () => {
-                        await fetchData();
-                        showToast("success", "data berhasil ditambahkan");
-                    }}
-                ></ModalEditTahun>
+                />
             )}
+
             <LayoutMenu>
                 <div className="w-5/6 mt-10 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 text-sm">
                     <div className="flex justify-between">
@@ -180,49 +144,44 @@ const TahunAjaran = () => {
                         >
                             tambahkan data
                         </AddStudentButton>
-                        <div className="flex text-sm items-center gap-1.5">
+                        <div>
                             <Search
                                 htmlFor={"cari-tahun-ajaran"}
                                 placeholder={"cari tahun ajaran"}
-                                onChange={(e) => {
-                                    setSearch(e.target.value);
-                                }}
-                                onSearch={handleSearch}
+                                onChange={(e) => setSearch(e.target.value)}
                                 value={search}
                             />
                         </div>
                     </div>
+
                     <div className="p-6 max-w-6xl mx-auto">
                         <h1 className="text-3xl font-semibold text-gray-700 mb-6">
                             Data Tahun Ajaran
                         </h1>
-                        {isError && (
-                            <ErrorMessage error={isError} ref={errorRef} />
-                        )}
-                        {isLoading && <Loading />}
+                        {error && error != "data tidak ada, harap tambahkan data" && <ErrorMessage error={error} ref={errorRef} />}
+                        {loading && <Loading />}
 
-                        {/* table */}
                         <ModernTable
                             columns={columns}
                             data={currentData}
-                            emptyData={emptyData}
-                            onDelete={(item) => {
+                            emptyData={error}
+                            onDelete={(item) =>
                                 handleDelete(
                                     item.id_tahun_ajaran,
                                     item.tahun_ajaran
-                                );
-                            }}
-                            onEdit={(item) => {
+                                )
+                            }
+                            onEdit={(item) =>
                                 handleEdit(
                                     item.id_tahun_ajaran,
                                     item.tahun_ajaran
-                                );
-                            }}
+                                )
+                            }
                             startIndex={startIndex}
                             onSort={handleSort}
                             sortConfig={sortConfig}
                         />
-                        {/* Pagination */}
+
                         <PaginationControls
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -231,10 +190,11 @@ const TahunAjaran = () => {
                     </div>
                 </div>
             </LayoutMenu>
+
             <ConfirmModal
                 isOpen={showConfirm}
                 onConfirm={handleConfirm}
-                text={`Anda akan menghapus data tahun ajaran ${selectedTahun}. Apakah Anda yakin? `}
+                text={`Anda akan menghapus data tahun ajaran ${selectedTahun}. Apakah Anda yakin?`}
                 title={`menghapus tahun ajaran`}
                 onCancel={() => setShowConfirm(false)}
             />

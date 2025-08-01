@@ -31,6 +31,7 @@ const guru = require("./src/guru/controller_guru");
 const tahun_ajaran = require("./src/tahun-ajaran/controller_tahun_ajaran");
 const penilaian = require("./src/penilaian/controller_penilaian");
 const amount = require("./src/amount/controller_amount")
+const kesimpulan = require("./src/kesimpulan/controller_kesimpulan")
 
 app.use("/", auth);
 app.use("/amount", amount)
@@ -38,6 +39,7 @@ app.use("/profil-sekolah", profilSekolah);
 app.use("/guru", guru);
 app.use("/tahun-ajaran", tahun_ajaran);
 app.use("/penilaian", penilaian);
+app.use("/kesimpulan", kesimpulan)
 //app.use("/", verifyToken, user);
 app.use("/peserta-didik", pesertaDidik);
 

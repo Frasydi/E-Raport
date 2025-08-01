@@ -2,8 +2,6 @@ import LayoutMenu from "../containers/layout";
 import ModalInput from "../component/input/ModalInput";
 import Container from "../containers/container";
 import Search from "../component/input/Search";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPrint } from "@fortawesome/free-solid-svg-icons";
 import PrevSampul from "../component/cetak_raport/prevSampul";
 import ButtonSubmit from "../component/button/Button_submit";
 import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
@@ -19,20 +17,21 @@ import CetakNilaiPDF from "../component/cetak_raport/CetaNilai";
 import Loading from "../component/Loading";
 
 const CetakRaport = () => {
-    const [buttonClick, setButtonClick] = useState("sampul");
-    const { tahunAjaranOptions } = useSelectedTahunAjaran();
-
+    const [buttonClick, setButtonClick] = useState("");
+    const { tahunAjaranOptions, loading } = useSelectedTahunAjaran();
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [selectedSemester, setSelectedSemester] = useState("");
     const [pesertaDidik, setPesertaDidik] = useState([]);
     const [selectedPeserta, setSelectedPeserta] = useState(null);
-    const [selectedTanggalCetak, setSelectedTanggalCetak] = useState("");
+    const [selectedTanggalCetak, setSelectedTanggalCetak] = useState(getTodayLocal());
     const [isLoading, setIsLoading] = useState(false);
     const [profilSekolah, setProfilSekolah] = useState("");
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
-    const [isSearch, setIsSearch] = useState(false)
+    const [isSearch, setIsSearch] = useState(false);
 
+    console.log("selected peserta: ", selectedPeserta);
+    console.log("peserta didik: ", pesertaDidik);
     const {
         currentPage,
         totalPages,
@@ -60,6 +59,18 @@ const CetakRaport = () => {
         }
         fetchData();
     }, [selectedSemester, selectedTahunAjaran, selectedTanggalCetak]);
+    //useEffect(() => {
+    //    const today = new Date().toISOString().split("T")[0];
+    //    setSelectedTanggalCetak(today);
+    //}, []);
+
+    function getTodayLocal() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -79,8 +90,9 @@ const CetakRaport = () => {
             if (penilaian.length > 0) {
                 setSelectedPeserta(penilaian.data[0]);
             }
+            setButtonClick("cetak sampul");
         } catch (error) {
-            setError(error.message || "Terjadi kesalahan");
+            setError(error || "Terjadi kesalahan");
         } finally {
             setIsLoading(false);
         }
@@ -92,18 +104,17 @@ const CetakRaport = () => {
         }
     }, [currentPage, currentData]);
 
-    useEffect(()=> {
-        if(!selectedTahunAjaran || !selectedSemester) return 
-        if(search) return
-        if(!isSearch) return
-        fetchData()
-    }, [search, selectedSemester, selectedTahunAjaran])
-
+    useEffect(() => {
+        if (!selectedTahunAjaran || !selectedSemester) return;
+        if (search) return;
+        if (!isSearch) return;
+        fetchData();
+    }, [search, selectedSemester, selectedTahunAjaran]);
 
     const handleSearch = async () => {
         setIsLoading(true);
         setError("");
-        setIsSearch(false)
+        setIsSearch(false);
         try {
             if (!selectedTahunAjaran) {
                 setError(
@@ -133,7 +144,7 @@ const CetakRaport = () => {
                 const idPeserta = val?.pesertaDidik?.id_peserta_didik;
                 return response.some((r) => r?.pesertaDidikId === idPeserta);
             });
-            setIsSearch(true)
+            setIsSearch(true);
             setPesertaDidik(newData);
             resetPagination(1);
 
@@ -142,11 +153,42 @@ const CetakRaport = () => {
             }
         } catch (error) {
             setError(error);
-            setIsSearch(false)
+            setIsSearch(false);
         } finally {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (selectedTahunAjaran) {
+            localStorage.setItem("tahun_ajaran_raport", selectedTahunAjaran);
+        }
+        if (selectedSemester) {
+            localStorage.setItem("semester_raport", selectedSemester);
+        }
+        if (selectedTanggalCetak) {
+            localStorage.setItem("tanggal_cetak_raport", selectedTanggalCetak);
+        }
+    }, [selectedTahunAjaran, selectedSemester, selectedTanggalCetak]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("tahun_ajaran_raport");
+        const savedSemester = localStorage.getItem("semester_raport");
+        const savedTanggalCetak = localStorage.getItem("tanggal_cetak_raport");
+
+        const findTahunRaport = tahunAjaranOptions.find(
+            (val) => val?.value === saved
+        );
+        if (saved && findTahunRaport) {
+            setSelectedTahunAjaran(saved);
+        } else {
+            localStorage.removeItem("tahun_ajaran_raport");
+            setSelectedTahunAjaran("");
+        }
+
+        if (savedSemester) setSelectedSemester(savedSemester);
+        if (savedTanggalCetak) setSelectedTanggalCetak(savedTanggalCetak);
+    }, [tahunAjaranOptions]);
 
     return (
         <LayoutMenu>
@@ -190,6 +232,7 @@ const CetakRaport = () => {
                     <ModalInput
                         type={"date"}
                         htmlFor={"tanggal_cetak"}
+                        value={selectedTanggalCetak}
                         onChange={(val) => {
                             setSelectedTanggalCetak(val.target.value);
                         }}
@@ -201,74 +244,73 @@ const CetakRaport = () => {
                 </form>
 
                 <Container>
-                    {isLoading  && <Loading />}
-                    <div className="flex text-sm items-center gap-1.5">
-                        <Search
-                            htmlFor={"cari peserta didik"}
-                            placeholder={"cari peserta didik"}
-                            onChange={(e) => {
-                                setSearch(e.target.value);
-                            }}
-                            onSearch={handleSearch}
-                            label={false}
-                        />
-                    </div>
+                    {isLoading && <Loading />}
+                    <div className="flex gap-5 w-full justify-between">
+                        <div className="flex text-sm items-center gap-1.5 w-sm">
+                            <Search
+                                htmlFor={"cari peserta didik"}
+                                placeholder={"cari peserta didik"}
+                                onChange={(e) => {
+                                    setSearch(e.target.value);
+                                }}
+                                onSearch={handleSearch}
+                                label={false}
+                            />
+                        </div>
 
-                    {/* Tombol cetak */}
-                    <div className="w-full mt-7 flex gap-4">
-                        <ButtonSubmit
-                            bg={"bg-sky-800"}
-                            hover={"hover:bg-sky-900"}
-                            onClick={async () => {
-                                setIsLoading(true);
-                                await new Promise((resolve) =>
-                                    setTimeout(resolve, 500)
-                                );
-                                setButtonClick("sampul");
-                                setIsLoading(false);
-                            }}
-                        >
-                            sampul raport
-                        </ButtonSubmit>
-                        <ButtonSubmit
-                            bg={"bg-sky-800"}
-                            hover={"hover:bg-sky-900"}
-                            onClick={async () => {
-                                setIsLoading(true);
-                                await new Promise((resolve) =>
-                                    setTimeout(resolve, 500)
-                                );
-                                setButtonClick("cetak data diri");
-                                setIsLoading(false);
-                            }}
-                        >
-                            cetak data diri
-                        </ButtonSubmit>
-                        <ButtonSubmit
-                            bg={"bg-sky-800"}
-                            hover={"hover:bg-sky-900"}
-                            onClick={async () => {
-                                setIsLoading(true);
-                                await new Promise((resolve) =>
-                                    setTimeout(resolve, 1000)
-                                );
-                                setButtonClick("cetak nilai");
-                                setIsLoading(false);
-                            }}
-                        >
-                            cetak nilai
-                        </ButtonSubmit>
+                        {/* Tombol cetak */}
+                        <div className=" flex gap-4 ">
+                            <ButtonSubmit
+                                bg={"bg-gray-600"}
+                                hover={"hover:bg-gray-700"}
+                                onClick={async () => {
+                                    setIsLoading(true);
+                                    await new Promise((resolve) =>
+                                        setTimeout(resolve, 500)
+                                    );
+                                    setButtonClick("cetak sampul");
+                                    setIsLoading(false);
+                                }}
+                            >
+                                sampul raport
+                            </ButtonSubmit>
+                            <ButtonSubmit
+                                bg={"bg-gray-600"}
+                                hover={"hover:bg-gray-700"}
+                                onClick={async () => {
+                                    setIsLoading(true);
+                                    await new Promise((resolve) =>
+                                        setTimeout(resolve, 500)
+                                    );
+                                    setButtonClick("cetak data diri");
+                                    setIsLoading(false);
+                                }}
+                            >
+                                cetak data diri
+                            </ButtonSubmit>
+                            <ButtonSubmit
+                                bg={"bg-gray-600"}
+                                hover={"hover:bg-gray-700"}
+                                onClick={async () => {
+                                    setIsLoading(true);
+                                    await new Promise((resolve) =>
+                                        setTimeout(resolve, 1000)
+                                    );
+                                    setButtonClick("cetak nilai");
+                                    setIsLoading(false);
+                                }}
+                            >
+                                cetak nilai
+                            </ButtonSubmit>
+                        </div>
                     </div>
 
                     {/* Container cetak raport */}
                     <div className="w-full mt-5 p-4 border rounded-lg shadow">
-                        <div className="flex justify-between items-start mb-5">
+                        <div className="items-start mb-5">
                             <h2 className="text-sm font-semibold">
-                                {buttonClick}
+                                {buttonClick}  
                             </h2>
-                            <button className="text-gray-600 hover:text-gray-800">
-                                <FontAwesomeIcon icon={faPrint} />
-                            </button>
                         </div>
 
                         {pesertaDidik.length > 0 && (
@@ -305,8 +347,22 @@ const CetakRaport = () => {
                             <div style={{ width: "100%", height: "600px" }}>
                                 <ModernPDFViewer
                                     style={{ width: "100%", height: "100%" }}
+                                    deps={[buttonClick, selectedPeserta]}
+                                    downloadFileName={
+                                        buttonClick && selectedPeserta
+                                            ? `${buttonClick
+                                                  .replace("cetak ", "")
+                                                  .replace(/\s+/g, "_")}_${
+                                                  selectedPeserta?.pesertaDidik?.nama_lengkap?.replace(
+                                                      /\s+/g,
+                                                      "_"
+                                                  ) || "dokumen"
+                                              }.pdf`
+                                            : "dokumen.pdf"
+                                    }
                                 >
-                                    {buttonClick === "sampul" && (
+                                    {buttonClick === "cetak sampul" &&
+                                    selectedPeserta ? (
                                         <PrevSampul
                                             namaLengkap={
                                                 selectedPeserta?.pesertaDidik
@@ -318,22 +374,30 @@ const CetakRaport = () => {
                                             }
                                             profilSekolah={profilSekolah}
                                         />
-                                    )}
-                                    {buttonClick === "cetak data diri" && (
+                                    ) : buttonClick === "cetak data diri" &&
+                                      selectedPeserta ? (
                                         <KeteranganDiriPDF
                                             pesertaDidik={
                                                 selectedPeserta?.pesertaDidik
                                             }
+                                            desa={profilSekolah?.desa}
+                                            tanggal={selectedTanggalCetak}
                                         />
-                                    )}
-                                    {buttonClick === "cetak nilai" && (
+                                    ) : buttonClick === "cetak nilai" &&
+                                      selectedPeserta ? (
                                         <CetakNilaiPDF
                                             kategori={selectedPeserta?.kategori}
                                             pesertaDidik={
                                                 selectedPeserta?.pesertaDidik
                                             }
+                                            kesimpulan={
+                                                selectedPeserta?.kesimpulan
+                                            }
+                                            guru={selectedPeserta?.guru}
+                                            tanggal={selectedTanggalCetak}
+                                            profilSekolah={profilSekolah}
                                         />
-                                    )}
+                                    ) : null}
                                 </ModernPDFViewer>
                             </div>
                         )}

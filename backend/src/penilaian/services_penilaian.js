@@ -9,7 +9,7 @@ const {
     getPenilaianGrouped,
     penilaianList,
     searhPenilaian,
-    searchRaport
+    searchRaport,
 } = require("./repository_penilaian");
 const prisma = require("../../prisma/prismaClient");
 const { validatorField, sanitizeData } = require("../utils/validator");
@@ -41,21 +41,21 @@ const displaySearchPenilaian = async (id_tahun_ajaran, semester, data) => {
         if (!response || response.length == 0) {
             throwWithStatus("data tidak ditemukan", 404);
         }
-        const newData = response.map((val)=> {
+        const newData = response.map((val) => {
             return {
                 id_rekap_nilai: val.id_rekap_nilai,
                 tahun_ajaran: val.tahunAjaran,
                 peserta_didik: {
                     id_peserta_didik: val.pesertaDidik.id_peserta_didik,
                     nama_lengkap: val.pesertaDidik.nama_lengkap,
-                    nis: val.pesertaDidik.nis
+                    nis: val.pesertaDidik.nis,
                 },
                 guru: {
-                    nama_kelas:val.guru.nama_kelas
-                }
-            }
-        })
-        return newData
+                    nama_kelas: val.guru.nama_kelas,
+                },
+            };
+        });
+        return newData;
     } catch (error) {
         throw error;
     }
@@ -218,10 +218,8 @@ const updateNilai = async (id_rekap_nilai, id_sub_kategori, nilai_list) => {
             existingData.push(existingFlat);
         }
 
-        // ✅ Validasi: apakah ada perubahan nilai?
         validateUpdatePayload(newData, existingData);
 
-        // ✅ Eksekusi update jika ada perubahan
         const results = [];
         for (const item of newData) {
             const updated = await updatePenilaian(
@@ -259,6 +257,11 @@ const displayPenilaian = async (id_tahun_ajaran, semester) => {
                     ...pd,
                     nama_kelas, // Sudah diformat jadi "Kelompok A/B"
                 },
+                guru: {
+                    ...p.rekapNilai.guru, 
+                    nama_kelas,
+                },
+                kesimpulan: p.rekapNilai.kesimpulan,
                 kategori: {},
             };
         }
@@ -294,6 +297,8 @@ const displayPenilaian = async (id_tahun_ajaran, semester) => {
 
     return Object.values(grouped).map((g) => ({
         pesertaDidik: g.pesertaDidik,
+        guru: g.guru,
+        kesimpulan: g.kesimpulan,
         kategori: Object.keys(g.kategori).map((id) => ({
             id_kategori: Number(id),
             nama_kategori: g.kategori[id].nama,
@@ -319,17 +324,17 @@ const formatNamaKelas = (nama_kelas) => {
     return nama_kelas;
 };
 
-const displaySearhRaport = async(id_tahun_ajaran, semester, keyword)=> {
+const displaySearhRaport = async (id_tahun_ajaran, semester, keyword) => {
     try {
-        const response = await searchRaport(id_tahun_ajaran, semester, keyword)
-        if(!response || response.length == 0) {
-            throwWithStatus("data tidak ditemukan", 404)
+        const response = await searchRaport(id_tahun_ajaran, semester, keyword);
+        if (!response || response.length == 0) {
+            throwWithStatus("data tidak ditemukan", 404);
         }
-        return response
+        return response;
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};
 
 module.exports = {
     displayPesertaDidikByTahunSemester,
@@ -340,5 +345,5 @@ module.exports = {
     updateNilai,
     displayPenilaian,
     displaySearchPenilaian,
-    displaySearhRaport
+    displaySearhRaport,
 };

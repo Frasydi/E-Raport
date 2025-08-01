@@ -11,16 +11,16 @@ import GuruKelas from "./pages/GuruKelas";
 import Penilaian from "./pages/Penilaian";
 import CetakRaport from "./pages/CetakRaport";
 import BackupRestore from "./pages/BackupRestore";
-import TahunAjaran from "./pages/tahunAjaran";
+import TahunAjaran from "./pages/TahunAjaran";
 import KategoriPenilaian from "./component/penilaian/KategoriPenilaian";
 import SubKategoriPenilaian from "./component/penilaian/SubKategoriPenilaian";
 import Nilai from "./component/penilaian/Nilai";
 import OfflineIndicator from "./component/OfflineIndicator";
-//import KeteranganDiri from "./component/cetak_raport/KetaranganDiri";
-//import CetakNilai from "./component/cetak_raport/CetaNilai";
-import TestDoang from "./component/cetak_raport/testDoang";
+
+import { useClearLocalStorageOnClose } from "./hooks/useClearLocalStorageOnClose";
 
 function App() {
+    useClearLocalStorageOnClose(["token"]);
     return (
         <>
             <OfflineIndicator />

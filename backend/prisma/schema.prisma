@@ -125,6 +125,8 @@ model RekapNilai {
   guru                       Guru           @relation(fields: [guruId], references: [id_guru], onDelete: Restrict, onUpdate: Cascade)
 
   penilaian     Penilaian[]
+  kesimpulan       Kesimpulan?
+
   @@unique([pesertaDidikId, semesterId])
 }
 
@@ -158,4 +160,14 @@ model Penilaian {
   indikator     Indikator @relation(fields: [indikatorId], references: [id_indikator])
   rekapNilai    RekapNilai @relation(fields: [rekapNilaiId], references: [id_rekap_nilai], onDelete: Cascade, onUpdate: Cascade)
   @@unique([indikatorId, rekapNilaiId])
+}
+
+model Kesimpulan {
+  id_kesimpulan String @id @default(uuid())
+  id_rekap_nilai String @unique
+  pencapaian_perkembangan_baik String
+  pencapaian_perkembangan_buruk String
+  pencapaian_perkembangan_perlu_dilatih String
+  saran_dan_masukan String? @db.Text
+  rekapNilai    RekapNilai @relation(fields: [id_rekap_nilai], references: [id_rekap_nilai], onDelete: Cascade, onUpdate: Cascade)
 }

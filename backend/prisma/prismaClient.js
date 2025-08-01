@@ -1,5 +1,7 @@
-const {PrismaClient} = require('@prisma/client')
+const { PrismaClient } = require("@prisma/client");
+const kesimpulanMiddleware = require("./middleware/kesimpulanMiddleware")
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+kesimpulanMiddleware(prisma)
 
-module.exports = prisma
+module.exports = prisma;

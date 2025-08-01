@@ -3,7 +3,7 @@ const ButtonSubmit = ({ type = 'button', bg, hover, children, disabled = false, 
         <button
             type={type}
             onClick={onClick}
-            className={`${bg} ${hover} p-2 rounded-md font-bold text-white cursor-pointer`}
+            className={`${bg} ${hover} p-2 rounded-sm font-bold text-white cursor-pointer`}
             disabled={disabled}
         >
             {children}

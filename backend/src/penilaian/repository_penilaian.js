@@ -2,6 +2,49 @@ const prisma = require("../../prisma/prismaClient");
 const errorPrisma = require("../utils/errorPrisma");
 const throwWithStatus = require("../utils/throwWithStatus");
 const { v4: uuidv4 } = require("uuid");
+async function updateKesimpulanTx(tx, rekapNilaiId) {
+    const allPenilaian = await tx.penilaian.findMany({
+        where: { rekapNilaiId },
+        select: { nilai: true },
+    });
+
+    const totalIndikator = allPenilaian.length;
+    let totalB = 0;
+    let totalC = 0;
+    let totalP = 0;
+
+    for (const p of allPenilaian) {
+        if (!p.nilai) continue; // skip null
+        if (p.nilai === "B") totalB++;
+        else if (p.nilai === "C") totalC++;
+        else if (p.nilai === "P") totalP++;
+    }
+
+    const dataKesimpulan = {
+        pencapaian_perkembangan_baik: `${totalB}/${totalIndikator}`,
+        pencapaian_perkembangan_buruk: `${totalC}/${totalIndikator}`,
+        pencapaian_perkembangan_perlu_dilatih: `${totalP}/${totalIndikator}`,
+    };
+
+    const existingKesimpulan = await tx.kesimpulan.findUnique({
+        where: { id_rekap_nilai: rekapNilaiId },
+    });
+
+    if (existingKesimpulan) {
+        await tx.kesimpulan.update({
+            where: { id_rekap_nilai: rekapNilaiId },
+            data: dataKesimpulan,
+        });
+    } else {
+        await tx.kesimpulan.create({
+            data: {
+                id_rekap_nilai: rekapNilaiId,
+                ...dataKesimpulan,
+                saran_dan_masukan: null,
+            },
+        });
+    }
+}
 
 const findByTahunSemester = async (tahunAjaranId, semester) => {
     try {
@@ -25,23 +68,30 @@ const findByTahunSemester = async (tahunAjaranId, semester) => {
         });
 
         const indikatorList = await getAllIndikator(); // ambil semua indikator
-        // Pastikan setiap rekap memiliki penilaian default
+
+        // Jalankan transaction untuk setiap rekap
         await Promise.all(
             response.map(async (rekap) => {
-                if (!rekap.penilaian || rekap.penilaian.length === 0) {
-                    await prisma.penilaian.createMany({
-                        data: indikatorList.map((indikator) => ({
-                            id_penilaian: `pnl-${uuidv4()}`,
-                            indikatorId: indikator.id_indikator,
-                            rekapNilaiId: rekap.id_rekap_nilai,
-                            nilai: null,
-                        })),
-                        skipDuplicates: true,
-                    });
-                }
+                await prisma.$transaction(async (tx) => {
+                    if (!rekap.penilaian || rekap.penilaian.length === 0) {
+                        await tx.penilaian.createMany({
+                            data: indikatorList.map((indikator) => ({
+                                id_penilaian: `pnl-${uuidv4()}`,
+                                indikatorId: indikator.id_indikator,
+                                rekapNilaiId: rekap.id_rekap_nilai,
+                                nilai: null,
+                            })),
+                            skipDuplicates: true,
+                        });
+                    }
+
+                    // Panggil update kesimpulan dalam transaction
+                    await updateKesimpulanTx(tx, rekap.id_rekap_nilai);
+                });
             })
         );
-        // Tambahkan status, lalu hilangkan penilaian
+
+        // Tambahkan status, lalu hilangkan field penilaian
         const withStatus = response.map(({ penilaian, ...rest }) => {
             const semuaNilaiTerisi = penilaian.every((p) => p.nilai !== null);
             return {
@@ -329,85 +379,105 @@ const updatePenilaian = async (nilai, id_penilaian) => {
 };
 
 const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
-    const findSemester = await prisma.semester.findFirst({
-        where: {
-            tahunAjaranId: id_tahun_ajaran,
-            nama: semester,
-        },
-        select: { id_semester: true },
-    });
-
-    if (!findSemester) throwWithStatus("Semester tidak ditemukan", 404);
-
-    const penilaianList = await prisma.penilaian.findMany({
-        where: {
-            rekapNilai: {
+    try {
+        
+        const findSemester = await prisma.semester.findFirst({
+            where: {
+                tahunAjaranId: id_tahun_ajaran,
+                nama: semester,
+            },
+            select: { id_semester: true },
+        });
+    
+        if (!findSemester) throwWithStatus("Semester tidak ditemukan", 404);
+    
+        const indikatorList = await getAllIndikator();
+    
+        // Ambil semua rekap nilai yang terkait semester & tahun ajaran
+        const rekapList = await prisma.rekapNilai.findMany({
+            where: {
                 tahunAjaranId: id_tahun_ajaran,
                 semesterId: findSemester.id_semester,
             },
-        },
-        select: {
-            nilai: true,
-            indikator: {
-                select: {
-                    nama_indikator: true,
-                    subKategori: {
-                        select: {
-                            nama_sub_kategori: true,
-                            kategori: {
-                                select: {
-                                    id_kategori: true,
-                                    nama_kategori: true,
+            select: { id_rekap_nilai: true },
+        });
+    
+        // --- Jalankan transaction untuk setiap rekap nilai ---
+        await Promise.all(
+            rekapList.map(async (rekap) => {
+                await prisma.$transaction(async (tx) => {
+                    const countPenilaian = await tx.penilaian.count({
+                        where: { rekapNilaiId: rekap.id_rekap_nilai },
+                    });
+    
+                    if (countPenilaian === 0) {
+                        await tx.penilaian.createMany({
+                            data: indikatorList.map((indikator) => ({
+                                id_penilaian: `pnl-${uuidv4()}`,
+                                indikatorId: indikator.id_indikator,
+                                rekapNilaiId: rekap.id_rekap_nilai,
+                                nilai: null,
+                            })),
+                            skipDuplicates: true,
+                        });
+                    }
+    
+                    // Update kesimpulan setelah penilaian dipastikan ada
+                    await updateKesimpulanTx(tx, rekap.id_rekap_nilai);
+                });
+            })
+        );
+    
+        // --- Ambil penilaian hasil akhir (grouped) ---
+        const penilaianList = await prisma.penilaian.findMany({
+            where: {
+                rekapNilai: {
+                    tahunAjaranId: id_tahun_ajaran,
+                    semesterId: findSemester.id_semester,
+                },
+            },
+            select: {
+                nilai: true,
+                indikator: {
+                    select: {
+                        nama_indikator: true,
+                        subKategori: {
+                            select: {
+                                nama_sub_kategori: true,
+                                kategori: {
+                                    select: {
+                                        id_kategori: true,
+                                        nama_kategori: true,
+                                    },
                                 },
                             },
                         },
                     },
                 },
-            },
-            rekapNilai: {
-                select: {
-                    pesertaDidik: true,
-                    guru: {
-                        select: {
-                            nama_kelas: true,
-                        },
-                    },
-                },
-            },
-        },
-        orderBy: [
-            {
-                indikator: {
-                    subKategori: {
-                        kategori: {
-                            id_kategori: "asc",
-                        },
-                    },
-                },
-            },
-            {
-                indikator: {
-                    subKategori: {
-                        id_sub_kategori: "asc",
-                    },
-                },
-            },
-            {
-                indikator: {
-                    id_indikator: "asc",
-                },
-            },
-            {
                 rekapNilai: {
-                    pesertaDidik: {
-                        nama_lengkap: "asc",
+                    select: {
+                        pesertaDidik: true,
+                        guru: true,
+                        kesimpulan: true
                     },
                 },
             },
-        ],
-    });
-
-    return penilaianList;
+            orderBy: [
+                {
+                    indikator: {
+                        subKategori: { kategori: { id_kategori: "asc" } },
+                    },
+                },
+                { indikator: { subKategori: { id_sub_kategori: "asc" } } },
+                { indikator: { id_indikator: "asc" } },
+                { rekapNilai: { pesertaDidik: { nama_lengkap: "asc" } } },
+            ],
+        });
+    
+        return penilaianList;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error), 500)
+    }
 };
 
 const searchRaport = async (id_tahun_ajaran, semester, keyword) => {
@@ -425,7 +495,7 @@ const searchRaport = async (id_tahun_ajaran, semester, keyword) => {
             where: {
                 tahunAjaranId: id_tahun_ajaran,
                 semester: {
-                    nama: semester
+                    nama: semester,
                 },
                 pesertaDidik: {
                     is: {
@@ -447,7 +517,6 @@ const searchRaport = async (id_tahun_ajaran, semester, keyword) => {
         });
         return response;
     } catch (error) {
-        console.log(error)
         throwWithStatus(errorPrisma(error), 500);
     }
 };

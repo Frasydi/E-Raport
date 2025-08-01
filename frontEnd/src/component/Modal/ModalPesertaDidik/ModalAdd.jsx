@@ -34,7 +34,7 @@ const Modal = ({ onClose, onSuccess }) => {
         }));
     };
 
-    console.log(formAdd)
+    console.log(formAdd);
 
     useEffect(() => {
         if (error) {
@@ -264,6 +264,8 @@ const Modal = ({ onClose, onSuccess }) => {
                             type={"select"}
                             value={formAdd.jenis_kelamin || ""}
                             name={"jenis_kelamin"}
+                            allowEmpty={true}
+                            emptyLabel={"kosongkan pilihan"}
                             onChange={(val) => {
                                 setFormAdd((value) => ({
                                     ...value,
@@ -281,6 +283,8 @@ const Modal = ({ onClose, onSuccess }) => {
                             id={"agama"}
                             type={"select"}
                             name={"agama"}
+                            allowEmpty={true}
+                            emptyLabel={"kosongkan pilihan"}
                             value={formAdd.agama || ""}
                             onChange={(val) => {
                                 setFormAdd((item) => ({

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     studentName: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: "semibold",
         color: "#2563EB",
         opacity: 0.9,
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     },
 });
 
+
 const PrevSampul = ({namaLengkap, nomorInduk, profilSekolah}) => (
     <Document>
         <Page size="A4" style={styles.page}>
@@ -106,7 +107,7 @@ const PrevSampul = ({namaLengkap, nomorInduk, profilSekolah}) => (
                     <Text style={styles.h1}>LAPORAN</Text>
                     <Text style={styles.h3}>PERKEMBANGAN ANAK DIDIK</Text>
                     <Text style={styles.h3}>TAMAN KANAK-KANAK (TK)</Text>
-                    <Text style={styles.schoolName}>AL-IKHLAS BALLA</Text>
+                    <Text style={styles.schoolName}>{profilSekolah?.nama_sekolah.toUpperCase()}</Text>
                 </View>
 
                 {/* School Info */}
@@ -143,7 +144,7 @@ const PrevSampul = ({namaLengkap, nomorInduk, profilSekolah}) => (
                 <View style={styles.studentInfo}>
                     <Text>Nama Anak Didik</Text>
                     <Text style={styles.studentName}>
-                        {namaLengkap}
+                        {namaLengkap.toUpperCase() || ""}
                     </Text>
                     <View style={{ flexDirection: "row", gap: 2 }}>
                         <Text>Nomor Induk</Text>

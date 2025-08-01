@@ -1,6 +1,7 @@
 import Input from "./Input";
 import CustomSelect from "../CustomSelect";
 import { forwardRef } from "react";
+
 const ModalInput = forwardRef(
     (
         {
@@ -15,7 +16,10 @@ const ModalInput = forwardRef(
             name,
             emptyMessage,
             classname,
+            allowEmpty,
+            emptyLabel,
             options = [],
+            rows = 4, // tambahkan rows untuk textarea
         },
         ref
     ) => {
@@ -37,8 +41,31 @@ const ModalInput = forwardRef(
                             placeholder={placeholder}
                             value={value}
                             emptyMessage={emptyMessage}
+                            allowEmpty={allowEmpty}
+                            emptyLabel={emptyLabel}
                             disabled={disabled}
                             onChange={onChange}
+                        />
+                    </div>
+                ) : type === "textarea" ? ( // <--- tambahkan ini
+                    <div className="flex flex-col gap-1.5">
+                        <label
+                            htmlFor={id}
+                            className="text-xs text-gray-500 font-semibold"
+                        >
+                            {children}
+                        </label>
+                        <textarea
+                            ref={ref}
+                            id={id}
+                            name={name}
+                            placeholder={placeholder}
+                            disabled={disabled}
+                            required={required}
+                            value={value}
+                            onChange={onChange}
+                            rows={rows}
+                            className="border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-300"
                         />
                     </div>
                 ) : (
@@ -51,7 +78,7 @@ const ModalInput = forwardRef(
                         </label>
                         <Input
                             type={type}
-                            ref={ref} // <-- ref diteruskan ke Input
+                            ref={ref}
                             placeholder={placeholder}
                             id={id}
                             disabled={disabled}

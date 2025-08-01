@@ -38,14 +38,14 @@ const ModalEditPesertaDidik = ({
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [guruOptions] = useSelectedGuru();
 
-    //console.log(formEdit.pesertaDidik)
+    console.log(formEdit)
     const onChangeHandelEdit = (e) => {
         const { value, name } = e.target;
         setFormEdit((val) => ({
             ...val,
             pesertaDidik: {
                 ...val.pesertaDidik,
-                [name]: value,
+                [name]: name === "anakKe" ? Number(value) : value,
             },
         }));
     };
