@@ -18,7 +18,7 @@ const Penilaian = () => {
     const [pesertaDidik, setPesertaDidik] = useState([]);
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
-    const [isSearch, setIsSearch] = useState(true);
+    const [isSearch, setIsSearch] = useState(false);
     const [isLoading, setIsLoading] = useState("");
     const [rekapNilai, setRekapNilai] = useState("")
     const [isOpenModalKesimpulan, setOpenModalKesimpulan] = useState(false);
@@ -75,6 +75,7 @@ const Penilaian = () => {
         }
     },[tahunAjaranOptions]);
 
+
     useEffect(() => {
         if (!selectedTahunAjaran) {
             setError(
@@ -94,6 +95,7 @@ const Penilaian = () => {
         if (search) return;
         if (!isSearch) return;
         fetchData();
+        setIsSearch(false)
     }, [search, selectedSemester, selectedTahunAjaran]);
 
     const handleSearch = async () => {
@@ -113,6 +115,10 @@ const Penilaian = () => {
                 );
                 return;
             }
+            if(!search) {
+                fetchData()
+                return
+            }
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const response = await searhPenilaian(
                 selectedTahunAjaran,
@@ -123,13 +129,11 @@ const Penilaian = () => {
             setPesertaDidik(response.data);
         } catch (error) {
             setError(error);
-            setIsSearch(false);
+            setIsSearch(true);
         } finally {
             setIsLoading(false);
         }
     };
-
-
 
     return (
         <>

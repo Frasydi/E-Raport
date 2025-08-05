@@ -59,10 +59,6 @@ const CetakRaport = () => {
         }
         fetchData();
     }, [selectedSemester, selectedTahunAjaran, selectedTanggalCetak]);
-    //useEffect(() => {
-    //    const today = new Date().toISOString().split("T")[0];
-    //    setSelectedTanggalCetak(today);
-    //}, []);
 
     function getTodayLocal() {
         const today = new Date();
@@ -133,6 +129,10 @@ const CetakRaport = () => {
                     "tanggal cetak belum dipilih. Harap lengkapi terlebih dahulu"
                 );
                 return;
+            }
+            if(!search) {
+                fetchData()
+                return
             }
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const response = await searchRaport(

@@ -9,6 +9,7 @@ import {
 export const usePesertaDidikStore = create((set) => ({
     data: [],
     loading: false,
+    isSearch: false,
     error: null,
 
     fetchByTahunAjaran: async (id) => {
@@ -27,7 +28,7 @@ export const usePesertaDidikStore = create((set) => ({
     },
 
     searchPeserta: async (keyword) => {
-        set({ loading: true, error: null, data: [] });
+        set({ loading: true, error: null, data: [] , isSearch:true});
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const hasil = await searchPesertaDidik(keyword);
@@ -46,7 +47,6 @@ export const usePesertaDidikStore = create((set) => ({
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const hasil = await getSearchPesertaDidik(keyword);
-            console.log(hasil);
             set({ data: hasil });
         } catch (error) {
             set({
@@ -73,5 +73,6 @@ export const usePesertaDidikStore = create((set) => ({
         }
     },
     setError: (message) => set({ error: message }),
+    setIsSearch: ()=> set({isSearch: false}),
     reset: () => set({ data: [], loading: false, error: null }),
 }));

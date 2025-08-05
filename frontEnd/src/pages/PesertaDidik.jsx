@@ -1,9 +1,7 @@
 import LayoutMenu from "../containers/layout";
 import Container from "../containers/container";
 import Search from "../component/input/Search";
-import {
-    faPlus
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { AddStudentButton } from "../component/button/Button";
 import Modal from "../component/Modal/ModalPesertaDidik/ModalAdd";
 import CardProfil from "../component/card/cardProfil";
@@ -33,7 +31,9 @@ const PesertaDidik = () => {
         fetchByTahunAjaran,
         searchPeserta,
         deletePeserta,
+        isSearch,
         setError,
+        setIsSearch
     } = usePesertaDidikStore(
         useShallow((state) => ({
             pesertaDidik: state.data,
@@ -42,19 +42,19 @@ const PesertaDidik = () => {
             fetchByTahunAjaran: state.fetchByTahunAjaran,
             searchPeserta: state.searchPeserta,
             deletePeserta: state.deletePeserta,
+            isSearch: state.isSearch,
+            setIsSearch: state.setIsSearch,
             setError: state.setError,
         }))
     );
 
-    useEffect(() => {
-        if (!selectedTahunAjaran) {
-            setError(
-                "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
-            );
-            return;
-        }
-        fetchByTahunAjaran(selectedTahunAjaran);
-    }, [selectedTahunAjaran, fetchByTahunAjaran]);
+    //useEffect(() => {
+    //    if(!selectedTahunAjaran) return
+    //    if (search) return;
+    //    if (!isSearch) return;
+    //    fetchByTahunAjaran(selectedTahunAjaran);
+    //    setIsSearch()
+    //}, [selectedTahunAjaran, fetchByTahunAjaran]);
 
     const handleEditPesertaDidik = (data) => {
         setSelectedPesertaDidik(data);
@@ -84,6 +84,19 @@ const PesertaDidik = () => {
     }, [selectedTahunAjaran]);
 
     useEffect(() => {
+        if (!selectedTahunAjaran) {
+            setError(
+                "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
+            );
+            return;
+        }
+        if(search) return;
+        if(!isSearch) return
+        fetchByTahunAjaran(selectedTahunAjaran);
+        setIsSearch()
+    }, [search, selectedTahunAjaran, fetchByTahunAjaran]);
+
+    useEffect(() => {
         const saved = localStorage.getItem("tahun_ajaran_peserta");
         const findTahunRaport = tahunAjaranOptions.find(
             (val) => val?.value === saved
@@ -95,14 +108,13 @@ const PesertaDidik = () => {
             setSelectedTahunAjaran("");
         }
     }, []);
-
+    
     const handleSearch = async () => {
-        if (!search.trim()) {
-            return;
+        if (!search) {
+            fetchByTahunAjaran(selectedTahunAjaran)
+            return
         }
         await searchPeserta(search);
-        setSelectedTahunAjaran("");
-        setSearch("");
     };
     return (
         <>

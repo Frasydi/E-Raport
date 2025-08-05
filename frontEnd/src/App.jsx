@@ -14,15 +14,17 @@ import KategoriPenilaian from "./component/penilaian/KategoriPenilaian";
 import SubKategoriPenilaian from "./component/penilaian/SubKategoriPenilaian";
 import Nilai from "./component/penilaian/Nilai";
 import OfflineIndicator from "./component/OfflineIndicator";
+import OrangTua from "./pages/orangTua";
 
 import { useClearLocalStorageOnClose } from "./hooks/useClearLocalStorageOnClose";
 
 function App() {
-    useClearLocalStorageOnClose(["token"]);
+    //useClearLocalStorageOnClose(["token"]);
     return (
         <>
             <OfflineIndicator />
             <Routes>
+                <Route path="/orang-tua" element={<OrangTua />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={<Dashboard />}></Route>

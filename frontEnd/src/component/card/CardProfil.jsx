@@ -46,7 +46,7 @@ const CardProfil = ({
 
     return (
         <div
-            className={`group relative w-56 h-80 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-4 flex flex-col items-center justify-between border border-gray-200 hover:border-indigo-100 ${hover}`}
+            className={`group relative w-56 h-80 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-transform duration-300 p-4 flex flex-col items-center justify-between border border-gray-300 transform hover:-translate-y-1 hover:scale-[1.02] ${hover}`}
             onClick={click}
         >
             {/* Avatar */}

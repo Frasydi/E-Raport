@@ -1,0 +1,255 @@
+import LayoutMenu from "../containers/layout";
+import Container from "../containers/container";
+import Search from "../component/input/Search";
+import CardProfil from "../component/card/cardProfil";
+import ModalInput from "../component/input/ModalInput";
+import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
+import { getByTahunSemester, searhPenilaian } from "../api/penilaian";
+import { Outlet } from "react-router";
+import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import Loading from "../component/Loading";
+import ModalKesimpulan from "../component/Modal/ModalKesimpulan/ModalUpdateKesimpulan";
+
+const OrangTua = () => {
+    const { tahunAjaranOptions } = useSelectedTahunAjaran();
+    const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
+    const [selectedSemester, setSelectedSemester] = useState("");
+    const [pesertaDidik, setPesertaDidik] = useState([]);
+    const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [isSearch, setIsSearch] = useState(true);
+    const [isLoading, setIsLoading] = useState("");
+    const [rekapNilai, setRekapNilai] = useState("");
+    const [isOpenModalKesimpulan, setOpenModalKesimpulan] = useState(false);
+    const navigate = useNavigate();
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const response = await getByTahunSemester(
+                selectedTahunAjaran,
+                selectedSemester
+            );
+            setError("");
+            const newData = response.data.map((item) => {
+                return {
+                    id_rekap_nilai: item.id_rekap_nilai,
+                    peserta_didik: item.pesertaDidik,
+                    tahun_ajaran: item.tahunAjaran,
+                    guru: item.guru,
+                };
+            });
+            setPesertaDidik(newData);
+        } catch (error) {
+            setError(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (selectedTahunAjaran) {
+            localStorage.setItem("tahun_ajaran_penilaian", selectedTahunAjaran);
+        }
+        if (selectedSemester) {
+            localStorage.setItem("semester_penilaian", selectedSemester);
+        }
+    }, [selectedTahunAjaran, selectedSemester]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("tahun_ajaran_penilaian");
+        const savedSemester = localStorage.getItem("semester_penilaian");
+        const findTahunRaport = tahunAjaranOptions.find(
+            (val) => val?.value === saved
+        );
+        if (saved && findTahunRaport) {
+            setSelectedTahunAjaran(saved);
+        } else {
+            localStorage.removeItem("tahun_ajaran_raport");
+            setSelectedTahunAjaran("");
+        }
+        if (savedSemester) {
+            setSelectedSemester(savedSemester);
+        }
+    }, [tahunAjaranOptions]);
+
+    useEffect(() => {
+        if (!selectedTahunAjaran) {
+            setError(
+                "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
+            );
+            return;
+        }
+        if (!selectedSemester) {
+            setError("semester belum dipilih. Harap lengkapi terlebih dahulu");
+            return;
+        }
+        fetchData();
+    }, [selectedSemester, selectedTahunAjaran]);
+
+    useEffect(() => {
+        if (!selectedTahunAjaran || !selectedSemester) return;
+        if (search) return;
+        if (!isSearch) return;
+        fetchData();
+    }, [search, selectedSemester, selectedTahunAjaran]);
+
+    const handleSearch = async () => {
+        setIsLoading(true);
+        setIsSearch(false);
+        setError("");
+        try {
+            if (!selectedTahunAjaran) {
+                setError(
+                    "tahun ajaran belum dipilih. Harap lengkapi terlebih dahulu"
+                );
+                return;
+            }
+            if (!selectedSemester) {
+                setError(
+                    "semester belum dipilih. Harap lengkapi terlebih dahulu"
+                );
+                return;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const response = await searhPenilaian(
+                selectedTahunAjaran,
+                selectedSemester,
+                search
+            );
+            setIsSearch(true);
+            setPesertaDidik(response.data);
+        } catch (error) {
+            setError(error);
+            setIsSearch(false);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="w-full min-h-screen bg-gray-50 font-poppins">
+            <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Filter Section */}
+                <div className="w-full rounded-xl shadow-sm p-4 mb-6 lg:w-2xl">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-7 text-sm">
+                        <div className="flex-1">
+                            <ModalInput
+                                type={"select"}
+                                classname={"mb-4 md:mb-0"}
+                                value={selectedTahunAjaran}
+                                onChange={(val) => {
+                                    setSelectedTahunAjaran(val);
+                                }}
+                                options={tahunAjaranOptions}
+                                displayKey="label"
+                                disibled={isLoading}
+                                emptyMessage={
+                                    "harap isi data di menu tahun ajaran"
+                                }
+                                valueKey="value"
+                                id={"tahun_ajaran"}
+                                name={"tahun_ajaran"}
+                            >
+                                Tahun Ajaran
+                            </ModalInput>
+                        </div>
+                        <div className="flex-1">
+                            <ModalInput
+                                type={"select"}
+                                value={selectedSemester}
+                                onChange={(val) => {
+                                    setSelectedSemester(val);
+                                }}
+                                options={["semester 1", "semester 2"]}
+                                displayKey="label"
+                                valueKey="value"
+                                id={"semester"}
+                                disibled={isLoading}
+                                name={"semester"}
+                            >
+                                Semester
+                            </ModalInput>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content Section */}
+                <Container>
+                    {isLoading && <Loading />}
+
+                    {/* Header with search and instruction */}
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+                        <div className="inline-flex items-center bg-gray-800 text-gray-100 px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
+                            <svg
+                                className="w-4 h-4 mr-2 text-blue-300"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                />
+                            </svg>
+                            Instruksi: arahkan cursor ke salah satu peserta
+                            didik
+                        </div>
+
+                        <div className="w-full md:w-64 lg:w-md">
+                            <Search
+                                htmlFor="search_student"
+                                placeholder="cari siswa....."
+                                onChange={(e) => {
+                                    setSearch(e.target.value);
+                                }}
+                                onSearch={handleSearch}
+                                label={false}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Error or Content Display */}
+                    {error ? (
+                        <div className="w-full flex flex-col items-center justify-center h-52 bg-red-50 rounded-lg border border-red-100 p-4">
+                            <div className="flex items-center justify-center gap-2">
+                                <svg
+                                    className="w-5 h-5 text-red-500"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                                <h1 className="text-sm font-medium text-red-600">
+                                    {error}
+                                </h1>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                            {pesertaDidik.map((item) => (
+                                <CardProfil
+                                    key={item.id_rekap_nilai}
+                                    mode="orang-tua"
+                                    data={item}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </Container>
+            </div>
+        </div>
+    );
+};
+
+export default OrangTua;
