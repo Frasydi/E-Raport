@@ -56,7 +56,7 @@ const SubKategoriPenilaian = () => {
             <ModalPenilaian
                 onClose={() => {
                     localStorage.removeItem("pesertaDidik");
-                    navigate("/menu/penilaian");
+                    navigate("/penilaian");
                 }}
             >
                 {error ? (
@@ -103,7 +103,7 @@ const SubKategoriPenilaian = () => {
                                             dataLocalStorage
                                         );
                                         navigate(
-                                            `/menu/penilaian/${id_rekap_nilai}/${id_kategori}/${item.id}`
+                                            `/penilaian/${id_rekap_nilai}/${id_kategori}/${item.id}`
                                         );
                                     }}
                                     key={index}

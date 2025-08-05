@@ -128,5 +128,4 @@ router.delete("/delete-data-peserta-didik/:id_peserta_didik/:id_tahun_ajaran", a
     }
 });
 
-
 module.exports = router;

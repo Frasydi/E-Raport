@@ -1,10 +1,10 @@
 const router = require("express").Router();
 
-const { getJumlahPesertaDidik, getJumlahPria, getJumlahWanita } = require("./repository_amount");
+const {headerProfilSekolah, displayByTahunAjaran} = require("./services_amount")
 
 router.get("/jml-peserta-didik", async (req, res, next) => {
     try {
-        const response = await getJumlahPesertaDidik();
+        const response = await headerProfilSekolah()
         res.json({
             success: true,
             msg: "data berhasil didapatkan",
@@ -15,30 +15,18 @@ router.get("/jml-peserta-didik", async (req, res, next) => {
     }
 });
 
-router.get("/jml-pria", async (req, res, next) => {
+router.get("/display-by-tahun/:id_tahun_ajaran", async(req,res,next)=> {
+    const {id_tahun_ajaran} = req.params
     try {
-        const response = await getJumlahPria();
+        const response = await displayByTahunAjaran(id_tahun_ajaran)
         res.json({
             success: true,
-            msg: "data berhasil didapatkan",
-            data: response,
-        });
+            msg:"data berhasil didapatkan",
+            data: response
+        })
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
+})
 
-router.get("/jml-wanita", async (req, res, next) => {
-    try {
-        const response = await getJumlahWanita();
-        res.json({
-            success: true,
-            msg: "data berhasil didapatkan",
-            data: response,
-        });
-    } catch (error) {
-        next(error);
-    }
-});
-
-module.exports = router;
+module.exports  = router

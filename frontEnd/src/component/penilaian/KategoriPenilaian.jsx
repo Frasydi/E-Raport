@@ -68,7 +68,7 @@ const KategoriPenilaian = () => {
         <ModalPenilaian
             onClose={() => {
                 localStorage.removeItem("pesertaDidik");
-                navigate("/menu/penilaian");
+                navigate("/penilaian");
             }}
         >
             {error ? (
@@ -111,10 +111,10 @@ const KategoriPenilaian = () => {
                                         JSON.stringify(dataPesertaDidik)
                                     );
                                     if(item.label == 'Nilai Nilai Agama dan Moral') {
-                                        navigate(`/menu/penilaian/${id_rekap_nilai}/${item.id}/${item.id}`)
+                                        navigate(`/penilaian/${id_rekap_nilai}/${item.id}/${item.id}`)
                                     } else {
                                         navigate(
-                                            `/menu/penilaian/${id_rekap_nilai}/${item.id}`
+                                            `/penilaian/${id_rekap_nilai}/${item.id}`
                                         );
                                     }
                                     console.log(item.label)

@@ -11,39 +11,39 @@ import {
 const navItems = [
     {
         name: "Profil Sekolah",
-        path: "/menu/dashboard",
+        path: "/dashboard",
         icon: faHouse,
     },
     {
         name: "Guru & Kelas",
-        path: "/menu/guru-kelas",
+        path: "/guru-kelas",
         icon: faChalkboardUser,
     },
 
     {
         name: "Tahun Ajaran",
-        path: "/menu/tahun-ajaran",
+        path: "/tahun-ajaran",
         icon: faCalendar,
     },
 
     {
         name: "Data Peserta Didik",
-        path: "/menu/peserta-didik",
+        path: "/peserta-didik",
         icon: faChildren,
     },
     {
         name: "Penilaian Peserta Didik",
-        path: "/menu/penilaian",
+        path: "/penilaian",
         icon: faPenToSquare,
     },
     {
         name: "Cetak Raport",
-        path: "/menu/cetak-raport",
+        path: "/cetak-raport",
         icon: faPrint,
     },
     {
         name: "Backup dan Restore",
-        path: "/menu/backup-restore",
+        path: "/backup-restore",
         icon: faWindowRestore,
     },
 ];

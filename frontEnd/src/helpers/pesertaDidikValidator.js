@@ -20,5 +20,9 @@ export const validatePesertaDidik = (formAdd, guru, tahunAjaran) => {
     if (!guru || !tahunAjaran) {
         return { valid: false, error: "Guru & Tahun Ajaran wajib diisi" };
     }
+
+    if (!formAdd.jenis_kelamin) {
+        return { valid: false, error: "jenis kelamin wajib diisi" };
+    }
     return { valid: true, error: "" };
 };

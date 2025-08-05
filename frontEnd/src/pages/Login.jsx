@@ -25,7 +25,7 @@ const Login = () => {
         try {
             const res = await login(username, password);
             setAccessToken(res.accessToken);
-            navigate("/menu");
+            navigate("/dashboard");
         } catch (error) {
             setError(error.response.data.msg);
         }

@@ -8,14 +8,6 @@ const LayoutMenu = ({ children, blur = false }) => {
             }`}
         >
             <div className="flex w-full items-center justify-center">
-                <Link
-                    to={"/menu"}
-                    className="bg-gray-900 absolute left-0 p-2 rounded-e-xl shadow-2xl hover:bg-gray-800"
-                >
-                    <p className=" text-stone-200 text-sm  text-shadow-2xs cursor-pointer">
-                        Back to Menu
-                    </p>
-                </Link>
                 <Navbar></Navbar>
             </div>
             {children}

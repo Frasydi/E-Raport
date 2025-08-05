@@ -38,7 +38,7 @@ const ModalEditPesertaDidik = ({
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [guruOptions] = useSelectedGuru();
 
-    console.log(formEdit)
+    console.log(formEdit);
     const onChangeHandelEdit = (e) => {
         const { value, name } = e.target;
         setFormEdit((val) => ({
@@ -91,7 +91,11 @@ const ModalEditPesertaDidik = ({
 
     return (
         <>
-            <ModalContainer onClose={onClose} size={'w-6/12'} height={'h-[95%]'}>
+            <ModalContainer
+                onClose={onClose}
+                size={"w-6/12"}
+                height={"h-[95%]"}
+            >
                 <h2 className="flex font-semibold text-lg text-gray-800 mb-4 mt-8 ">
                     Edit Peserta Didik
                 </h2>
@@ -256,10 +260,15 @@ const ModalEditPesertaDidik = ({
                                 disibled={loading}
                             >
                                 Jenis kelamin
+                                <span className="text-red-500">
+                                    * (wajib diisi)
+                                </span>
                             </ModalInput>
                             <ModalInput
                                 id={"agama"}
                                 type={"select"}
+                                allowEmpty={true}
+                                emptyLabel={"kosongkan pilihan"}
                                 name={"agama"}
                                 value={formEdit.pesertaDidik.agama}
                                 onChange={(val) => {

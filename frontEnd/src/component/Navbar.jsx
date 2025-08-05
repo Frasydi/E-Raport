@@ -21,10 +21,10 @@ const NavbarComponent = ({ path, icon, label }) => {
       <span
         className="
           absolute
-          bottom-[-40px]            /* ✅ jarak ke icon */
+          bottom-[-40px]            
           px-3 py-1
           text-xs text-white
-          bg-gray-800              /* ✅ warna background tooltip */
+          bg-gray-800             
           rounded-md
           opacity-0 group-hover:opacity-100
           transition-opacity duration-200

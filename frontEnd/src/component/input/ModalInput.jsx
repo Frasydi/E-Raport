@@ -18,6 +18,7 @@ const ModalInput = forwardRef(
             classname,
             allowEmpty,
             emptyLabel,
+            flexCol = "flex-col",
             options = [],
             rows = 4, // tambahkan rows untuk textarea
         },
@@ -26,7 +27,7 @@ const ModalInput = forwardRef(
         return (
             <div className={`flex flex-col w-full flex-1 ${classname}`}>
                 {type === "select" ? (
-                    <div className="flex flex-col gap-1.5">
+                    <div className={`flex ${flexCol} gap-1.5`}>
                         <label
                             htmlFor={id}
                             className="text-xs text-gray-500 font-semibold"

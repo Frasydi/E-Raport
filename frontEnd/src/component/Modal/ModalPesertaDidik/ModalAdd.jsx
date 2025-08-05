@@ -264,8 +264,6 @@ const Modal = ({ onClose, onSuccess }) => {
                             type={"select"}
                             value={formAdd.jenis_kelamin || ""}
                             name={"jenis_kelamin"}
-                            allowEmpty={true}
-                            emptyLabel={"kosongkan pilihan"}
                             onChange={(val) => {
                                 setFormAdd((value) => ({
                                     ...value,
@@ -277,7 +275,10 @@ const Modal = ({ onClose, onSuccess }) => {
                             disabled={loading || disabled}
                             required={true}
                         >
-                            Jenis kelamin
+                            Jenis kelamin 
+                            <span className="text-red-500">
+                                * (wajib diisi)
+                            </span>
                         </ModalInput>
                         <ModalInput
                             id={"agama"}

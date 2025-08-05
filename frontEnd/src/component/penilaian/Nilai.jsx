@@ -132,7 +132,7 @@ const Nilai = () => {
                 size="w-3xl h-11/12"
                 onClose={() => {
                     localStorage.removeItem("pesertaDidik");
-                    navigate("/menu/penilaian");
+                    navigate("/penilaian");
                 }}
             >
                 {emptyError ? (

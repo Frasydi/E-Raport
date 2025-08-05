@@ -2,9 +2,7 @@ import LayoutMenu from "../containers/layout";
 import Container from "../containers/container";
 import Search from "../component/input/Search";
 import {
-    faPlus,
-    faDownload,
-    faUpload,
+    faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import { AddStudentButton } from "../component/button/Button";
 import Modal from "../component/Modal/ModalPesertaDidik/ModalAdd";

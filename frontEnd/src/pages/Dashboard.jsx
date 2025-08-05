@@ -8,22 +8,86 @@ import BasicPie from "../component/cart/Pie";
 import { useState, useEffect } from "react";
 import ErrorMessage from "../component/Error";
 import { getDataProfil, updateDataProfil } from "../api/profil_sekolah";
+import { getJmlPesertaDidik, getByTahunAjaran } from "../api/dashboard";
+import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
+import CustomSelect from "../component/CustomSelect";
 import Swal from "sweetalert2";
+import PesertaLine from "../component/cart/lineChart";
 
 const Dashboard = () => {
     const [profilSekolah, setProfilSekolah] = useState({});
     const [originalProfil, setOriginalProfil] = useState({});
+    const { tahunAjaranOptions } = useSelectedTahunAjaran();
+    const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
+    const [jumlahPesertaTahun, setjumlahPesertaTahun] = useState({
+        laki_laki: 0,
+        perempuan: 0,
+    });
+
+    const [jmlPesertaDidik, setjmlPesertaDidik] = useState({
+        jumlahPria: 0,
+        jumlahPerempuan: 0,
+        jmlSeluruhPesertaDidik: 0,
+        jmlPesertaTahunTerakhir: {
+            tahun_ajaran: "",
+            total: 0,
+        },
+        jmlPesertaLimaTerakhir: [],
+    });
     const [error, setError] = useState("");
 
+    const getByTahun = async () => {
+        setError("");
+        try {
+            const responseJumlahPesertaTahun = await getByTahunAjaran(
+                selectedTahunAjaran
+            );
+            setjumlahPesertaTahun({
+                laki_laki: responseJumlahPesertaTahun?.totalLaki,
+                perempuan: responseJumlahPesertaTahun.totalPerempuan,
+            });
+        } catch (error) {
+            setError(error);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
+        if (!selectedTahunAjaran) return;
+        getByTahun();
+    }, [selectedTahunAjaran]);
+
+    const fetchData = async () => {
+        setError("");
+        try {
             const res = await getDataProfil();
+            const responsejmlPesertaDidik = await getJmlPesertaDidik();
+
+            setjmlPesertaDidik({
+                jumlahPria: responsejmlPesertaDidik?.jumlahPria || 0,
+                jumlahPerempuan: responsejmlPesertaDidik?.jumlahPerempuan || 0,
+                jmlSeluruhPesertaDidik:
+                    responsejmlPesertaDidik?.jmlSeluruhPesertaDidik || 0,
+                jmlPesertaTahunTerakhir: {
+                    tahun_ajaran:
+                        responsejmlPesertaDidik?.jmlPesertaTahunTerakhir
+                            ?.tahun_ajaran || "",
+                    total:
+                        responsejmlPesertaDidik?.jmlPesertaTahunTerakhir
+                            ?.total || 0,
+                },
+                jmlPesertaLimaTerakhir:
+                    responsejmlPesertaDidik?.jmlPesertaLimaTahunTerakhir,
+            });
             setProfilSekolah(res.data);
             setOriginalProfil(res.data);
-        };
+            setSelectedTahunAjaran(responsejmlPesertaDidik?.tahunAjaranLatest || "")
+        } catch (error) {
+            setError(error);
+        }
+    };
+    useEffect(() => {
         fetchData();
     }, []);
-
     useEffect(() => {
         if (error) {
             const timer = setTimeout(() => {
@@ -76,20 +140,34 @@ const Dashboard = () => {
         <LayoutMenu>
             <div className="flex gap-0">
                 <Card bg="bg-[#36AE7C]" width={"w-64"}>
-                    <h1 className="text-5xl font-semibold">80</h1>
+                    <h1 className="text-5xl font-semibold">
+                        {jmlPesertaDidik.jmlSeluruhPesertaDidik}
+                    </h1>
                     <p>Total Siswa</p>
                 </Card>
                 <Card bg="bg-[#F9D923]" width={"w-64"}>
-                    <h1 className="text-5xl font-semibold">80</h1>
+                    <h1 className="text-5xl font-semibold">
+                        {jmlPesertaDidik.jumlahPria}
+                    </h1>
                     <p>Siswa Laki Laki</p>
                 </Card>
                 <Card bg="bg-[#EB5353]" width={"w-64"}>
-                    <h1 className="text-5xl font-semibold">80</h1>
+                    <h1 className="text-5xl font-semibold">
+                        {jmlPesertaDidik.jumlahPerempuan}
+                    </h1>
                     <p>Siswa Perempuan</p>
                 </Card>
                 <Card bg="bg-[#187498]" width={"w-64"}>
-                    <h1 className="text-5xl font-semibold">80</h1>
-                    <p>Siswa Baru 2024/2025</p>
+                    <h1 className="text-5xl font-semibold">
+                        {jmlPesertaDidik.jmlPesertaTahunTerakhir.total}
+                    </h1>
+                    <p>
+                        Siswa Baru{" "}
+                        {jmlPesertaDidik.jmlPesertaTahunTerakhir.tahun_ajaran.replace(
+                            "/",
+                            " / "
+                        )}
+                    </p>
                 </Card>
             </div>
 
@@ -120,7 +198,7 @@ const Dashboard = () => {
 
                     <form
                         onSubmit={handleSubmit}
-                        className="px-10 text-sm self-center flex flex-col gap-4 mb-5"
+                        className=" w-full px-10 text-sm self-center flex flex-col gap-4 mb-5"
                     >
                         <InputDashboard
                             id="nama_sekolah"
@@ -250,28 +328,49 @@ const Dashboard = () => {
                         </div>
                     </form>
                 </div>
-
-                <div className="flex-1 flex h-full bg-white drop-shadow-xl rounded-2xl flex-col pb-11">
-                    <TitleDashboard icon={faCalendarWeek}>
-                        Statistik Siswa
-                    </TitleDashboard>
-                    <div className="w-96 flex gap-5 items-center justify-between text-sm pl-5">
-                        <label htmlFor="tahun_ajaran">Tahun Ajaran</label>
-                        <select
-                            name="tahun_ajaran"
-                            id="tahun_ajaran"
-                            className="w-2/3 outline-1 rounded-md outline-gray-300 focus:outline-2 focus:outline-blue-300 p-1.5"
-                        >
-                            <option value="2024/2025">2024/2025</option>
-                            <option value="2023/2024">2023/2024</option>
-                            <option value="2022/2023">2022/2023</option>
-                        </select>
+                <div className="flex flex-col gap-2">
+                    <div className="flex-1 bg-white flex drop-shadow-xl rounded-2xl flex-col pb-2 gap-2 justify-center">
+                        <div className=" flex justify-center">
+                            <img src="/images/logoPaud.png" alt="" width={200} />
+                        </div>
+                        <div className=" flex justify-center font-bold text-xl">
+                            <h1>TK AL-IKHLAS BALLA</h1>
+                        </div>
                     </div>
-                    <BasicPie />
+                    <div className="flex-1 bg-white flex drop-shadow-xl rounded-2xl flex-col pb-2 gap-2">
+                        <TitleDashboard icon={faCalendarWeek}>
+                            Statistik Siswa
+                        </TitleDashboard>
+                        <div className="w-96 flex gap-5 items-center justify-between text-sm pl-5">
+                            <div className="flex items-center justify-between w-80 gap-1">
+                                <label htmlFor="tahun_ajaran">
+                                    Tahun Ajaran
+                                </label>
+                                <CustomSelect
+                                    width={"w-52"}
+                                    id={"tahun_ajaran"}
+                                    name={"tahun_ajaran"}
+                                    value={selectedTahunAjaran}
+                                    onChange={(val) => {
+                                        setSelectedTahunAjaran(val);
+                                    }}
+                                    options={tahunAjaranOptions}
+                                    emptyMessage={
+                                        "harap isi data di menu tahun ajaran"
+                                    }
+                                    valueKey="value"
+                                />
+                            </div>
+                        </div>
+                        <BasicPie data={jumlahPesertaTahun}></BasicPie>
+                    </div>
                 </div>
             </div>
-
-            <div className="w-full h-96 bg-red-500 mt-10 rounded-2xl"></div>
+            <div className="flex w-9/12 mt-10 flex-col mb-10">
+                <PesertaLine
+                    data={jmlPesertaDidik.jmlPesertaLimaTerakhir}
+                ></PesertaLine>
+            </div>
         </LayoutMenu>
     );
 };

@@ -6,13 +6,15 @@ const CustomSelect = ({
     name,
     id,
     value,
+    width,
     disabled = false,
     onChange,
     displayKey = "label",
     valueKey = "value",
     emptyMessage = "Data belum ada",
-    allowEmpty = false,         // <-- Tambahan
-    emptyLabel = "Kosong",      // <-- Tambahan
+    allowEmpty = false,
+    emptyLabel = "Kosong",
+    required = false, // <<==== Tambahan
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -53,61 +55,87 @@ const CustomSelect = ({
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(e.target)
+            ) {
                 setIsOpen(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
-        <div ref={dropdownRef} className="relative">
-            <input type="hidden" name={name} value={value} required />
+        <div ref={dropdownRef} className={`relative ${width}`}>
+            <input
+                type="hidden"
+                name={name}
+                value={value}
+                required={required && (!allowEmpty ? true : value !== "")} // <== VALIDASI
+            />
 
             <div
                 id={id}
                 onClick={toggleDropdown}
                 className={`flex justify-between items-center px-3 py-2 rounded-md outline outline-gray-400 bg-white cursor-pointer transition-all ${
                     !isValueValid() ? "text-gray-400 italic" : "text-gray-800"
-                } ${disabled ? "cursor-not-allowed opacity-50" : "hover:border-gray-400"}`}
+                } ${
+                    disabled
+                        ? "cursor-not-allowed opacity-50"
+                        : "hover:border-gray-400"
+                }`}
             >
                 <span className={!isValueValid() ? "text-xs" : ""}>
-                    {isValueValid() ? getDisplayText(getSelectedOption()) : placeholder}
+                    {isValueValid()
+                        ? getDisplayText(getSelectedOption())
+                        : placeholder}
                 </span>
                 <svg
-                    className={`w-4 h-4 ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 ml-2 transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                 >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                    />
                 </svg>
             </div>
 
             {isOpen && (
                 <ul className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-md max-h-44 overflow-y-auto">
-                    {/* Tambahan: Pilihan kosong */}
                     {allowEmpty && (
                         <li
                             onClick={() => handleSelect("")}
                             className={`px-4 py-2 text-sm hover:bg-blue-100 cursor-pointer transition ${
-                                value === "" ? "bg-blue-50 text-blue-400 font-medium" : ""
+                                value === ""
+                                    ? "bg-blue-50 text-blue-400 font-medium"
+                                    : ""
                             }`}
                         >
                             {emptyLabel}
                         </li>
                     )}
-
                     {options.length === 0 ? (
-                        <li className="px-4 py-2 text-sm text-gray-400 italic">{emptyMessage}</li>
+                        <li className="px-4 py-2 text-sm text-gray-400 italic">
+                            {emptyMessage}
+                        </li>
                     ) : (
                         options.map((option, index) => (
                             <li
                                 key={index}
                                 onClick={() => handleSelect(getValue(option))}
                                 className={`px-4 py-2 text-sm hover:bg-blue-100 cursor-pointer transition ${
-                                    value === getValue(option) ? "bg-blue-50 text-blue-400 font-medium" : ""
+                                    value === getValue(option)
+                                        ? "bg-blue-50 text-blue-400 font-medium"
+                                        : ""
                                 }`}
                             >
                                 {getDisplayText(option)}
