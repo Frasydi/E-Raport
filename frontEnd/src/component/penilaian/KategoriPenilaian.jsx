@@ -2,9 +2,8 @@ import ModalPenilaian from "./ModalPenilaian";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import StepProgress from "../StepProgres";
 import ProfilPenilaian from "./ProfilPenilaian";
-import { useParams } from "react-router";
 import { getKategori } from "../../api/penilaian";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../Loading";
 import {
     faHeart,
@@ -16,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 
-const KategoriPenilaian = () => {
+const KategoriPenilaian = ({ type = "penilaian" }) => {
     const { id_rekap_nilai } = useParams();
     const [kategoriList, setKategoriList] = useState([]);
     const [isLoading, setIsLoading] = useState("");
@@ -32,7 +31,7 @@ const KategoriPenilaian = () => {
         faPaintBrush,
     ];
 
-    console.log(dataPesertaDidik);
+    console.log('kategoriList: ', kategoriList)
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -68,7 +67,11 @@ const KategoriPenilaian = () => {
         <ModalPenilaian
             onClose={() => {
                 localStorage.removeItem("pesertaDidik");
-                navigate("/penilaian");
+                if (type == "penilaian") {
+                    navigate("/penilaian");
+                } else {
+                    navigate("/orang-tua");
+                }
             }}
         >
             {error ? (
@@ -110,14 +113,32 @@ const KategoriPenilaian = () => {
                                         "pesertaDidik",
                                         JSON.stringify(dataPesertaDidik)
                                     );
-                                    if(item.label == 'Nilai Nilai Agama dan Moral') {
-                                        navigate(`/penilaian/${id_rekap_nilai}/${item.id}/${item.id}`)
+
+                                    if (
+                                        item.label ==
+                                        "Nilai Nilai Agama dan Moral"
+                                    ) {
+                                        if (type == "penilaian") {
+                                            navigate(
+                                                `/penilaian/${id_rekap_nilai}/${item.id}/${item.id}`
+                                            );
+                                        } else {
+                                            navigate(
+                                                `/orang-tua/${id_rekap_nilai}/${item.id}/${item.id}`
+                                            );
+                                        }
                                     } else {
-                                        navigate(
-                                            `/penilaian/${id_rekap_nilai}/${item.id}`
-                                        );
+                                        if (type == "penilaian") {
+                                            navigate(
+                                                `/penilaian/${id_rekap_nilai}/${item.id}`
+                                            );
+                                        } else {
+                                            navigate(
+                                                `/orang-tua/${id_rekap_nilai}/${item.id}`
+                                            );
+                                        }
                                     }
-                                    console.log(item.label)
+                                    console.log(item.label);
                                 }}
                                 key={index}
                                 className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl shadow-sm"
@@ -128,7 +149,15 @@ const KategoriPenilaian = () => {
                                 />
                                 <div className="flex justify-between w-full ">
                                     <p>{item.label}</p>
-                                    {item.status == 'belum lengkap'?(<p className="text-red-500 font-bold">{'!'}</p>) : (<p className="text-green-700 font-bold">✓</p>)}
+                                    {item.status == "belum lengkap" ? (
+                                        <p className="text-red-500 font-bold">
+                                            {"!"}
+                                        </p>
+                                    ) : (
+                                        <p className="text-green-700 font-bold">
+                                            ✓
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         ))}

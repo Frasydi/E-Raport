@@ -1,18 +1,23 @@
-import { useContext, createContext, useState, useEffect } from "react";
+import { useContext, createContext, useState, useEffect, useRef } from "react";
 import { getAccessToken, logout as apiLogout } from "../api/auth";
 import { setupInterceptors } from "../api/axiosInstance";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessToken] = useState(null);
-    const [loading, setLoading] = useState(true); // ← tambahkan ini
+    const accessTokenRef = useRef(null); // ✅ token ref
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     const logout = async () => {
         await apiLogout();
         setAccessToken(null);
+        accessTokenRef.current = null;
+        setUser(null);
         navigate("/login");
     };
 
@@ -20,26 +25,52 @@ export const AuthProvider = ({ children }) => {
         const fetchToken = async () => {
             try {
                 const token = await getAccessToken();
-                console.log("Fetched token:", token);
                 setAccessToken(token);
-            } catch {
-                setAccessToken(null); // jangan redirect di sini
+                accessTokenRef.current = token; // ✅ simpan ke ref
+
+                const decoded = jwtDecode(token);
+                setUser({
+                    id: decoded.id,
+                    username: decoded.username,
+                    role: decoded.role,
+                });
+            } catch (err) {
+                console.error("Token fetch failed", err);
+                setAccessToken(null);
+                accessTokenRef.current = null;
+                setUser(null);
             } finally {
-                setLoading(false); // ← token check selesai
+                setLoading(false);
             }
         };
+
         fetchToken();
     }, []);
 
+    // ⛔️ Jangan re-setup interceptor setiap token berubah
     useEffect(() => {
         if (!loading) {
-            setupInterceptors(() => accessToken, setAccessToken, logout);
+            setupInterceptors(
+                () => accessTokenRef.current, // ✅ ambil token terbaru dari ref
+                (newToken) => {
+                    setAccessToken(newToken);
+                    accessTokenRef.current = newToken;
+                },
+                logout
+            );
         }
-    }, [accessToken, loading]);
+    }, [loading]);
 
     return (
         <AuthContext.Provider
-            value={{ accessToken, setAccessToken, logout, loading }}
+            value={{
+                accessToken,
+                user,
+                setAccessToken,
+                logout,
+                loading,
+                setUser,
+            }}
         >
             {children}
         </AuthContext.Provider>

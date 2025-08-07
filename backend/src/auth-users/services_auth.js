@@ -12,6 +12,7 @@ const Login = async (username, password) => {
     }
 
     const user = await findUsername(username);
+
     if (user.password != password) {
         throwWithStatus("username atau kata sandi salah", 400);
     }
@@ -21,7 +22,7 @@ const Login = async (username, password) => {
 
     // -- membuat akses token
     const accessToken = jwt.sign(
-        { id, usernameUser },
+        { id, username: usernameUser, role: user.role },
         process.env.ACCESS_TOKEN_SECRET,
         {
             expiresIn: "20s",
@@ -30,7 +31,7 @@ const Login = async (username, password) => {
 
     // -- membuat refresh token
     const refreshToken = jwt.sign(
-        { id, usernameUser },
+        { id, username: usernameUser, role: user.role },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: "1d" }
     );
@@ -50,11 +51,12 @@ const refreshToken = async (token) => {
         throwWithStatus("token tidak valid", 401);
     }
     const userToken = await findToken(token);
+    console.log(userToken)
     await verifyToken(token, process.env.REFRESH_TOKEN_SECRET);
 
-    const { id, username } = userToken;
+    const { id, username, role } = userToken;
     const accessToken = jwt.sign(
-        { id, username },
+        { id, username, role },
         process.env.ACCESS_TOKEN_SECRET,
         {
             expiresIn: "20s",

@@ -3,18 +3,18 @@ import ProfilPenilaian from "./ProfilPenilaian";
 import StepProgress from "../StepProgres";
 import ButtonSubmit from "../button/Button_submit";
 import { getIndikator, updatePenilaian } from "../../api/penilaian";
-import { useParams } from "react-router";
+//import { useParams } from "react-route-dom";
 import { useState, useEffect } from "react";
 import Loading from "../Loading";
 import ConfirmModal from "../Modal/confirmModal";
 import showToast from "../../hooks/showToast";
 import { useFocusError } from "../../hooks/useFocusError";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router-dom";
 import ErrorMessage from "../Error";
 
-const Nilai = () => {
+const Nilai = ({ type = "penilaian" }) => {
     const { id_rekap_nilai, id_kategori, id_sub_kategori } = useParams();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [kategoriList, setKategoriList] = useState([]);
     const [subKategori, setSubKategori] = useState("");
     const [kategori, setKategori] = useState("");
@@ -132,7 +132,11 @@ const Nilai = () => {
                 size="w-3xl h-11/12"
                 onClose={() => {
                     localStorage.removeItem("pesertaDidik");
-                    navigate("/penilaian");
+                    if (type == "penilaian") {
+                        navigate("/penilaian");
+                    } else {
+                        navigate("/orang-tua");
+                    }
                 }}
             >
                 {emptyError ? (
@@ -184,31 +188,48 @@ const Nilai = () => {
                                             <p className="text-sm text-slate-700 max-w-[85%]">
                                                 {item.label}
                                             </p>
-                                            <select
-                                                disabled={isLoading}
-                                                className="border border-slate-400 rounded-md px-3 py-1 text-sm font-semibold text-slate-700 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
-                                                value={
-                                                    nilaiList.find(
-                                                        (n) =>
-                                                            n.id_indikator ===
-                                                            item.id
-                                                    )?.nilai || ""
-                                                }
-                                                onChange={(e) =>
-                                                    handleChangeNilai(
-                                                        item.id,
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-                                                <option value="">kosong</option>
-                                                <option value="B">B</option>
-                                                <option value="C">C</option>
-                                                <option value="P">P</option>
-                                            </select>
+                                            {type === "penilaian" ? (
+                                                <select
+                                                    disabled={
+                                                        isLoading ||
+                                                        type === "orang-tua"
+                                                    }
+                                                    className="border border-slate-400 rounded-md px-3 py-1 text-sm font-semibold text-slate-700 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                                    value={
+                                                        nilaiList.find(
+                                                            (n) =>
+                                                                n.id_indikator ===
+                                                                item.id
+                                                        )?.nilai || ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleChangeNilai(
+                                                            item.id,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                >
+                                                    <option value="">
+                                                        kosong
+                                                    </option>
+                                                    <option value="B">B</option>
+                                                    <option value="C">C</option>
+                                                    <option value="P">P</option>
+                                                </select>
+                                            ) : (
+                                                <div className="px-2 py-2 border border-slate-300 rounded-md  font-semibold shadow-sm text-sm text-slate-700 w-20 text-center">
+                                                    <p>
+                                                        {nilaiList.find(
+                                                            (n) =>
+                                                                n.id_indikator ===
+                                                                item.id
+                                                        )?.nilai || "kosong"}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
-
+                                    {type == "penilaian"? (
                                     <div className="flex justify-between gap-3 pt-4  border-t-slate-400 px-5">
                                         <ButtonSubmit
                                             type="reset"
@@ -229,6 +250,9 @@ const Nilai = () => {
                                             Simpan
                                         </ButtonSubmit>
                                     </div>
+                                    ): (
+                                    ""
+                                    )}
                                 </form>
                             </div>
                         </div>

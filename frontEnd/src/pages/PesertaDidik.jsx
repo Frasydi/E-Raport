@@ -33,7 +33,7 @@ const PesertaDidik = () => {
         deletePeserta,
         isSearch,
         setError,
-        setIsSearch
+        setIsSearch,
     } = usePesertaDidikStore(
         useShallow((state) => ({
             pesertaDidik: state.data,
@@ -48,13 +48,6 @@ const PesertaDidik = () => {
         }))
     );
 
-    //useEffect(() => {
-    //    if(!selectedTahunAjaran) return
-    //    if (search) return;
-    //    if (!isSearch) return;
-    //    fetchByTahunAjaran(selectedTahunAjaran);
-    //    setIsSearch()
-    //}, [selectedTahunAjaran, fetchByTahunAjaran]);
 
     const handleEditPesertaDidik = (data) => {
         setSelectedPesertaDidik(data);
@@ -90,11 +83,16 @@ const PesertaDidik = () => {
             );
             return;
         }
-        if(search) return;
-        if(!isSearch) return
         fetchByTahunAjaran(selectedTahunAjaran);
-        setIsSearch()
-    }, [search, selectedTahunAjaran, fetchByTahunAjaran]);
+        setIsSearch();
+    }, [selectedTahunAjaran, fetchByTahunAjaran]);
+
+    useEffect(() => {
+        if (search) return;
+        if (!isSearch) return;
+        fetchByTahunAjaran(selectedTahunAjaran);
+        setIsSearch();
+    }, [search]);
 
     useEffect(() => {
         const saved = localStorage.getItem("tahun_ajaran_peserta");
@@ -108,11 +106,11 @@ const PesertaDidik = () => {
             setSelectedTahunAjaran("");
         }
     }, []);
-    
+
     const handleSearch = async () => {
         if (!search) {
-            fetchByTahunAjaran(selectedTahunAjaran)
-            return
+            fetchByTahunAjaran(selectedTahunAjaran);
+            return;
         }
         await searchPeserta(search);
     };

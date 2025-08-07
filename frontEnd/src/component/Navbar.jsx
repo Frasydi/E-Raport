@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import navItems from "../data/navigasi";
 
 const NavbarComponent = ({ path, icon, label }) => {

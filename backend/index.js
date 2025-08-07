@@ -18,7 +18,10 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const { verifyToken } = require("./src/auth-users/middleware/verifyToken");
+const {
+    verifyToken,
+    checkRole,
+} = require("./src/auth-users/middleware/verifyToken");
 
 app.get("/", (req, res) => {
     res.send("Hello Word");
@@ -30,18 +33,31 @@ const profilSekolah = require("./src/profil-sekolah/controller_sekolah");
 const guru = require("./src/guru/controller_guru");
 const tahun_ajaran = require("./src/tahun-ajaran/controller_tahun_ajaran");
 const penilaian = require("./src/penilaian/controller_penilaian");
-const amount = require("./src/amount/controller_amount")
-const kesimpulan = require("./src/kesimpulan/controller_kesimpulan")
-
+const amount = require("./src/amount/controller_amount");
+const kesimpulan = require("./src/kesimpulan/controller_kesimpulan");
 app.use("/", auth);
-app.use("/amount", amount)
-app.use("/profil-sekolah", profilSekolah);
-app.use("/guru", guru);
-app.use("/tahun-ajaran", tahun_ajaran);
-app.use("/penilaian", penilaian);
-app.use("/kesimpulan", kesimpulan)
-//app.use("/", verifyToken, user);
-app.use("/peserta-didik", pesertaDidik);
+app.use("/amount", verifyToken, checkRole(["Operator"]), amount);
+app.use("/profil-sekolah", verifyToken, checkRole(["Operator"]), profilSekolah);
+app.use("/guru", verifyToken, checkRole(["Operator"]), guru);
+app.use(
+    "/tahun-ajaran",
+    verifyToken,
+    checkRole(["Operator", "Ortu"]),
+    tahun_ajaran
+);
+app.use("/penilaian", verifyToken, checkRole(["Operator", "Ortu"]), penilaian);
+app.use(
+    "/kesimpulan",
+    verifyToken,
+    checkRole(["Operator", "Ortu"]),
+    kesimpulan
+);
+app.use(
+    "/peserta-didik",
+    verifyToken,
+    checkRole(["Operator", "Ortu"]),
+    pesertaDidik
+);
 
 app.use((err, req, res, next) => {
     console.error(err.message); // log simple

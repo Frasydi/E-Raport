@@ -1,13 +1,13 @@
 import ModalPenilaian from "./ModalPenilaian";
 import StepProgress from "../StepProgres";
 import ProfilPenilaian from "./ProfilPenilaian";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { getSubKategori } from "../../api/penilaian";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Loading from "../Loading";
 
-const SubKategoriPenilaian = () => {
+const SubKategoriPenilaian = ({ type = "penilaian" }) => {
     const { id_kategori, id_rekap_nilai } = useParams();
     const [subkategoriList, setSubKategoriList] = useState([]);
     const [pesertaDidik, setPesertaDidik] = useState(null);
@@ -56,7 +56,11 @@ const SubKategoriPenilaian = () => {
             <ModalPenilaian
                 onClose={() => {
                     localStorage.removeItem("pesertaDidik");
-                    navigate("/penilaian");
+                    if (type == "penilaian") {
+                        navigate("/penilaian");
+                    } else {
+                        navigate("/orang-tua");
+                    }
                 }}
             >
                 {error ? (
@@ -102,9 +106,15 @@ const SubKategoriPenilaian = () => {
                                             "dataLocalStorage: ",
                                             dataLocalStorage
                                         );
-                                        navigate(
-                                            `/penilaian/${id_rekap_nilai}/${id_kategori}/${item.id}`
-                                        );
+                                        if (type == "penilaian") {
+                                            navigate(
+                                                `/penilaian/${id_rekap_nilai}/${id_kategori}/${item.id}`
+                                            );
+                                        } else {
+                                            navigate(
+                                                `/orang-tua/${id_rekap_nilai}/${id_kategori}/${item.id}`
+                                            );
+                                        }
                                     }}
                                     key={index}
                                     className={`${

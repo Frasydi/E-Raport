@@ -5,8 +5,8 @@ import CardProfil from "../component/card/cardProfil";
 import ModalInput from "../component/input/ModalInput";
 import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
 import { getByTahunSemester, searhPenilaian } from "../api/penilaian";
-import { Outlet } from "react-router";
-import { useNavigate } from "react-router";
+import { Outlet } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Loading from "../component/Loading";
 import ModalKesimpulan from "../component/Modal/ModalKesimpulan/ModalUpdateKesimpulan";
@@ -20,7 +20,7 @@ const Penilaian = () => {
     const [search, setSearch] = useState("");
     const [isSearch, setIsSearch] = useState(false);
     const [isLoading, setIsLoading] = useState("");
-    const [rekapNilai, setRekapNilai] = useState("")
+    const [rekapNilai, setRekapNilai] = useState("");
     const [isOpenModalKesimpulan, setOpenModalKesimpulan] = useState(false);
     const navigate = useNavigate();
 
@@ -73,8 +73,7 @@ const Penilaian = () => {
         if (savedSemester) {
             setSelectedSemester(savedSemester);
         }
-    },[tahunAjaranOptions]);
-
+    }, [tahunAjaranOptions]);
 
     useEffect(() => {
         if (!selectedTahunAjaran) {
@@ -95,7 +94,7 @@ const Penilaian = () => {
         if (search) return;
         if (!isSearch) return;
         fetchData();
-        setIsSearch(false)
+        setIsSearch(false);
     }, [search, selectedSemester, selectedTahunAjaran]);
 
     const handleSearch = async () => {
@@ -115,9 +114,9 @@ const Penilaian = () => {
                 );
                 return;
             }
-            if(!search) {
-                fetchData()
-                return
+            if (!search) {
+                fetchData();
+                return;
             }
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const response = await searhPenilaian(
@@ -137,11 +136,15 @@ const Penilaian = () => {
 
     return (
         <>
-            <ModalKesimpulan isOpen={isOpenModalKesimpulan} data={rekapNilai} onClose={()=> {
-                setOpenModalKesimpulan(false)
-            }}/>
+            <ModalKesimpulan
+                isOpen={isOpenModalKesimpulan}
+                data={rekapNilai}
+                onClose={() => {
+                    setOpenModalKesimpulan(false);
+                }}
+            />
             <LayoutMenu>
-                <Outlet />
+
                 <div className="w-5/6 mt-10">
                     <div className="w-2xl text-sm px-5 drop-shadow-xl rounded-xl bg-[#ffffff] pt-4 z-10 relative flex gap-7">
                         <ModalInput
@@ -194,7 +197,8 @@ const Penilaian = () => {
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                     />
                                 </svg>
-                                Instruksi: arahkan cursor ke salah satu peserta didik
+                                Instruksi: arahkan cursor ke salah satu peserta
+                                didik
                             </div>
                             <div className="w-sm">
                                 <Search
@@ -237,9 +241,9 @@ const Penilaian = () => {
                                         key={item.id_rekap_nilai}
                                         mode="penilaian"
                                         data={item}
-                                        onSaranClick={(data)=> {
-                                            setRekapNilai(data?.id_rekap_nilai)
-                                            setOpenModalKesimpulan(true)
+                                        onSaranClick={(data) => {
+                                            setRekapNilai(data?.id_rekap_nilai);
+                                            setOpenModalKesimpulan(true);
                                         }}
                                         onNilaiClick={(data) => {
                                             navigate(`${data.id_rekap_nilai}`);
@@ -250,6 +254,8 @@ const Penilaian = () => {
                         )}
                     </Container>
                 </div>
+                <Outlet />
+
             </LayoutMenu>
         </>
     );

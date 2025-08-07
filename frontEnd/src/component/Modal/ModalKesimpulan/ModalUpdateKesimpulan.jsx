@@ -7,7 +7,7 @@ import showToast from "../../../hooks/showToast";
 import ErrorMessage from "../../Error";
 import ButtonSpinLoading from "../../button/ButtonSpinLoading";
 
-const ModalKesimpulan = ({ isOpen, onClose, data }) => {
+const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
     const [showConfirmModal, setShowConfirm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -65,7 +65,7 @@ const ModalKesimpulan = ({ isOpen, onClose, data }) => {
                 <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
                     <div className="flex justify-between items-center p-6 pb-0">
                         <h2 className="text-lg font-bold text-gray-800">
-                            Masukkan Saran Dan Masukan
+                             {type === "penilaian" ? "Masukkan Saran Dan Masukan" : "saran dan masukan peserta didik"}
                         </h2>
                         <button
                             onClick={handleClose}
@@ -96,6 +96,7 @@ const ModalKesimpulan = ({ isOpen, onClose, data }) => {
                     <form className="px-6 pb-6 mt-4">
                         <ModalInput
                             id={"saran_dan_masukan"}
+                            disabled={type != "penilaian"}
                             value={form.saran_dan_masukan || ""}
                             type={"textarea"}
                             name={"saran_dan_masukan"}
@@ -109,6 +110,7 @@ const ModalKesimpulan = ({ isOpen, onClose, data }) => {
                         >
                             saran dan masukan{" "}
                         </ModalInput>
+                        {type == "penilaian"? (
                         <div className="flex gap-2 mt-5 w-1/2 justify-start">
                             <ButtonSubmit
                                 bg={"bg-teal-600"}
@@ -144,6 +146,8 @@ const ModalKesimpulan = ({ isOpen, onClose, data }) => {
                                 reset
                             </ButtonSubmit>
                         </div>
+
+                        ): ("")}
                     </form>
                 </div>
             </div>
