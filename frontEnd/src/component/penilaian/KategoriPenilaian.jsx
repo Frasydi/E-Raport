@@ -31,7 +31,6 @@ const KategoriPenilaian = ({ type = "penilaian" }) => {
         faPaintBrush,
     ];
 
-    console.log('kategoriList: ', kategoriList)
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -138,7 +137,6 @@ const KategoriPenilaian = ({ type = "penilaian" }) => {
                                             );
                                         }
                                     }
-                                    console.log(item.label);
                                 }}
                                 key={index}
                                 className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl shadow-sm"

@@ -38,7 +38,6 @@ const ModalEditPesertaDidik = ({
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [guruOptions] = useSelectedGuru();
 
-    console.log(formEdit);
     const onChangeHandelEdit = (e) => {
         const { value, name } = e.target;
         setFormEdit((val) => ({

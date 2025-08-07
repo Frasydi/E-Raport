@@ -63,7 +63,6 @@ const Modal = ({ onClose, onSuccess }) => {
         setShowConfirm(true);
     };
     const handleSelectPeserta = (selected) => {
-        console.log("selected: ", selected);
         setFormAdd(selected);
         setShowModalSelectPeserta(false);
         setDisabled(true);

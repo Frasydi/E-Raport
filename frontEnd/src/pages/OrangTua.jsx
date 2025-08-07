@@ -1,4 +1,3 @@
-import LayoutMenu from "../containers/layout";
 import Container from "../containers/container";
 import Search from "../component/input/Search";
 import CardProfil from "../component/card/cardProfil";
@@ -9,9 +8,11 @@ import { Outlet } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Loading from "../component/Loading";
+import { useAuth } from "../context/authContext";
 import ModalKesimpulan from "../component/Modal/ModalKesimpulan/ModalUpdateKesimpulan";
 
 const OrangTua = () => {
+    const { logout } = useAuth();
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [selectedSemester, setSelectedSemester] = useState("");
@@ -97,6 +98,16 @@ const OrangTua = () => {
         setIsSearch(false);
     }, [search, selectedSemester, selectedTahunAjaran]);
 
+    const handleLogout = async () => {
+        const confirmLogout = window.confirm("Yakin ingin logout?");
+        if (!confirmLogout) return;
+        try {
+            await logout();
+        } catch (err) {
+            console.error("Gagal logout:", err);
+        }
+    };
+
     const handleSearch = async () => {
         setIsLoading(true);
         setIsSearch(true);
@@ -143,8 +154,16 @@ const OrangTua = () => {
                 }}
             />
             <div className="w-full min-h-screen font-poppins">
+                <div className="absolute right-10 top-10">
+                    <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 bg-[#FB4141] text-white rounded hover:bg-red-700 transition"
+                    >
+                        Logout
+                    </button>
+                </div>
                 <Outlet />
-                <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
                     {/* Filter Section */}
                     <div className="w-full rounded-xl bg-white shadow-sm p-4 mb-6 lg:w-2xl">
                         <div className="flex flex-col md:flex-row gap-4 md:gap-7 text-sm">

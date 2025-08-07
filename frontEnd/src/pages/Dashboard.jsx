@@ -13,10 +13,12 @@ import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
 import CustomSelect from "../component/CustomSelect";
 import Swal from "sweetalert2";
 import PesertaLine from "../component/cart/lineChart";
+import { useAuth } from "../context/authContext";
 
 const Dashboard = () => {
     const [profilSekolah, setProfilSekolah] = useState({});
     const [originalProfil, setOriginalProfil] = useState({});
+    const { loading } = useAuth();
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [jumlahPesertaTahun, setjumlahPesertaTahun] = useState({
@@ -52,6 +54,12 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
+        if (!loading) {
+            fetchData();
+        }
+    }, [loading]);
+
+    useEffect(() => {
         if (!selectedTahunAjaran) return;
         getByTahun();
     }, [selectedTahunAjaran]);
@@ -60,7 +68,12 @@ const Dashboard = () => {
         setError("");
         try {
             const res = await getDataProfil();
+            console.log("res: ", res);
             const responsejmlPesertaDidik = await getJmlPesertaDidik();
+            setProfilSekolah(res.data);
+            setOriginalProfil(res.data);
+            const tahunLatest =
+                responsejmlPesertaDidik?.tahunAjaranLatest || "";
 
             setjmlPesertaDidik({
                 jumlahPria: responsejmlPesertaDidik?.jumlahPria || 0,
@@ -76,18 +89,25 @@ const Dashboard = () => {
                             ?.total || 0,
                 },
                 jmlPesertaLimaTerakhir:
-                    responsejmlPesertaDidik?.jmlPesertaLimaTahunTerakhir,
+                    responsejmlPesertaDidik?.jmlPesertaLimaTahunTerakhir || [],
             });
-            setProfilSekolah(res.data);
-            setOriginalProfil(res.data);
-            setSelectedTahunAjaran(responsejmlPesertaDidik?.tahunAjaranLatest || "")
+            setSelectedTahunAjaran(tahunLatest);
+
+            // ⬇️ Langsung panggil getByTahunAjaran supaya grafik terisi
+            if (tahunLatest) {
+                const responseJumlahPesertaTahun = await getByTahunAjaran(
+                    tahunLatest
+                );
+                setjumlahPesertaTahun({
+                    laki_laki: responseJumlahPesertaTahun?.totalLaki || 0,
+                    perempuan: responseJumlahPesertaTahun?.totalPerempuan || 0,
+                });
+            }
         } catch (error) {
             setError(error);
         }
     };
-    useEffect(() => {
-        fetchData();
-    }, []);
+
     useEffect(() => {
         if (error) {
             const timer = setTimeout(() => {
@@ -118,6 +138,11 @@ const Dashboard = () => {
             cancelButtonText: "Batal",
         });
 
+        if (!profilSekolah || !profilSekolah.nama_sekolah) {
+            return (
+                <div className="text-center mt-10">Memuat data sekolah...</div>
+            );
+        }
         if (!result.isConfirmed) return;
 
         try {
@@ -134,7 +159,7 @@ const Dashboard = () => {
         JSON.stringify(profilSekolah) !== JSON.stringify(originalProfil);
 
     const isFieldChanged = (field) =>
-        profilSekolah[field] !== originalProfil[field];
+        profilSekolah?.[field] !== originalProfil?.[field];
 
     return (
         <LayoutMenu>
@@ -331,7 +356,11 @@ const Dashboard = () => {
                 <div className="flex flex-col gap-2">
                     <div className="flex-1 bg-white flex drop-shadow-xl rounded-2xl flex-col pb-2 gap-2 justify-center">
                         <div className=" flex justify-center">
-                            <img src="/images/logoPaud.png" alt="" width={200} />
+                            <img
+                                src="/images/logoPaud.png"
+                                alt=""
+                                width={200}
+                            />
                         </div>
                         <div className=" flex justify-center font-bold text-xl">
                             <h1>TK AL-IKHLAS BALLA</h1>

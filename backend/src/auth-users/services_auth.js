@@ -51,7 +51,6 @@ const refreshToken = async (token) => {
         throwWithStatus("token tidak valid", 401);
     }
     const userToken = await findToken(token);
-    console.log(userToken)
     await verifyToken(token, process.env.REFRESH_TOKEN_SECRET);
 
     const { id, username, role } = userToken;

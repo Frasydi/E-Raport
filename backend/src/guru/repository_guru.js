@@ -27,8 +27,6 @@ const updateDataGuru = async (data, id) => {
     const existing = await prisma.guru.findUnique({
         where: { id_guru: id },
     });
-    console.log(existing)
-    console.log("data: ", data)
     validateUpdatePayload(data, existing);
     try {
         const update = await prisma.guru.update({

@@ -102,10 +102,6 @@ const SubKategoriPenilaian = ({ type = "penilaian" }) => {
                                         const dataLocalStorage = JSON.parse(
                                             localStorage.getItem("PesertaDidik")
                                         );
-                                        console.log(
-                                            "dataLocalStorage: ",
-                                            dataLocalStorage
-                                        );
                                         if (type == "penilaian") {
                                             navigate(
                                                 `/penilaian/${id_rekap_nilai}/${id_kategori}/${item.id}`

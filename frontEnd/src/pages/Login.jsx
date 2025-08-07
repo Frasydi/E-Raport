@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/auth";
 import { useAuth } from "../context/authContext";
 import ErrorMessage from "../component/Error";
-import { jwtDecode } from "jwt-decode"; // penting
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const {login} = useAuth();
     const [loading, setLoading] = useState(false);
-    const { setAccessToken, setUser } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,36 +20,24 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
         setLoading(true);
-        try {
-            const res = await login(username, password);
-            setAccessToken(res.accessToken);
+        setError("");
 
-            // decode token untuk ambil role
-            const decoded = jwtDecode(res.accessToken);
-            console.log("decoded: ", decoded);
-            setUser({
-                id: decoded.id,
-                username: decoded.username,
-                role: decoded.role,
-            });
-            setLoading(false);
+        const res = await login(username, password);
 
-            // redirect sesuai role
-            if (decoded.role === "Operator") {
+        if (res.success) {
+            if (res.role === "Operator") {
                 navigate("/dashboard");
-            } else if (decoded.role === "Ortu") {
+            } else if (res.role === "Ortu") {
                 navigate("/orang-tua");
             } else {
-                navigate("/login");
-            } // kasih efek sedikit loading
-        } catch (err) {
-            console.log("error: ", error);
-            setError(err?.response?.data?.message);
-            setUser(null)
-            setLoading(false);
+                navigate("/");
+            }
+        } else {
+            setError(res.error);
         }
+
+        setLoading(false);
     };
 
     return (

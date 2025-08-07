@@ -61,7 +61,6 @@ const GuruKelas = () => {
         { header: "NSIP", accessor: "NSIP", sortable: true },
         { header: "Kelas", accessor: "nama_kelas", sortable: true },
     ];
-    console.log('emptyData, ', emptyData)
 
     const fetchData = async () => {
         setLoading(true);

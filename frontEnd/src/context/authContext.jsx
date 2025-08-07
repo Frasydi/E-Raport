@@ -1,16 +1,20 @@
-import { useContext, createContext, useState, useEffect, useRef } from "react";
-import { getAccessToken, logout as apiLogout } from "../api/auth";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+    getAccessToken,
+    logout as apiLogout,
+    login as loginApi,
+} from "../api/auth";
 import { setupInterceptors } from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessToken] = useState(null);
-    const accessTokenRef = useRef(null); // ✅ token ref
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const accessTokenRef = useRef(null);
     const navigate = useNavigate();
 
     const logout = async () => {
@@ -18,7 +22,41 @@ export const AuthProvider = ({ children }) => {
         setAccessToken(null);
         accessTokenRef.current = null;
         setUser(null);
+        localStorage.clear()
         navigate("/login");
+    };
+
+    const login = async (username, password) => {
+        try {
+            const res = await loginApi(username, password);
+            const token = res.accessToken;
+
+            setAccessToken(token);
+            accessTokenRef.current = token;
+
+            const decoded = jwtDecode(token);
+            setUser({
+                id: decoded.id,
+                username: decoded.username,
+                role: decoded.role,
+            });
+
+            setupInterceptors(
+                () => accessTokenRef.current,
+                (newToken) => {
+                    setAccessToken(newToken);
+                    accessTokenRef.current = newToken;
+                },
+                logout
+            );
+
+            return { success: true, role: decoded.role };
+        } catch (err) {
+            return {
+                success: false,
+                error: err?.response?.data?.message || "Login gagal.",
+            };
+        }
     };
 
     useEffect(() => {
@@ -26,7 +64,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 const token = await getAccessToken();
                 setAccessToken(token);
-                accessTokenRef.current = token; // ✅ simpan ke ref
+                accessTokenRef.current = token;
 
                 const decoded = jwtDecode(token);
                 setUser({
@@ -34,11 +72,17 @@ export const AuthProvider = ({ children }) => {
                     username: decoded.username,
                     role: decoded.role,
                 });
+
+                setupInterceptors(
+                    () => accessTokenRef.current,
+                    (newToken) => {
+                        setAccessToken(newToken);
+                        accessTokenRef.current = newToken;
+                    },
+                    logout
+                );
             } catch (err) {
-                console.error("Token fetch failed", err);
-                setAccessToken(null);
-                accessTokenRef.current = null;
-                setUser(null);
+                console.warn("Tidak ada token saat init, user belum login.");
             } finally {
                 setLoading(false);
             }
@@ -47,29 +91,18 @@ export const AuthProvider = ({ children }) => {
         fetchToken();
     }, []);
 
-    // ⛔️ Jangan re-setup interceptor setiap token berubah
-    useEffect(() => {
-        if (!loading) {
-            setupInterceptors(
-                () => accessTokenRef.current, // ✅ ambil token terbaru dari ref
-                (newToken) => {
-                    setAccessToken(newToken);
-                    accessTokenRef.current = newToken;
-                },
-                logout
-            );
-        }
-    }, [loading]);
+    if (loading) {
+        return <div className="text-center mt-20">🔐 Memuat sesi login...</div>;
+    }
 
     return (
         <AuthContext.Provider
             value={{
                 accessToken,
                 user,
-                setAccessToken,
-                logout,
-                loading,
                 setUser,
+                login, // ✅ expose login function
+                logout, // ✅ expose logout
             }}
         >
             {children}

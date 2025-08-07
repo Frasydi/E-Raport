@@ -30,8 +30,6 @@ const CetakRaport = () => {
     const [search, setSearch] = useState("");
     const [isSearch, setIsSearch] = useState(false);
 
-    console.log("selected peserta: ", selectedPeserta);
-    console.log("peserta didik: ", pesertaDidik);
     const {
         currentPage,
         totalPages,

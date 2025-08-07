@@ -15,7 +15,7 @@ import TahunAjaran from "./pages/TahunAjaran";
 import KategoriPenilaian from "./component/penilaian/KategoriPenilaian";
 import SubKategoriPenilaian from "./component/penilaian/SubKategoriPenilaian";
 import Nilai from "./component/penilaian/Nilai";
-import OrangTua from "./pages/orangTua";
+import OrangTua from "./pages/OrangTua";
 
 import RoleRoute from "./component/RoleRoute";
 
@@ -32,7 +32,7 @@ function App() {
                     path="/orang-tua"
                     element={
                         //<RoleRoute allowedRoles={["Ortu"]}>
-                            <OrangTua />
+                        <OrangTua />
                         //</RoleRoute>
                     }
                 >

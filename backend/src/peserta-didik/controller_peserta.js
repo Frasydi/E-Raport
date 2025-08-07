@@ -17,7 +17,6 @@ router.post("/tambah-peserta-didik", async (req, res, next) => {
             msg: "data siswa berhasil ditambahkan",
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 });
@@ -67,7 +66,6 @@ router.get("/search/:keyword", async (req, res, next) => {
 
 router.get("/searchData/:keyword", async(req,res,next)=> {
     const {keyword} = req.params
-    console.log(keyword)
     try {
         const response = await allPesertaDidik(keyword)
         res.json(response)
