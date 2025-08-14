@@ -7,10 +7,15 @@ import showToast from "../../../hooks/showToast";
 import ErrorMessage from "../../Error";
 import ButtonSpinLoading from "../../button/ButtonSpinLoading";
 
-const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
+const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian" }) => {
     const [showConfirmModal, setShowConfirm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [keterangan, setKeterangan] = useState({
+        baik: "",
+        cukup: "",
+        perluDilatih: "",
+    });
     const [form, setForm] = useState({
         saran_dan_masukan: "",
     });
@@ -22,6 +27,11 @@ const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
         setError("");
         try {
             const response = await getKesimpulan(data);
+            setKeterangan({
+                baik: response?.pencapaian_perkembangan_baik,
+                cukup: response?.pencapaian_perkembangan_buruk,
+                perluDilatih: response?.pencapaian_perkembangan_perlu_dilatih,
+            });
             setForm({
                 saran_dan_masukan: response?.saran_dan_masukan,
             });
@@ -57,7 +67,7 @@ const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
             document.body.style.overflow = "auto";
         };
     }, [isOpen]);
-    
+
     if (!isOpen) return null;
     return (
         <>
@@ -65,8 +75,11 @@ const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
                 <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
                     <div className="flex justify-between items-center p-6 pb-0">
                         <h2 className="text-lg font-bold text-gray-800">
-                             {type === "penilaian" ? "Masukkan Saran Dan Masukan" : "saran dan masukan peserta didik"}
+                            {type === "penilaian"
+                                ? "Masukkan Saran Dan Masukan"
+                                : "saran dan masukan peserta didik"}
                         </h2>
+
                         <button
                             onClick={handleClose}
                             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -87,20 +100,37 @@ const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
                             </svg>
                         </button>
                     </div>
-
+                    <div className="mx-6 py-2 text-sm bg-slate-300 rounded-lg mt-5 text-slate-800 flex flex-col gap-2">
+                        <div className="flex px-2 gap-15">
+                            <p>Pencapaian Perkembangan Baik (B)</p>
+                            <p>: {keterangan.baik}</p>
+                        </div>
+                        <div className="flex px-2 gap-10">
+                            <p>Pencapaian Perkembangan Cukup (C)</p>
+                            <p>: {keterangan.cukup}</p>
+                        </div>
+                            <div className="flex px-2 gap-2">
+                            <p>Pencapaian Perkembangan Perlu Dilatih (P)</p>
+                            <p>: {keterangan.cukup}</p>
+                        </div>
+                    </div>
                     {error && (
-                        <div className="w-full px-4 mt-2">
+                        <div className="w-full px-6 mt-2">
                             <ErrorMessage error={error} />
                         </div>
                     )}
-                    <form className="px-6 pb-6 mt-4">
+                    <form className="px-6 pb-6 mt-5">
                         <ModalInput
                             id={"saran_dan_masukan"}
                             disabled={type != "penilaian"}
                             value={form.saran_dan_masukan || ""}
                             type={"textarea"}
                             name={"saran_dan_masukan"}
-                            placeholder={"ketik saran dan masukan"}
+                            placeholder={
+                                type == "penilaian"
+                                    ? "ketik saran dan masukan"
+                                    : "kosong"
+                            }
                             htmlFor={"saran_dan_masukan"}
                             onChange={(e) => {
                                 setForm({
@@ -108,46 +138,47 @@ const ModalKesimpulan = ({ isOpen, onClose, data, type = "penilaian"}) => {
                                 });
                             }}
                         >
-                            saran dan masukan{" "}
+                            saran dan masukan oleh guru{" "}
                         </ModalInput>
-                        {type == "penilaian"? (
-                        <div className="flex gap-2 mt-5 w-1/2 justify-start">
-                            <ButtonSubmit
-                                bg={"bg-teal-600"}
-                                type={"submit"}
-                                hover={"hover:bg-teal-700 w-20"}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setShowConfirm(true);
-                                }}
-                                disabled={isLoading}
-                            >
-                                {" "}
-                                {isLoading ? (
-                                    <ButtonSpinLoading
-                                        size="sm"
-                                        color="light"
-                                    />
-                                ) : (
-                                    "simpan"
-                                )}
-                            </ButtonSubmit>
-                            <ButtonSubmit
-                                type={"reset"}
-                                bg={"bg-gray-600"}
-                                hover={"hover:bg-gray-700 w-15"}
-                                onClick={() => {
-                                    setForm({
-                                        saran_dan_masukan: "",
-                                    });
-                                }}
-                                disabled={isLoading}
-                            >
-                                reset
-                            </ButtonSubmit>
-                        </div>
-
-                        ): ("")}
+                        {type == "penilaian" ? (
+                            <div className="flex gap-2 mt-5 w-1/2 justify-start">
+                                <ButtonSubmit
+                                    bg={"bg-teal-600"}
+                                    type={"submit"}
+                                    hover={"hover:bg-teal-700 w-20"}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setShowConfirm(true);
+                                    }}
+                                    disabled={isLoading}
+                                >
+                                    {" "}
+                                    {isLoading ? (
+                                        <ButtonSpinLoading
+                                            size="sm"
+                                            color="light"
+                                        />
+                                    ) : (
+                                        "simpan"
+                                    )}
+                                </ButtonSubmit>
+                                <ButtonSubmit
+                                    type={"reset"}
+                                    bg={"bg-gray-600"}
+                                    hover={"hover:bg-gray-700 w-15"}
+                                    onClick={() => {
+                                        setForm({
+                                            saran_dan_masukan: "",
+                                        });
+                                    }}
+                                    disabled={isLoading}
+                                >
+                                    reset
+                                </ButtonSubmit>
+                            </div>
+                        ) : (
+                            ""
+                        )}
                     </form>
                 </div>
             </div>

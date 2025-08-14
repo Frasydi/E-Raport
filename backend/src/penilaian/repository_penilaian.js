@@ -46,7 +46,7 @@ async function updateKesimpulanTx(tx, rekapNilaiId) {
     }
 }
 
-const findByTahunSemester = async (tahunAjaranId, semester) => {
+const findByTahunSemester = async (tahunAjaranId, semester, nama_kelas) => {
     try {
         const response = await prisma.rekapNilai.findMany({
             where: {
@@ -54,6 +54,7 @@ const findByTahunSemester = async (tahunAjaranId, semester) => {
                 semester: {
                     nama: semester,
                 },
+                ...(nama_kelas ? { guru: { nama_kelas } } : {}), 
             },
             include: {
                 tahunAjaran: true,
@@ -65,6 +66,11 @@ const findByTahunSemester = async (tahunAjaranId, semester) => {
                     },
                 },
             },
+            orderBy: {
+                pesertaDidik: {
+                    nama_lengkap: "asc"
+                }
+            }
         });
 
         const indikatorList = await getAllIndikator(); // ambil semua indikator
@@ -378,9 +384,8 @@ const updatePenilaian = async (nilai, id_penilaian) => {
     }
 };
 
-const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
+const getPenilaianGrouped = async (id_tahun_ajaran, semester, nama_kelas) => {
     try {
-        
         const findSemester = await prisma.semester.findFirst({
             where: {
                 tahunAjaranId: id_tahun_ajaran,
@@ -388,11 +393,11 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
             },
             select: { id_semester: true },
         });
-    
+
         if (!findSemester) throwWithStatus("Semester tidak ditemukan", 404);
-    
+
         const indikatorList = await getAllIndikator();
-    
+
         // Ambil semua rekap nilai yang terkait semester & tahun ajaran
         const rekapList = await prisma.rekapNilai.findMany({
             where: {
@@ -401,7 +406,7 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
             },
             select: { id_rekap_nilai: true },
         });
-    
+
         // --- Jalankan transaction untuk setiap rekap nilai ---
         await Promise.all(
             rekapList.map(async (rekap) => {
@@ -409,7 +414,7 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
                     const countPenilaian = await tx.penilaian.count({
                         where: { rekapNilaiId: rekap.id_rekap_nilai },
                     });
-    
+
                     if (countPenilaian === 0) {
                         await tx.penilaian.createMany({
                             data: indikatorList.map((indikator) => ({
@@ -421,19 +426,20 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
                             skipDuplicates: true,
                         });
                     }
-    
+
                     // Update kesimpulan setelah penilaian dipastikan ada
                     await updateKesimpulanTx(tx, rekap.id_rekap_nilai);
                 });
             })
         );
-    
+
         // --- Ambil penilaian hasil akhir (grouped) ---
         const penilaianList = await prisma.penilaian.findMany({
             where: {
                 rekapNilai: {
                     tahunAjaranId: id_tahun_ajaran,
                     semesterId: findSemester.id_semester,
+                    ...(nama_kelas ? { guru: { nama_kelas } } : {})
                 },
             },
             select: {
@@ -458,11 +464,16 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
                     select: {
                         pesertaDidik: true,
                         guru: true,
-                        kesimpulan: true
+                        kesimpulan: true,
                     },
                 },
             },
             orderBy: [
+                {rekapNilai: {
+                    pesertaDidik: {
+                        nama_lengkap: "asc"
+                    }
+                }},
                 {
                     indikator: {
                         subKategori: { kategori: { id_kategori: "asc" } },
@@ -473,10 +484,10 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester) => {
                 { rekapNilai: { pesertaDidik: { nama_lengkap: "asc" } } },
             ],
         });
-    
+
         return penilaianList;
     } catch (error) {
-        throwWithStatus(errorPrisma(error), 500)
+        throwWithStatus(errorPrisma(error), 500);
     }
 };
 

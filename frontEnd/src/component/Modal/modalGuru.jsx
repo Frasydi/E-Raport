@@ -8,7 +8,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
     const [showConfirm, setShowConfirm] = useState(false);
     const [form, setForm] = useState({
         nama_guru: "",
-        NSIP: "",
+        NUPTK: "",
         nama_kelas: "kelompok A",
     });
 
@@ -30,11 +30,11 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.nama_guru.trim() === "" || form.NSIP.trim() === "") {
+        if (form.nama_guru.trim() === "" || form.NUPTK.trim() === "") {
             setError("Silahkan lengkapi datanya terlebih dahulu");
             return;
         }
-        if (!/^\d+$/.test(form.NSIP)) {
+        if (!/^\d+$/.test(form.NUPTK)) {
             setError("NSIP hanya boleh berisi angka");
             return;
         }
@@ -43,13 +43,13 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
     };
 
     const handleConfirm = async (e) => {
-        resetForm()
         setShowConfirm(false)
         setIsLoading(true)
         try {
             await postDataGuru(form);
             onSave();
             onClose();
+            resetForm()
         } catch (error) {
             setError(error.message || "gagal menambahkan data");
         } finally {
@@ -60,7 +60,7 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
     const resetForm = () => {
         setForm({
             nama_guru: "",
-            NSIP: "",
+            NUPTK: "",
             nama_kelas: "kelompok A",
         });
     };
@@ -128,15 +128,15 @@ const ModalFormGuru = ({ isOpen, onClose, onSave }) => {
                         </div>
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
-                                NSIP
+                                NUPTK
                             </label>
                             <input
                                 type="number"
-                                name="NSIP"
-                                value={form.NSIP}
+                                name="NUPTK"
+                                value={form.NUPTK}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                placeholder="Masukkan NSIP"
+                                placeholder="Masukkan NUPTK"
                                 disabled={isLoading}
                             />
                         </div>

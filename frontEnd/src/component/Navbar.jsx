@@ -42,7 +42,7 @@ const NavbarComponent = ({ path, icon, label }) => {
 
 const Navbar = () => {
   return (
-    <div className="w-full max-w-lg h-18 rounded-2xl bg-[#cecdcd] flex items-center justify-around">
+    <div className="w-xl max-w-lg h-18 rounded-2xl bg-[#cecdcd] flex items-center justify-around">
       {navItems.map((item, index) => (
         <NavbarComponent
           key={index}

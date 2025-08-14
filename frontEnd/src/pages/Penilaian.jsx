@@ -10,11 +10,14 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Loading from "../component/Loading";
 import ModalKesimpulan from "../component/Modal/ModalKesimpulan/ModalUpdateKesimpulan";
+import usePagination from "../hooks/usePagination";
+import PaginationControls from "../component/PaginationControls";
 
 const Penilaian = () => {
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [selectedSemester, setSelectedSemester] = useState("");
+    const [selectedKelas, setSelectedKelas] = useState("");
     const [pesertaDidik, setPesertaDidik] = useState([]);
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
@@ -24,13 +27,23 @@ const Penilaian = () => {
     const [isOpenModalKesimpulan, setOpenModalKesimpulan] = useState(false);
     const navigate = useNavigate();
 
+    const {
+        currentPage,
+        totalPages,
+        currentData,
+        handlePageChange,
+        resetPagination,
+        startIndex,
+    } = usePagination(pesertaDidik, 16);
+
     const fetchData = async () => {
         setIsLoading(true);
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const response = await getByTahunSemester(
                 selectedTahunAjaran,
-                selectedSemester
+                selectedSemester,
+                selectedKelas
             );
             setError("");
             const newData = response.data.map((item) => {
@@ -87,7 +100,7 @@ const Penilaian = () => {
             return;
         }
         fetchData();
-    }, [selectedSemester, selectedTahunAjaran]);
+    }, [selectedSemester, selectedTahunAjaran, selectedKelas]);
 
     useEffect(() => {
         if (!selectedTahunAjaran || !selectedSemester) return;
@@ -125,6 +138,7 @@ const Penilaian = () => {
                 search
             );
             setIsSearch(true);
+            resetPagination();
             setPesertaDidik(response.data);
         } catch (error) {
             setError(error);
@@ -144,7 +158,6 @@ const Penilaian = () => {
                 }}
             />
             <LayoutMenu>
-
                 <div className="w-5/6 mt-10">
                     <div className="w-2xl text-sm px-5 drop-shadow-xl rounded-xl bg-[#ffffff] pt-4 z-10 relative flex gap-7">
                         <ModalInput
@@ -178,6 +191,26 @@ const Penilaian = () => {
                             name={"semester"}
                         >
                             Semester
+                        </ModalInput>
+                        <ModalInput
+                            type={"select"}
+                            value={selectedKelas}
+                            onChange={(val) => {
+                                setSelectedKelas(val);
+                            }}
+                            options={[
+                                { label: "Semua Kelas", value: "" },
+                                { label: "Kelompok A", value: "kelompokA" },
+                                { label: "Kelompok B", value: "kelompokB" },
+                            ]}
+                            displayKey="label"
+                            valueKey="value"
+                            id={"kelas"}
+                            disibled={isLoading}
+                            name={"kelas"}
+                        >
+                            Kelas{" "}
+                            <span className="text-yellow-500">(opsional)</span>
                         </ModalInput>
                     </div>
                     <Container>
@@ -235,27 +268,42 @@ const Penilaian = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-wrap gap-[42px] mt-15">
+                            <div
+                                className={`flex flex-wrap lg:gap-10 gap-6 md:gap-6 ${
+                                    pesertaDidik.length % 4 === 0 &&
+                                    pesertaDidik.length > 0
+                                        ? "justify-center sm:gap-10"
+                                        : ""
+                                }`}
+                            >
                                 {pesertaDidik.map((item) => (
                                     <CardProfil
                                         key={item.id_rekap_nilai}
                                         mode="penilaian"
+                                        onNilaiClick={(data) => {
+                                            navigate(data?.id_rekap_nilai);
+                                        }}
                                         data={item}
                                         onSaranClick={(data) => {
                                             setRekapNilai(data?.id_rekap_nilai);
                                             setOpenModalKesimpulan(true);
                                         }}
-                                        onNilaiClick={(data) => {
-                                            navigate(`${data.id_rekap_nilai}`);
-                                        }}
-                                    ></CardProfil>
+                                    />
                                 ))}
+                            </div>
+                        )}
+                        {pesertaDidik.length > 15 && (
+                            <div className="mt-10">
+                                <PaginationControls
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={handlePageChange}
+                                ></PaginationControls>
                             </div>
                         )}
                     </Container>
                 </div>
                 <Outlet />
-
             </LayoutMenu>
         </>
     );

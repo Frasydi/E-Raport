@@ -1,10 +1,11 @@
 import axiosInstance from "./axiosInstance";
-export const getByTahunSemester = async (id, semester) => {
+export const getByTahunSemester = async (id, semester, nama_kelas) => {
     try {
         const response = await axiosInstance.get("/penilaian", {
             params: {
                 tahunAjaranId: id,
                 semester: semester,
+                nama_kelas: nama_kelas
             },
         });
         return response.data;
@@ -86,15 +87,19 @@ export const updatePenilaian = async (
     }
 };
 
-export const getPenilaian = async (id_tahun_ajaran, semester) => {
+export const getPenilaian = async (id_tahun_ajaran, semester, nama_kelas) => {
     try {
         const response = await axiosInstance.get(
-            `/penilaian/display-penilaian/${id_tahun_ajaran}/${semester}`
+            `/penilaian/display-penilaian/${id_tahun_ajaran}/${semester}`, {
+                params: {
+                    nama_kelas: nama_kelas
+                }
+            }
         );
         return response.data;
     } catch (error) {
         if (error.response && error.response.data) {
-            throw error.response.data.message || "Terjadi kesalahan";
+            throw error.response.data.message;
         } else {
             throw error;
         }

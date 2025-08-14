@@ -12,11 +12,11 @@ export const usePesertaDidikStore = create((set) => ({
     isSearch: false,
     error: null,
 
-    fetchByTahunAjaran: async (id) => {
+    fetchByTahunAjaran: async (id, nama_kelas) => {
         set({ loading: true, error: null, data: [] });
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            const response = await getDatabyTahunAjaran(id);
+            const response = await getDatabyTahunAjaran(id, nama_kelas);
             set({ data: response });
         } catch (error) {
             set({
@@ -57,12 +57,12 @@ export const usePesertaDidikStore = create((set) => ({
         }
     },
 
-    deletePeserta: async (id_peserta_didik, id_tahun_ajaran) => {
+    deletePeserta: async (id_peserta_didik, id_tahun_ajaran, nama_kelas) => {
         set({ loading: true, error: null });
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             await deletePesertaDidik(id_peserta_didik, id_tahun_ajaran);
-            const response = await getDatabyTahunAjaran(id_tahun_ajaran);
+            const response = await getDatabyTahunAjaran(id_tahun_ajaran, nama_kelas);
             set({ data: response });
         } catch (error) {
             set({

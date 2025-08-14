@@ -5,6 +5,7 @@ export const useTahunAjaranStore = create((set) => ({
     tahun_ajaran: null,
     loading: false,
     error: null,
+    emptyData:"",
 
     fetchData: async () => {
         set({ loading: true, error: null });
@@ -12,12 +13,14 @@ export const useTahunAjaranStore = create((set) => ({
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const response = await getTahunAjaran();
             set({
+                emptyData:"",
                 tahun_ajaran: response.data,
                 loading: false,
             });
             return response.data;
         } catch (error) {
             set({
+                emptyData:"HALO CUYYY",
                 error: error.message || "Gagal mengambil data tahun ajaran",
             });
             throw error;
@@ -38,8 +41,9 @@ export const useTahunAjaranStore = create((set) => ({
             }));
         } catch (error) {
             set({
-                error: error.message || "Gagal menghapus tahun ajaran",
+                error: "Penghapusan dibatalkan: masih ada peserta didik yang terdaftar pada tahun ajaran ini.",
             });
+            throw error
         } finally {
             set({ loading: false });
         }

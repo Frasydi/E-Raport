@@ -117,22 +117,42 @@ const findManyDataPesertaDidik = async () => {
     }
 };
 
-const findByTahunAjaran = async (tahunAjaranId) => {
+const findByTahunAjaran = async (tahunAjaranId, nama_kelas) => {
     try {
         const data = await prisma.rekapNilai.findMany({
             where: {
                 tahunAjaranId: tahunAjaranId,
+                ...(nama_kelas ? { guru: { nama_kelas } } : {}),
             },
             include: {
                 tahunAjaran: true,
                 pesertaDidik: true,
                 guru: true,
             },
+            orderBy: {
+                pesertaDidik: {
+                    nama_lengkap: "asc"
+                }
+            },
             distinct: ["pesertaDidikId"], // hanya ambil satu untuk setiap pesertaDidik
         });
         return data;
     } catch (error) {
         throwWithStatus(errorPrisma(error), 400);
+    }
+};
+
+const findByKelas = async (id_tahun_ajaran, nama_kelas) => {
+    try {
+        const response = await prisma.rekapNilai.findFirst({
+            where: {
+                tahunAjaranId: id_tahun_ajaran,
+                ...(nama_kelas ? { guru: { nama_kelas } } : {}),
+            },
+        });
+        return response;
+    } catch (error) {
+        throwWithStatus(errorPrisma(error));
     }
 };
 
@@ -361,7 +381,7 @@ const allPesertaDidik = async (data) => {
         if (!response || response.length == 0) {
             throwWithStatus("pencarian tidak ditemukan", 404);
         }
-        return response
+        return response;
     } catch (error) {
         throwWithStatus(errorPrisma(error));
     }
@@ -375,5 +395,6 @@ module.exports = {
     searchPesertaDidik,
     deleteDataById,
     finByTahunSemester,
-    allPesertaDidik
+    allPesertaDidik,
+    findByKelas,
 };

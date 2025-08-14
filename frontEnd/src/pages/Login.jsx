@@ -72,9 +72,7 @@ const Login = () => {
                         className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-4 sm:p-6 md:p-8">
-                        <h2 className="text-white text-xl sm:text-2xl md:text-3xl font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                            Welcome Back
-                        </h2>
+                        
                     </div>
                 </div>
 
@@ -82,10 +80,10 @@ const Login = () => {
                 <div className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center overflow-y-auto">
                     <div className="mb-6 sm:mb-8 text-center lg:text-left">
                         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-                            Sign In
+                            Login
                         </h1>
                         <p className="text-sm sm:text-base text-gray-600">
-                            Please enter your credentials
+                            Masukkan username dan password
                         </p>
                     </div>
 
@@ -108,7 +106,7 @@ const Login = () => {
                                 name="username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                autoComplete="username"
+                                autoComplete="off"
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                             />
                         </div>
@@ -126,7 +124,7 @@ const Login = () => {
                                 name="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                autoComplete="current-password"
+                                autoComplete="off"
                                 className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                             />
                         </div>
@@ -142,7 +140,7 @@ const Login = () => {
                                         : "hover:from-blue-700 hover:to-indigo-700"
                                 }`}
                         >
-                            {loading ? "Loading..." : "Sign In"}
+                            {loading ? "Loading..." : "Login"}
                         </button>
                     </form>
                 </div>

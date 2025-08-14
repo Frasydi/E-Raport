@@ -3,7 +3,7 @@ import { getGuruKelas, deleteData } from "../api/guru_kelas";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { AddStudentButton } from "../component/button/Button";
 import Search from "../component/input/Search";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ModalFormGuru from "../component/Modal/modalGuru";
 import showToast from "../hooks/showToast";
 import ModalEditGuru from "../component/Modal/ModalEditGuru";
@@ -13,6 +13,8 @@ import usePagination from "../hooks/usePagination";
 import PaginationControls from "../component/PaginationControls";
 import ConfirmModal from "../component/Modal/confirmModal";
 import { searchDataGuru } from "../api/guru_kelas";
+import ErrorMessage from "../component/Error";
+import { useFocusError } from "../hooks/useFocusError";
 
 const GuruKelas = () => {
     const [originalData, setOriginalData] = useState([]);
@@ -25,6 +27,7 @@ const GuruKelas = () => {
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [search, setSearch] = useState("");
     const [error, setError] = useState("");
+    const { errorRef, focusError } = useFocusError();
     const {
         currentPage,
         totalPages,
@@ -58,7 +61,7 @@ const GuruKelas = () => {
 
     const columns = [
         { header: "Nama Guru", accessor: "nama_guru", sortable: true },
-        { header: "NSIP", accessor: "NSIP", sortable: true },
+        { header: "NUPTK", accessor: "NUPTK", sortable: true },
         { header: "Kelas", accessor: "nama_kelas", sortable: true },
     ];
 
@@ -98,7 +101,9 @@ const GuruKelas = () => {
             showToast("success", "berhasil menghapus data");
             await fetchData();
         } catch (error) {
-            setError(error.message);
+            setError(
+                "Penghapusan dibatalkan: masih ada peserta didik yang terdaftar pada Guru ini."
+            );
             setShowConfirmDelete(false);
             showToast("error", "gagal menghapus data");
         } finally {
@@ -177,8 +182,12 @@ const GuruKelas = () => {
                     </div>
                     <div className="p-6 max-w-6xl mx-auto">
                         <h1 className="text-3xl font-semibold text-gray-700 mb-6">
-                            📚 Data Guru TK
+                            Data Guru
                         </h1>
+                        {error &&
+                            error != "data tidak ada, harap tambahkan data" && (
+                                <ErrorMessage error={error} ref={errorRef} />
+                            )}
                         {isLoading && <Loading />}
 
                         <ModernTable
@@ -196,11 +205,13 @@ const GuruKelas = () => {
                             }}
                         />
 
-                        <PaginationControls
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
+                        {originalData.length > 5 && (
+                            <PaginationControls
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            ></PaginationControls>
+                        )}
                     </div>
                 </div>
             </LayoutMenu>

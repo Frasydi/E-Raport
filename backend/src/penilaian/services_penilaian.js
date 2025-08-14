@@ -11,15 +11,34 @@ const {
     searhPenilaian,
     searchRaport,
 } = require("./repository_penilaian");
+
+const { findByKelas } = require("../peserta-didik/repository_peserta");
 const prisma = require("../../prisma/prismaClient");
 const { validatorField, sanitizeData } = require("../utils/validator");
 const { validateUpdatePayload } = require("../utils/validator");
 const throwWithStatus = require("../utils/throwWithStatus");
 
-const displayPesertaDidikByTahunSemester = async (tahunAjaran, semester) => {
+const displayPesertaDidikByTahunSemester = async (
+    tahunAjaran,
+    semester,
+    nama_kelas
+) => {
     validatorField({ tahunAjaran, semester });
     try {
-        const response = await findByTahunSemester(tahunAjaran, semester);
+        const response = await findByTahunSemester(
+            tahunAjaran,
+            semester,
+            nama_kelas
+        );
+        if (nama_kelas) {
+            const kelas = await findByKelas(tahunAjaran, nama_kelas);
+            if (!kelas) {
+                throwWithStatus(
+                    "data peserta didik di kelas ini belum ada",
+                    404
+                );
+            }
+        }
         if (!response || response.length == 0) {
             throwWithStatus("data peserta pada tahun ini belum ada", 404);
         }
@@ -235,14 +254,24 @@ const updateNilai = async (id_rekap_nilai, id_sub_kategori, nilai_list) => {
     }
 };
 
-const displayPenilaian = async (id_tahun_ajaran, semester) => {
+const displayPenilaian = async (id_tahun_ajaran, semester, nama_kelas) => {
     validatorField({ id_tahun_ajaran, semester });
 
-    const penilaianList = await getPenilaianGrouped(id_tahun_ajaran, semester);
+    const penilaianList = await getPenilaianGrouped(
+        id_tahun_ajaran,
+        semester,
+        nama_kelas
+    );
+    if (nama_kelas) {
+        const kelas = await findByKelas(id_tahun_ajaran, nama_kelas);
+        if (!kelas) {
+            throwWithStatus("data peserta didik di kelas ini belum ada", 404);
+        }
+    }
     if (!penilaianList || penilaianList.length === 0) {
         throwWithStatus(
             "data peserta didik di tahun ajaran ini belum ada",
-            403
+            404
         );
     }
 
@@ -258,7 +287,7 @@ const displayPenilaian = async (id_tahun_ajaran, semester) => {
                     nama_kelas, // Sudah diformat jadi "Kelompok A/B"
                 },
                 guru: {
-                    ...p.rekapNilai.guru, 
+                    ...p.rekapNilai.guru,
                     nama_kelas,
                 },
                 kesimpulan: p.rekapNilai.kesimpulan,

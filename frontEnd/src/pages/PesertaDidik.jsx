@@ -14,6 +14,8 @@ import Loading from "../component/Loading";
 import showToast from "../hooks/showToast";
 import ConfirmModal from "../component/Modal/confirmModal";
 import ModalEditPesertaDidik from "../component/Modal/ModalPesertaDidik/ModalEditPeserta";
+import usePagination from "../hooks/usePagination";
+import PaginationControls from "../component/PaginationControls";
 
 const PesertaDidik = () => {
     const [openModal, setOpenModal] = useState(false);
@@ -21,6 +23,7 @@ const PesertaDidik = () => {
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [selectedPesertaId, setSelectedPesertaId] = useState("");
     const [selectedPesertaDidik, setSelectedPesertaDidik] = useState("");
+    const [selectedKelas, setSelectedKelas] = useState("");
     const [search, setSearch] = useState("");
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [showConfirm, setShowConfirm] = useState(false);
@@ -48,6 +51,14 @@ const PesertaDidik = () => {
         }))
     );
 
+    const {
+        currentPage,
+        totalPages,
+        currentData,
+        handlePageChange,
+        resetPagination,
+        startIndex,
+    } = usePagination(pesertaDidik, 16);
 
     const handleEditPesertaDidik = (data) => {
         setSelectedPesertaDidik(data);
@@ -63,8 +74,13 @@ const PesertaDidik = () => {
     const handleConfirmDelete = async () => {
         setShowConfirm(false);
         try {
-            await deletePeserta(selectedPesertaId, selectedTahunAjaran);
+            await deletePeserta(
+                selectedPesertaId,
+                selectedTahunAjaran,
+                selectedKelas
+            );
             showToast("success", "data berhasil di hapus");
+            resetPagination();
         } catch (error) {
             showToast("error", "gagal menghapus peserta didik");
         }
@@ -83,14 +99,14 @@ const PesertaDidik = () => {
             );
             return;
         }
-        fetchByTahunAjaran(selectedTahunAjaran);
+        fetchByTahunAjaran(selectedTahunAjaran, selectedKelas);
         setIsSearch();
-    }, [selectedTahunAjaran, fetchByTahunAjaran]);
+    }, [selectedTahunAjaran, fetchByTahunAjaran, selectedKelas]);
 
     useEffect(() => {
         if (search) return;
         if (!isSearch) return;
-        fetchByTahunAjaran(selectedTahunAjaran);
+        fetchByTahunAjaran(selectedTahunAjaran, selectedKelas);
         setIsSearch();
     }, [search]);
 
@@ -109,10 +125,11 @@ const PesertaDidik = () => {
 
     const handleSearch = async () => {
         if (!search) {
-            fetchByTahunAjaran(selectedTahunAjaran);
+            fetchByTahunAjaran(selectedTahunAjaran, selectedKelas);
             return;
         }
         await searchPeserta(search);
+        resetPagination();
     };
     return (
         <>
@@ -121,7 +138,7 @@ const PesertaDidik = () => {
                     onClose={() => setOpenModal(false)}
                     onSuccess={() => {
                         setOpenModal(false);
-                        fetchByTahunAjaran(selectedTahunAjaran);
+                        fetchByTahunAjaran(selectedTahunAjaran, selectedKelas);
                     }}
                 ></Modal>
             )}
@@ -133,14 +150,14 @@ const PesertaDidik = () => {
                     tahunAjaranId={selectedTahunAjaran}
                     onSuccess={() => {
                         setOpenEditModal(false);
-                        fetchByTahunAjaran(selectedTahunAjaran);
+                        fetchByTahunAjaran(selectedTahunAjaran, selectedKelas);
                     }}
                 />
             )}
             <LayoutMenu blur={openModal || openEditModal}>
                 <div className="w-5/6 mt-10">
                     {/* Dropdown Tahun Ajaran */}
-                    <div className="w-72 text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 z-10 relative">
+                    <div className="w-72 flex flex-col gap-5 text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 z-10 relative">
                         <ModalInput
                             type={"select"}
                             value={selectedTahunAjaran}
@@ -156,6 +173,26 @@ const PesertaDidik = () => {
                             name={"tahun_ajaran"}
                         >
                             Tahun Ajaran
+                        </ModalInput>
+                        <ModalInput
+                            type={"select"}
+                            value={selectedKelas}
+                            onChange={(val) => {
+                                setSelectedKelas(val);
+                            }}
+                            options={[
+                                { label: "Semua Kelas", value: "" },
+                                { label: "Kelompok A", value: "kelompokA" },
+                                { label: "Kelompok B", value: "kelompokB" },
+                            ]}
+                            displayKey="label"
+                            valueKey="value"
+                            id={"kelas"}
+                            disibled={loadingPeserta}
+                            name={"kelas"}
+                        >
+                            Kelas{" "}
+                            <span className="text-yellow-500">(opsional)</span>
                         </ModalInput>
                     </div>
 
@@ -225,9 +262,16 @@ const PesertaDidik = () => {
 
                         {!loadingPeserta &&
                             !errorPeserta &&
-                            pesertaDidik.length > 0 && (
-                                <div className="flex flex-wrap gap-[42px] mt-15">
-                                    {pesertaDidik.map((item) => (
+                            currentData.length > 0 && (
+                                <div
+                                    className={`flex flex-wrap lg:gap-10 gap-6 md:gap-6 mt-10 ${
+                                        pesertaDidik.length % 4 === 0 &&
+                                        pesertaDidik.length > 0
+                                            ? "justify-center sm:gap-10"
+                                            : ""
+                                    }`}
+                                >
+                                    {currentData.map((item) => (
                                         <CardProfil
                                             key={
                                                 item.peserta_didik
@@ -253,6 +297,14 @@ const PesertaDidik = () => {
                                     ))}
                                 </div>
                             )}
+
+                        {pesertaDidik.length > 15 && (
+                            <PaginationControls
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            ></PaginationControls>
+                        )}
                     </Container>
                 </div>
             </LayoutMenu>

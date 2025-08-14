@@ -12,11 +12,12 @@ const {
 } = require("./services_penilaian");
 
 router.get("/", async (req, res, next) => {
-    const { tahunAjaranId, semester } = req.query;
+    const { tahunAjaranId, semester, nama_kelas } = req.query;
     try {
         const response = await displayPesertaDidikByTahunSemester(
             tahunAjaranId,
-            semester
+            semester,
+            nama_kelas
         );
         res.json({
             data: response,
@@ -51,7 +52,11 @@ router.get(
 router.get("/search-raport", async (req, res, next) => {
     const { id_tahun_ajaran, semester, keyword } = req.query;
     try {
-        const response = await displaySearhRaport(id_tahun_ajaran, semester, keyword);
+        const response = await displaySearhRaport(
+            id_tahun_ajaran,
+            semester,
+            keyword
+        );
         res.json({
             success: true,
             msg: "berhasil didapatkan",
@@ -66,8 +71,9 @@ router.get(
     "/display-penilaian/:id_tahun_ajaran/:semester",
     async (req, res, next) => {
         const { id_tahun_ajaran, semester } = req.params;
+        const {nama_kelas} = req.query
         try {
-            const response = await displayPenilaian(id_tahun_ajaran, semester);
+            const response = await displayPenilaian(id_tahun_ajaran, semester, nama_kelas);
             res.json({
                 success: true,
                 msg: "data berhasil didapatkan",

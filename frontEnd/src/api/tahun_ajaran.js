@@ -36,6 +36,7 @@ export const deleteTahunAjaran = async (id) => {
         );
         return response.data;
     } catch (error) {
+        
         if (error.response && error.response.data) {
             throw error.response.data.message || "Terjadi kesalahan";
         } else {

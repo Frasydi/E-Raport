@@ -14,7 +14,6 @@ import PaginationControls from "../component/PaginationControls";
 import ModalEditTahun from "../component/Modal/ModalTahunAjaran/ModalEditTahun";
 import ModernTable from "../component/table/modernTable";
 import { useTahunAjaranStore } from "../stores/tahun-ajaran";
-import { searchDataTahun } from "../api/tahun_ajaran";
 
 const TahunAjaran = () => {
     const { tahun_ajaran, loading, error, fetchData, deleteData } =
@@ -71,7 +70,7 @@ const TahunAjaran = () => {
     }, [error]);
 
     useEffect(() => {
-        resetPagination(); // Reset pagination saat search atau sort berubah
+        resetPagination(); 
     }, [search, sortConfig]);
 
     const handleSort = (key) => {
@@ -81,6 +80,15 @@ const TahunAjaran = () => {
         }
         setSortConfig({ key, direction });
     };
+
+    useEffect(() => {
+        if (!tahun_ajaran || tahun_ajaran.length == 0) {
+            setEmptyData("data tahun ajara kosong, harap tambahkan data");
+            return;
+        }
+        setEmptyData("");
+        return;
+    }, [tahun_ajaran]);
 
     const handleDelete = (id, tahun) => {
         setSelectedId(id);
@@ -158,13 +166,16 @@ const TahunAjaran = () => {
                         <h1 className="text-3xl font-semibold text-gray-700 mb-6">
                             Data Tahun Ajaran
                         </h1>
-                        {error && error != "data tidak ada, harap tambahkan data" && <ErrorMessage error={error} ref={errorRef} />}
+                        {error &&
+                            error != "data tidak ada, harap tambahkan data" && (
+                                <ErrorMessage error={error} ref={errorRef} />
+                            )}
                         {loading && <Loading />}
 
                         <ModernTable
                             columns={columns}
                             data={currentData}
-                            emptyData={error}
+                            emptyData={emptyData}
                             onDelete={(item) =>
                                 handleDelete(
                                     item.id_tahun_ajaran,
@@ -182,11 +193,13 @@ const TahunAjaran = () => {
                             sortConfig={sortConfig}
                         />
 
-                        <PaginationControls
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
+                        {tahun_ajaran.length > 5 && (
+                            <PaginationControls
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            ></PaginationControls>
+                        )}
                     </div>
                 </div>
             </LayoutMenu>

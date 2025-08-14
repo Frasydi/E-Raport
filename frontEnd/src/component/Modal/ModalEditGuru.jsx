@@ -10,7 +10,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
     const [showConfirm, setShowConfirm] = useState(false);
     const [form, setForm] = useState({
         nama_guru: "",
-        NSIP: "",
+        NUPTK: "",
         nama_kelas: "kelompok A",
     });
 
@@ -20,7 +20,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         if (teacherData) {
             setForm({
                 nama_guru: teacherData.nama_guru,
-                NSIP: teacherData.NSIP,
+                NUPTK: teacherData.NUPTK,
                 nama_kelas: teacherData.nama_kelas,
             });
         }
@@ -43,12 +43,12 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.nama_guru.trim() || !form.NSIP.trim()) {
+        if (!form.nama_guru.trim() || !form.NUPTK.trim()) {
             setError("harap lengkapi data terlebih dahulu");
             return;
         }
-        if (!/^\d+$/.test(form.NSIP)) {
-            setError("NSIP hanya boleh berisi angka");
+        if (!/^\d+$/.test(form.NUPTK)) {
+            setError("NUPTK hanya boleh berisi angka");
             setIsLoading(false);
             return;
         }
@@ -63,7 +63,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         try {
             await updateDataGuru(teacherData.id_guru, {
                 nama_guru: form.nama_guru,
-                NSIP: form.NSIP,
+                NUPTK: form.NUPTK,
                 nama_kelas: form.nama_kelas,
             });
             onSave();
@@ -78,7 +78,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
     const resetForm = (teacherData) => {
         setForm({
             nama_guru: teacherData.nama_guru,
-            NSIP: teacherData.NSIP,
+            NUPTK: teacherData.NUPTK,
             nama_kelas: teacherData.nama_kelas,
         });
     };
@@ -146,15 +146,15 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
                         </div>
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
-                                NSIP
+                                NUPTK
                             </label>
                             <input
                                 type="text"
-                                name="NSIP"
-                                value={form.NSIP}
+                                name="NUPTK"
+                                value={form.NUPTK}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                placeholder="Masukkan NSIP"
+                                placeholder="Masukkan NUPTK"
                                 disabled={isLoading}
                             />
                         </div>

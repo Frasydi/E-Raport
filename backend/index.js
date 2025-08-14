@@ -46,6 +46,7 @@ app.use(
     tahun_ajaran
 );
 app.use("/penilaian", verifyToken, checkRole(["Operator", "Ortu"]), penilaian);
+
 app.use(
     "/kesimpulan",
     verifyToken,

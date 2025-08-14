@@ -15,12 +15,12 @@ const LayoutMenu = ({ children, blur = false }) => {
 
     return (
         <div
-            className={`w-10/12 flex flex-col items-center self-start mt-3 font-poppins ${
+            className={`w-10/12  flex flex-col items-center self-start mt-3 font-poppins ${
                 blur ? "blur-xl h-screen overflow-hidden" : ""
             }`}
         >
             {/* Baris Navbar dan tombol logout */}
-            <div className="relative flex w-full  items-center justify-center ">
+            <div className="relative flex  w-full  items-center justify-center ">
                 <Navbar />
                 <div className="absolute right-0 top-2">
                     <button

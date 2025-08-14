@@ -64,7 +64,7 @@ model ProfilSekolah {
 model Guru {
   id_guru         String @id @default(cuid())
   nama_guru       String @db.VarChar(25)
-  NSIP            String @db.VarChar(25)
+  NUPTK            String @db.VarChar(25)
   nama_kelas      Kelas?
   rekapNilai      RekapNilai[]  // relasi many ke RekapNila
 }

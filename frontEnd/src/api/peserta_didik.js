@@ -9,10 +9,15 @@ export const getDataTahunAjaran = async () => {
     }
 };
 
-export const getDatabyTahunAjaran = async (id_tahun_ajaran) => {
+export const getDatabyTahunAjaran = async (id_tahun_ajaran, nama_kelas) => {
     try {
         const response = await axiosInstance.get(
-            `peserta-didik/${id_tahun_ajaran}`
+            `peserta-didik/${id_tahun_ajaran}`, 
+            {
+                params: {
+                    nama_kelas
+                }
+            }
         );
         return response.data.data;
     } catch (error) {

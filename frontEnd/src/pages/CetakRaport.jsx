@@ -18,16 +18,19 @@ import Loading from "../component/Loading";
 
 const CetakRaport = () => {
     const [buttonClick, setButtonClick] = useState("");
-    const { tahunAjaranOptions, loading } = useSelectedTahunAjaran();
+    const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [selectedSemester, setSelectedSemester] = useState("");
     const [pesertaDidik, setPesertaDidik] = useState([]);
     const [selectedPeserta, setSelectedPeserta] = useState(null);
-    const [selectedTanggalCetak, setSelectedTanggalCetak] = useState(getTodayLocal());
+    const [selectedTanggalCetak, setSelectedTanggalCetak] = useState(
+        getTodayLocal()
+    );
     const [isLoading, setIsLoading] = useState(false);
     const [profilSekolah, setProfilSekolah] = useState("");
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
+    const [selectedKelas, setSelectedKelas] = useState("");
     const [isSearch, setIsSearch] = useState(false);
 
     const {
@@ -74,8 +77,10 @@ const CetakRaport = () => {
             const getProfilSekolah = await getDataProfil();
             const penilaian = await getPenilaian(
                 selectedTahunAjaran,
-                selectedSemester
+                selectedSemester,
+                selectedKelas
             );
+
             setProfilSekolah(getProfilSekolah.data);
 
             setPesertaDidik(penilaian.data);
@@ -105,6 +110,11 @@ const CetakRaport = () => {
         fetchData();
     }, [search, selectedSemester, selectedTahunAjaran]);
 
+    useEffect(() => {
+        if(!selectedKelas) return
+        fetchData();
+    }, [selectedKelas]);
+
     const handleSearch = async () => {
         setIsLoading(true);
         setError("");
@@ -128,9 +138,9 @@ const CetakRaport = () => {
                 );
                 return;
             }
-            if(!search) {
-                fetchData()
-                return
+            if (!search) {
+                fetchData();
+                return;
             }
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const response = await searchRaport(
@@ -190,56 +200,84 @@ const CetakRaport = () => {
 
     return (
         <LayoutMenu>
-            <div className="w-5/6 mt-8">
-                <form
-                    action="#"
-                    className="w-72 flex gap-5 flex-col items-center justify-between text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5"
-                >
-                    <ModalInput
-                        type={"select"}
-                        value={selectedTahunAjaran}
-                        htmlFor={"tahun_ajaran"}
-                        onChange={(val) => setSelectedTahunAjaran(val)}
-                        emptyMessage={"harap isi data di menu tahun ajaran"}
-                        valueKey="value"
-                        id={"tahun_ajaran"}
-                        name={"tahun_ajaran"}
-                        disabled={isLoading}
-                        required
-                        options={tahunAjaranOptions}
+            <div className="w-5/6 mt-8 ">
+                <div className="w-full  flex justify-between">
+                    <form
+                        action="#"
+                        className="w-72 flex gap-5 flex-col items-center justify-between text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5"
                     >
-                        Tahun Ajaran
-                    </ModalInput>
-                    <ModalInput
-                        type={"select"}
-                        value={selectedSemester}
-                        htmlFor={"semester"}
-                        options={[
-                            { label: "Semester 1", value: "semester 1" },
-                            { label: "Semester 2", value: "semester 2" },
-                        ]}
-                        onChange={(val) => setSelectedSemester(val)}
-                        displayKey="label"
-                        valueKey="value"
-                        id={"semester"}
-                        name={"semester"}
-                        disabled={isLoading}
-                    >
-                        Semester
-                    </ModalInput>
-                    <ModalInput
-                        type={"date"}
-                        htmlFor={"tanggal_cetak"}
-                        value={selectedTanggalCetak}
-                        onChange={(val) => {
-                            setSelectedTanggalCetak(val.target.value);
-                        }}
-                        disabled={isLoading}
-                        required
-                    >
-                        Tanggal Cetak
-                    </ModalInput>
-                </form>
+                        <ModalInput
+                            type={"select"}
+                            value={selectedTahunAjaran}
+                            htmlFor={"tahun_ajaran"}
+                            onChange={(val) => setSelectedTahunAjaran(val)}
+                            emptyMessage={"harap isi data di menu tahun ajaran"}
+                            valueKey="value"
+                            id={"tahun_ajaran"}
+                            name={"tahun_ajaran"}
+                            disabled={isLoading}
+                            required
+                            options={tahunAjaranOptions}
+                        >
+                            Tahun Ajaran
+                        </ModalInput>
+                        <ModalInput
+                            type={"select"}
+                            value={selectedSemester}
+                            htmlFor={"semester"}
+                            options={[
+                                { label: "Semester 1", value: "semester 1" },
+                                { label: "Semester 2", value: "semester 2" },
+                            ]}
+                            onChange={(val) => setSelectedSemester(val)}
+                            displayKey="label"
+                            valueKey="value"
+                            id={"semester"}
+                            name={"semester"}
+                            disabled={isLoading}
+                        >
+                            Semester
+                        </ModalInput>
+                        <ModalInput
+                            type={"date"}
+                            htmlFor={"tanggal_cetak"}
+                            value={selectedTanggalCetak}
+                            onChange={(val) => {
+                                setSelectedTanggalCetak(val.target.value);
+                            }}
+                            disabled={isLoading}
+                            required
+                        >
+                            Tanggal Cetak
+                        </ModalInput>
+                    </form>
+                    <div className="self-end relative">
+                        <div className="w-72 flex gap-5 flex-col items-center justify-between text-sm pl-5 drop-shadow-xl rounded-2xl bg-[#ffffff] p-5 relative z-10">
+                            <ModalInput
+                                type={"select"}
+                                value={selectedKelas}
+                                onChange={(val) => {
+                                    setSelectedKelas(val);
+                                }}
+                                options={[
+                                    { label: "Semua Kelas", value: "" },
+                                    { label: "Kelompok A", value: "kelompokA" },
+                                    { label: "Kelompok B", value: "kelompokB" },
+                                ]}
+                                displayKey="label"
+                                valueKey="value"
+                                id={"kelas"}
+                                disibled={isLoading}
+                                name={"kelas"}
+                            >
+                                Kelas{" "}
+                                <span className="text-yellow-500">
+                                    (opsional)
+                                </span>
+                            </ModalInput>
+                        </div>
+                    </div>
+                </div>
 
                 <Container>
                     {isLoading && <Loading />}
@@ -307,7 +345,7 @@ const CetakRaport = () => {
                     <div className="w-full mt-5 p-4 border rounded-lg shadow">
                         <div className="items-start mb-5">
                             <h2 className="text-sm font-semibold">
-                                {buttonClick}  
+                                {buttonClick}
                             </h2>
                         </div>
 

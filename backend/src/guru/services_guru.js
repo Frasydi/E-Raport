@@ -18,7 +18,7 @@ const displayDataGuru = async () => {
 };
 
 const AddDataGuru = async (data) => {
-    const { nama_guru, NSIP, nama_kelas } = data;
+    const { nama_guru, NUPTK, nama_kelas } = data;
     const result = {
         ...data,
         nama_kelas: nama_kelas.replace(/\s+(\w)/g, (_, char) =>
@@ -27,12 +27,12 @@ const AddDataGuru = async (data) => {
     };
     validatorField({
         nama_guru,
-        NSIP,
+        NUPTK,
         nama_kelas,
     });
-    if (NSIP) {
+    if (NUPTK) {
         validateNumbers({
-            NSIP: NSIP,
+            NUPTK: NUPTK,
         });
     }
     if (nama_kelas == "kelompok A" || nama_kelas == "kelompok B") {
@@ -42,7 +42,7 @@ const AddDataGuru = async (data) => {
 };
 
 const updateData = async (data, id) => {
-    const { nama_guru, NSIP, nama_kelas } = data;
+    const { nama_guru, NUPTK, nama_kelas } = data;
     const result = {
         ...data,
         nama_kelas: nama_kelas.replace(/\s+(\w)/g, (_, char) =>
@@ -51,13 +51,13 @@ const updateData = async (data, id) => {
     };
     validatorField({
         nama_guru,
-        NSIP,
+        NUPTK,
         nama_kelas,
     });
 
-    if (data.NSIP) {
+    if (data.NUPTK) {
         validateNumbers({
-            NPSN: data.NSIP,
+            NPSN: data.NUPTK,
         });
     }
 

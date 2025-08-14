@@ -11,10 +11,12 @@ export const useSelectedTahunAjaran = () => {
             error: state.error,
         }))
     );
-    
+
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (!tahun_ajaran || tahun_ajaran.length === 0) {
+            fetchData();
+        }
+    }, [tahun_ajaran, fetchData]);
 
     const tahunAjaranOptions =
         tahun_ajaran?.map((item) => ({

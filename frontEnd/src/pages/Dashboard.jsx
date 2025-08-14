@@ -6,19 +6,16 @@ import LayoutMenu from "../containers/layout";
 import InputDashboard from "../component/input/DashboardInput";
 import BasicPie from "../component/cart/Pie";
 import { useState, useEffect } from "react";
-import ErrorMessage from "../component/Error";
 import { getDataProfil, updateDataProfil } from "../api/profil_sekolah";
 import { getJmlPesertaDidik, getByTahunAjaran } from "../api/dashboard";
 import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
 import CustomSelect from "../component/CustomSelect";
 import Swal from "sweetalert2";
 import PesertaLine from "../component/cart/lineChart";
-import { useAuth } from "../context/authContext";
 
 const Dashboard = () => {
     const [profilSekolah, setProfilSekolah] = useState({});
     const [originalProfil, setOriginalProfil] = useState({});
-    const { loading } = useAuth();
     const { tahunAjaranOptions } = useSelectedTahunAjaran();
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
     const [jumlahPesertaTahun, setjumlahPesertaTahun] = useState({
@@ -53,25 +50,32 @@ const Dashboard = () => {
         }
     };
 
-    useEffect(() => {
-        if (!loading) {
-            fetchData();
-        }
-    }, [loading]);
+
+    useEffect(()=> {
+        getProfil()
+        fetchData()
+    }, [])
 
     useEffect(() => {
         if (!selectedTahunAjaran) return;
         getByTahun();
     }, [selectedTahunAjaran]);
 
-    const fetchData = async () => {
+    const getProfil = async () => {
         setError("");
         try {
             const res = await getDataProfil();
-            console.log("res: ", res);
-            const responsejmlPesertaDidik = await getJmlPesertaDidik();
             setProfilSekolah(res.data);
             setOriginalProfil(res.data);
+        } catch (error) {
+            setError(error.message || "data tidak ada");
+        }
+    };
+
+    const fetchData = async () => {
+        setError("");
+        try {
+            const responsejmlPesertaDidik = await getJmlPesertaDidik();
             const tahunLatest =
                 responsejmlPesertaDidik?.tahunAjaranLatest || "";
 
@@ -107,6 +111,8 @@ const Dashboard = () => {
             setError(error);
         }
     };
+
+
 
     useEffect(() => {
         if (error) {
@@ -196,10 +202,8 @@ const Dashboard = () => {
                 </Card>
             </div>
 
-            {error && <ErrorMessage error={error}></ErrorMessage>}
-
-            <div className="w-4/5 flex gap-10 mt-4">
-                <div className="flex-1 flex h-full bg-white drop-shadow-xl rounded-2xl flex-col">
+            <div className="w-4/5 flex gap-10 mt-4 ">
+                <div className="flex-1 flex h-full w-full drop-shadow-xl rounded-2xl flex-col bg-white">
                     <TitleDashboard icon={faHouse}>
                         Profil Sekolah
                     </TitleDashboard>

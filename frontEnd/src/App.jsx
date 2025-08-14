@@ -31,9 +31,9 @@ function App() {
                 <Route
                     path="/orang-tua"
                     element={
-                        //<RoleRoute allowedRoles={["Ortu"]}>
-                        <OrangTua />
-                        //</RoleRoute>
+                        <RoleRoute allowedRoles={["Ortu"]}>
+                            <OrangTua />
+                        </RoleRoute>
                     }
                 >
                     <Route

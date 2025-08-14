@@ -4,6 +4,7 @@ const {
     findByTahunAjaran,
     updatePesertaDidik,
     deleteDataById,
+    findByKelas,
 } = require("./repository_peserta");
 const {
     validatorField,
@@ -74,7 +75,7 @@ const addDataPesertaDidik = async (data) => {
             guruId,
             ...dataValidator,
         });
-        
+
         const cleaned = sanitizeData(pesertaDidik);
         if (cleaned.jenis_kelamin) {
             cleaned.jenis_kelamin = cleaned.jenis_kelamin.replace(/-/g, "");
@@ -99,9 +100,18 @@ const addDataPesertaDidik = async (data) => {
     }
 };
 
-const displayByTahunAjaran = async (tahunAjaranId) => {
+const displayByTahunAjaran = async (tahunAjaranId, nama_kelas) => {
     try {
-        const response = await findByTahunAjaran(tahunAjaranId);
+        const response = await findByTahunAjaran(tahunAjaranId, nama_kelas);
+        if (nama_kelas) {
+            const kelas = await findByKelas(tahunAjaranId, nama_kelas);
+            if (!kelas) {
+                throwWithStatus(
+                    "data peserta didik di kelas ini belum ada",
+                    404
+                );
+            }
+        }
         if (!response || response.length == 0) {
             throwWithStatus("data peserta didik di tahun ini belum ada", 404);
         }
@@ -153,11 +163,15 @@ const updateData = async (data, id_peserta_didik, id_tahun_ajaran) => {
                 nisn: data.pesertaDidik.nisn,
             });
         }
-        return await updatePesertaDidik({
-            tahunAjaranId: data.tahunAjaranId,
-            guruId: data.guruId,
-            pesertaDidik: {...cleaned}
-        }, id_peserta_didik, id_tahun_ajaran);
+        return await updatePesertaDidik(
+            {
+                tahunAjaranId: data.tahunAjaranId,
+                guruId: data.guruId,
+                pesertaDidik: { ...cleaned },
+            },
+            id_peserta_didik,
+            id_tahun_ajaran
+        );
     } catch (error) {
         throw error;
     }
@@ -165,8 +179,8 @@ const updateData = async (data, id_peserta_didik, id_tahun_ajaran) => {
 
 const deleteDataPeserta = async (id_peserta_didik, id_tahun_ajaran) => {
     try {
-        if(!id_peserta_didik || !id_tahun_ajaran) {
-            throwWithStatus('not found', 404)
+        if (!id_peserta_didik || !id_tahun_ajaran) {
+            throwWithStatus("not found", 404);
         }
         return await deleteDataById(id_peserta_didik, id_tahun_ajaran);
     } catch (error) {

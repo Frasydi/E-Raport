@@ -41,11 +41,11 @@ const navItems = [
         path: "/cetak-raport",
         icon: faPrint,
     },
-    {
-        name: "Backup dan Restore",
-        path: "/backup-restore",
-        icon: faWindowRestore,
-    },
+    //{
+    //    name: "Backup dan Restore",
+    //    path: "/backup-restore",
+    //    icon: faWindowRestore,
+    //},
 ];
 
 export default navItems;

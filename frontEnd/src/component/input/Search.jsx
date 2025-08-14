@@ -20,6 +20,7 @@ const Search = ({ htmlFor, placeholder, value, onChange, onSearch }) => {
           placeholder={placeholder || "Search..."}
           value={value}
           onChange={onChange}
+          autoComplete="off"
         />
         <button
           type="submit"
