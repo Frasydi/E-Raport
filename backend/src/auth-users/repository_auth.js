@@ -3,52 +3,44 @@ const throwWithStatus = require("../utils/throwWithStatus");
 
 const insertData = async function (username, password) {
     return await prisma.users.create({
-        data: {
-            username,
-            password,
-        },
+        data: { username, password },
     });
 };
 
 const findUsername = async function (username) {
-    const user = await prisma.users.findFirst({
-        where: {
-            username: username,
-        },
-    });
-    if (!user) {
-        throwWithStatus("username atau kata sandi salah", 400);
-    }
+    const user = await prisma.users.findFirst({ where: { username } });
+    if (!user) throwWithStatus("username atau kata sandi salah", 400);
     return user;
 };
 
-const updateToken = async function (token, idUser) {
-    const update = await prisma.users.update({
-        where: {
-            id: idUser,
-        },
+const insertToken = async function (token, idUser, userAgent) {
+    return await prisma.userTokens.create({
         data: {
+            userId: idUser,
             token,
+            userAgent,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 hari
         },
     });
-    return update;
 };
 
 const findToken = async function (token) {
-    const find =  prisma.users.findFirst({
-        where: {
-            token,
-        },
+    const found = await prisma.userTokens.findFirst({
+        where: { token },
+        include: { user: true },
     });
-    if(!find) {
-        throwWithStatus('forbidden', 403)
-    }
-    return find
+    if (!found) throwWithStatus("forbidden", 403);
+    return found;
+};
+
+const deleteToken = async function (token) {
+    return await prisma.userTokens.deleteMany({ where: { token } });
 };
 
 module.exports = {
     insertData,
     findUsername,
-    updateToken,
+    insertToken,
     findToken,
+    deleteToken,
 };

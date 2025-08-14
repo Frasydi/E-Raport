@@ -1,66 +1,49 @@
-const { findUsername, updateToken, findToken } = require("./repository_auth");
+const {
+    findUsername,
+    insertToken,
+    findToken,
+    deleteToken,
+} = require("./repository_auth");
 const throwWithStatus = require("../utils/throwWithStatus");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
-const verifyToken = promisify(jwt.verify);
+const verifyJwt = promisify(jwt.verify);
 
-// -- Login dengan jwt
-const Login = async (username, password) => {
-    // -- ketika username dan password tidak di ada input
-    if (!username || !password) {
-        throwWithStatus("form login masih kosong", 400);
-    }
+const Login = async (username, password, userAgent) => {
+    if (!username || !password) throwWithStatus("form login masih kosong", 400);
 
     const user = await findUsername(username);
-
-    if (user.password != password) {
+    if (user.password !== password)
         throwWithStatus("username atau kata sandi salah", 400);
-    }
-    // -- ketika username dan password tidak cocok di database
-    const usernameUser = user.username;
-    const id = user.id;
 
-    // -- membuat akses token
-    const accessToken = jwt.sign(
-        { id, username: usernameUser, role: user.role },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn: "20s",
-        }
-    );
+    const payload = { id: user.id, username: user.username, role: user.role };
 
-    // -- membuat refresh token
-    const refreshToken = jwt.sign(
-        { id, username: usernameUser, role: user.role },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
-    );
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "20s",
+    });
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: "1d",
+    });
 
-    await updateToken(refreshToken, id);
-    return {
-        success: true,
-        msg: "login berhasil",
-        accessToken,
-        refreshToken,
-    };
+    await insertToken(refreshToken, user.id, userAgent);
+
+    return { success: true, msg: "login berhasil", accessToken, refreshToken };
 };
 
-// untuk medapatkan token
 const refreshToken = async (token) => {
-    if (!token) {
-        throwWithStatus("token tidak valid", 401);
-    }
-    const userToken = await findToken(token);
-    await verifyToken(token, process.env.REFRESH_TOKEN_SECRET);
+    if (!token) throwWithStatus("token tidak valid", 401);
 
-    const { id, username, role } = userToken;
-    const accessToken = jwt.sign(
-        { id, username, role },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn: "20s",
-        }
-    );
+    const tokenData = await findToken(token);
+    await verifyJwt(token, process.env.REFRESH_TOKEN_SECRET);
+
+    const payload = {
+        id: tokenData.user.id,
+        username: tokenData.user.username,
+        role: tokenData.user.role,
+    };
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "20s",
+    });
 
     return {
         success: true,
@@ -69,7 +52,13 @@ const refreshToken = async (token) => {
     };
 };
 
+const Logout = async (token) => {
+    await deleteToken(token);
+    return { status: "success", message: "Logged out successfully" };
+};
+
 module.exports = {
     Login,
     refreshToken,
+    Logout,
 };

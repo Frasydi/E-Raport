@@ -41,8 +41,20 @@ model Users {
     username String
     password String
     role Role @default(Operator)
-    token String? @db.Text
+   tokens   UserTokens[] 
 }
+
+model UserTokens {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @db.Text
+  userAgent String?  // opsional: simpan info device/browser
+  createdAt DateTime @default(now())
+  expiresAt DateTime // kapan token kadaluarsa
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 
 model ProfilSekolah {
   id_profil_sekolah Int     @id @default(autoincrement())
