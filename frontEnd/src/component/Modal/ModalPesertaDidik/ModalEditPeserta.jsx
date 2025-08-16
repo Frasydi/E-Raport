@@ -381,9 +381,31 @@ const ModalEditPesertaDidik = ({
                                 </ModalInput>
                             </div>
                             <div className="flex mt-7 flex-col w-full">
-                                <p className="text-sm text-gray-900/80 font-semibold border-t-2 pt-1 border-t-gray-900/80">
-                                    Alamat Tempat Tinggal :
-                                </p>
+                                <div className="text-sm flex justify-between border-t-2 pt-1 border-t-gray-900/80">
+                                    <p className="text-gray-900/80 font-semibold">
+                                        Alamat Tempat Tinggal :
+                                    </p>
+                                    <p
+                                        className="text-xs font-semibold py-1.5 text-blue-500 cursor-pointer hover:text-blue-600 underline underline-offset-2"
+                                        onClick={() => {
+                                            setFormEdit((prev) => ({
+                                                ...prev,
+                                                pesertaDidik: {
+                                                    ...prev.pesertaDidik,
+                                                    provinsi:
+                                                        "Sulawesi Selatan",
+                                                    kabupaten: "Luwu",
+                                                    kecamatan: "Belopa",
+                                                    desa_atau_kelurahan:
+                                                        "Tampumia Radda",
+                                                    jalan: "Gunung Latimojong",
+                                                },
+                                            }));
+                                        }}
+                                    >
+                                        template data
+                                    </p>
+                                </div>
                                 <div className="flex gap-5 mt-5 w-full ">
                                     <ModalInput
                                         id={"provinsi"}
