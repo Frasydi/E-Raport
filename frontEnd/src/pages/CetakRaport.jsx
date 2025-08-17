@@ -111,7 +111,7 @@ const CetakRaport = () => {
     }, [search, selectedSemester, selectedTahunAjaran]);
 
     useEffect(() => {
-        if(!selectedKelas) return
+        if (!selectedKelas) return;
         fetchData();
     }, [selectedKelas]);
 
@@ -295,10 +295,19 @@ const CetakRaport = () => {
                         </div>
 
                         {/* Tombol cetak */}
-                        <div className=" flex gap-4 ">
+                        {/* Tombol cetak */}
+                        <div className="flex gap-4">
                             <ButtonSubmit
-                                bg={"bg-gray-600"}
-                                hover={"hover:bg-gray-700"}
+                                bg={
+                                    buttonClick === "cetak sampul"
+                                        ? "bg-gray-900"
+                                        : "bg-gray-600"
+                                }
+                                hover={
+                                    buttonClick === "cetak sampul"
+                                        ? "hover:bg-gray-700"
+                                        : "hover:bg-gray-700"
+                                }
                                 onClick={async () => {
                                     setIsLoading(true);
                                     await new Promise((resolve) =>
@@ -310,9 +319,18 @@ const CetakRaport = () => {
                             >
                                 sampul raport
                             </ButtonSubmit>
+
                             <ButtonSubmit
-                                bg={"bg-gray-600"}
-                                hover={"hover:bg-gray-700"}
+                                bg={
+                                    buttonClick === "cetak data diri"
+                                        ? "bg-gray-900"
+                                        : "bg-gray-600"
+                                }
+                                hover={
+                                    buttonClick === "cetak data diri"
+                                        ? "hover:bg-gray-700"
+                                        : "hover:bg-gray-700"
+                                }
                                 onClick={async () => {
                                     setIsLoading(true);
                                     await new Promise((resolve) =>
@@ -324,9 +342,18 @@ const CetakRaport = () => {
                             >
                                 cetak data diri
                             </ButtonSubmit>
+
                             <ButtonSubmit
-                                bg={"bg-gray-600"}
-                                hover={"hover:bg-gray-700"}
+                                bg={
+                                    buttonClick === "cetak nilai"
+                                        ? "bg-gray-900"
+                                        : "bg-gray-600"
+                                }
+                                hover={
+                                    buttonClick === "cetak nilai"
+                                        ? "hover:bg-gray-700"
+                                        : "hover:bg-gray-700"
+                                }
                                 onClick={async () => {
                                     setIsLoading(true);
                                     await new Promise((resolve) =>

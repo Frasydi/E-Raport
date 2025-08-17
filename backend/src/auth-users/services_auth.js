@@ -34,7 +34,15 @@ const refreshToken = async (token) => {
     if (!token) throwWithStatus("token tidak valid", 401);
 
     const tokenData = await findToken(token);
-    await verifyJwt(token, process.env.REFRESH_TOKEN_SECRET);
+    try {
+        await verifyJwt(token, process.env.REFRESH_TOKEN_SECRET);
+    } catch (error) {
+        if (err.name === "TokenExpiredError") {
+            await deleteToken(token);
+            throwWithStatus("Refresh token expired", 401);
+        }
+        throw err;
+    }
 
     const payload = {
         id: tokenData.user.id,
