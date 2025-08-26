@@ -111,6 +111,24 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     row: { flexDirection: "row" },
+        gridRow: {
+        flexDirection: "row",
+        marginBottom: 8,
+    },
+    cellNumber: {
+        width: 20,
+    },
+    cellLabel: {
+        flex: 1,
+        paddingRight: 20,
+    },
+    cellColon: {
+        width: 10,
+        textAlign: "center",
+    },
+    cellValue: {
+        flex: 2,
+    },
 });
 
 const toRoman = (num) => {
@@ -246,7 +264,7 @@ const SecondIndikator = ({text, values = []}) => (
 
 const RenderAllKategori = ({ data }) => (
   <View>
-    {data.map((kategori, kategoriIndex) => {
+    {data?.map((kategori, kategoriIndex) => {
       const isAgamaMoral =
         kategori.nama_kategori.toUpperCase() === "NILAI NILAI AGAMA DAN MORAL" ||
         kategoriIndex === 0;
@@ -313,14 +331,283 @@ function formatTanggal(tanggal) {
   return `${hari} ${namaBulan} ${tahun}`;
 }
 
+const SubGridRow = ({ letter, label, value }) => (
+    <View style={{flexDirection: "row", marginBottom:8}}>
+        <Text style={{width:20}}></Text>
+        <View style={{flexDirection:"row", flex:1, paddingRight:20}}>
+            <Text style={{marginRight:8}}>{letter}</Text>
+            <Text>{label}</Text>
+        </View>
+        <Text style={{width:10, textAlign:"center"}}>:</Text>
+        <Text style={{flex:2}}>{value}</Text>
+    </View>
+);
 
+function capitalizeWords(str) {
+    if (!str) return "";
+    return str
+        .split(" ")
+        .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
+}
+
+function capitalizeFirstLetter(str = "") {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+const tempatLahir = (pesertaDidik = {}) =>
+    `${
+        pesertaDidik.tempat_lahir
+            ? capitalizeFirstLetter(pesertaDidik.tempat_lahir) + ", "
+            : ""
+    }${
+        pesertaDidik.tanggal_lahir
+            ? new Date(pesertaDidik.tanggal_lahir)
+                  .toISOString()
+                  .slice(0, 10)
+                  .split("-")
+                  .reverse()
+                  .join("-")
+            : ""
+}`;
 
 
 const CetakNilaiPDF = ({kategori, tanggal, pesertaDidik, profilSekolah, kesimpulan, guru}) => {
     return (
     <Document>
         <Page size="A4" style={styles.page}>
-            <View style={styles.wrapper}>
+            {/* Cetak Sampul */}
+            <View style={{flex: 1, borderWidth:4, borderColor: "#93c5fd", borderStyle:"solid", paddingVertical:20, paddingHorizontal: 25, fontFamily:"Times-Roman"}}>
+                        {/* Header */}
+                <View style={{alignItems:"center", marginBottom:20, gap:4}}>
+                    <Text style={{fontSize:40, fontWeight:"bold", letterSpacing:1}}>LAPORAN</Text>
+                    <Text style={{fontSize:18, fontWeight:"semibold", letterSpacing:1}}>PERKEMBANGAN ANAK DIDIK</Text>
+                    <Text style={{fontSize:18, fontWeight:"semibold", letterSpacing:1}}>TAMAN KANAK-KANAK (TK)</Text>
+                    <Text style={{fontSize:22, color:"#2563EB", opacity: 0.9, letterSpacing:1}}>{(profilSekolah?.nama_sekolah || "").toUpperCase()}</Text>
+                </View>
+
+                {/* School Info */}
+                <View style={{marginTop:20, marginLeft:10, gap:4}}>
+                    <View style={{flexDirection:"row", marginBottom:2}}>
+                        <Text style={{width:80}}>NSS</Text>
+                        <View style={{flexDirection:"row", gap:2}}>
+                            <Text>:</Text>
+                            <Text>{profilSekolah.NSS}</Text>
+                        </View>
+                    </View>
+                    <View style={{flexDirection:"row", marginBottom:2}}>
+                        <Text style={{width:80}}>NPSN</Text>
+                        <View style={{flexDirection:"row", gap:2}}>
+                            <Text>:</Text>
+                            <Text>{profilSekolah.NPSN}</Text>
+                        </View>
+                    </View>
+                    <View style={{flexDirection:"row", marginBottom:2}}>
+                        <Text style={{width:80}}>Alamat</Text>
+                        <View style={{flexDirection:'row', gap:2}}>
+                            <Text>:</Text>
+                            <Text>Jl {profilSekolah.jalan} desa {profilSekolah.desa} Kec. {profilSekolah.kecamatan} </Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Logo */}
+                <View style={{marginTop:40, marginBottom:40, alignItems:"center"}}>
+                    <Image src="/images/logoPaud.png" style={{width:160, height:"auto"}} />
+                </View>
+
+                {/* Student Info */}
+                <View style={{alignItems:"center", gap:4}}>
+                    <Text>Nama Anak Didik</Text>
+                    <Text style={{fontSize:13, fontWeight:"semibold", color: "#2563EB", opacity:0.9}}>
+                        {(pesertaDidik?.nama_lengkap || "").toUpperCase()}
+                    </Text>
+                    <View style={{ flexDirection: "row", gap: 2 }}>
+                        <Text>Nomor Induk</Text>
+                        <Text>:</Text>
+                        <Text>{pesertaDidik?.nis}</Text>
+                    </View>
+                </View>
+
+                {/* Footer */}
+                <View style={{marginTop:70, alignItems:"center"}}>
+                    <Text style={{fontSize:18, fontWeight:"bold", letterSpacing:1}}>
+                        PENDIDIKAN ANAK USIA DINI (PAUD)
+                    </Text>
+                    <Text style={{fontSize:18, fontWeight:"bold", letterSpacing:1}}>KABUPATEN LUWU</Text>
+                </View>
+            </View>
+            {/* Cetak Data Diri */}
+            <View style={{borderWidth:4, borderColor:"#93c5fd", flex:1, padding:16, fontFamily:"Times-Roman"}} break>
+                <Text style={{textAlign:"center", fontSize:14, fontWeight:"bold", textTransform:"uppercase", marginBottom:30}}>KETERANGAN DIRI ANAK DIDIK</Text>
+
+                {/* Data Utama */}
+                <View style={styles.gridRow}>
+                    <Text style={{width:20}}>1.</Text>
+                    <Text style={{flex:1, paddingRight:20}}>Nama Anak Didik</Text>
+                    <Text style={{width:10, textAlign:"center"}}>:</Text>
+                </View>
+                <SubGridRow
+                    letter="a."
+                    label="Nama Lengkap"
+                    value={capitalizeWords(pesertaDidik?.nama_lengkap) || ""}
+                />
+                <SubGridRow
+                    letter="b."
+                    label="Nama Panggilan"
+                    value={capitalizeWords(pesertaDidik?.nama_panggilan) || ""}
+                />
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>2.</Text>
+                    <Text style={styles.cellLabel}>NIS</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                    <Text style={styles.cellValue}>
+                        {pesertaDidik?.nis || ""}
+                    </Text>
+                </View>
+
+                <View style={{flexDirection:"row", marginBottom:8}}>
+                    <Text style={{width:20}}>3.</Text>
+                    <Text style={styles.cellLabel}>NISN</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                    <Text style={styles.cellValue}>
+                        {pesertaDidik?.nisn || ""}
+                    </Text>
+                </View>
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>4.</Text>
+                    <Text style={styles.cellLabel}>Tempat Tanggal Lahir</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                    <Text style={styles.cellValue}>
+                        {tempatLahir(pesertaDidik) || ""}
+                    </Text>
+                </View>
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>5.</Text>
+                    <Text style={styles.cellLabel}>Jenis Kelamin</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                    <Text style={styles.cellValue}>
+                        {pesertaDidik?.jenis_kelamin === "LakiLaki"
+                            ? "Laki-Laki"
+                            : pesertaDidik?.jenis_kelamin || ""}
+                    </Text>
+                </View>
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>6.</Text>
+                    <Text style={styles.cellLabel}>Agama</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                    <Text style={styles.cellValue}>
+                        {pesertaDidik?.agama || ""}
+                    </Text>
+                </View>
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>7.</Text>
+                    <Text style={styles.cellLabel}>Anak ke-</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                    <Text style={styles.cellValue}>
+                        {pesertaDidik?.anakKe || ""}
+                    </Text>
+                </View>
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>8.</Text>
+                    <Text style={styles.cellLabel}>Nama Orang Tua/Wali</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                </View>
+                <SubGridRow
+                    letter="a."
+                    label="Ayah"
+                    value={capitalizeWords(pesertaDidik?.nama_ayah) || ""}
+                />
+                <SubGridRow
+                    letter="b."
+                    label="Ibu"
+                    value={capitalizeWords(pesertaDidik?.nama_ibu) || ""}
+                />
+                <SubGridRow
+                    letter="c."
+                    label="Nama Wali"
+                    value={capitalizeWords(pesertaDidik?.nama_wali) || ""}
+                />
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>9.</Text>
+                    <Text style={styles.cellLabel}>
+                        Pekerjaan Orang Tua/Wali
+                    </Text>
+                    <Text style={styles.cellColon}>:</Text>
+                </View>
+                <SubGridRow
+                    letter="a."
+                    label="Ayah"
+                    value={capitalizeWords(pesertaDidik?.pekerjaanAyah) || ""}
+                />
+                <SubGridRow
+                    letter="b."
+                    label="Ibu"
+                    value={capitalizeWords(pesertaDidik?.pekerjaanIbu) || ""}
+                />
+
+                <View style={styles.gridRow}>
+                    <Text style={styles.cellNumber}>10.</Text>
+                    <Text style={styles.cellLabel}>Alamat Orang Tua/Wali</Text>
+                    <Text style={styles.cellColon}>:</Text>
+                </View>
+                <SubGridRow
+                    letter="a."
+                    label="Jalan"
+                    value={capitalizeWords(pesertaDidik?.jalan) || ""}
+                />
+                <SubGridRow
+                    letter="b."
+                    label="Desa/Kelurahan"
+                    value={
+                        capitalizeWords(pesertaDidik?.desa_atau_kelurahan) || ""
+                    }
+                />
+                <SubGridRow
+                    letter="c."
+                    label="Kecamatan"
+                    value={capitalizeWords(pesertaDidik?.kecamatan) || ""}
+                />
+                <SubGridRow
+                    letter="d."
+                    label="Kabupaten"
+                    value={capitalizeWords(pesertaDidik?.kabupaten) || ""}
+                />
+                <SubGridRow
+                    letter="e."
+                    label="Provinsi"
+                    value={capitalizeWords(pesertaDidik?.provinsi) || ""}
+                />
+
+                {/* Foto & Tanda Tangan */}
+                <View style={{flexDirection:"row", justifyContent:"center", marginTop:40, gap:20}}>
+                    <Image src="#" style={{width:79, height:108, borderWidth:1, borderColor:"#333"}} />
+                    <View style={{textAlign:"left"}}>
+                        <Text style={{ marginBottom: 15 }}>
+                            {capitalizeWords(profilSekolah?.desa) || ""},{" "}
+                            {formatTanggal(tanggal) || ""}
+                        </Text>
+                        <Text>Kepala Sekolah</Text>
+                        <Text>TK Al-Ikhlas Balla</Text>
+                        <Text style={{marginBottom:40}}></Text>
+                        <Text style={{fontWeight:"bold", textTransform:"uppercase"}}>RAHMI, S.Pd.I</Text>
+                    </View>
+                </View>
+            </View>
+
+
+                
+            <View style={styles.wrapper} break>
                 {/* header */}
                 <View style={styles.header}>
                     <Image style={styles.logo} src="/images/logoPaud.png" />
@@ -328,7 +615,7 @@ const CetakNilaiPDF = ({kategori, tanggal, pesertaDidik, profilSekolah, kesimpul
                         <Text style={styles.yayasan}>
                             YAYASAN PENDIDIKAN AL-IKHLAS
                         </Text>
-                        <Text style={styles.sekolah}>TK {profilSekolah?.nama_sekolah.toUpperCase()}</Text>
+                        <Text style={styles.sekolah}>TK {(profilSekolah?.nama_sekolah || "").toUpperCase()}</Text>
                         <Text style={[styles.alamat]}>
                             Desa {profilSekolah?.desa}, Kecamatan {profilSekolah?.kecamatan}, {profilSekolah?.kode_pos}
                         </Text>
@@ -526,7 +813,7 @@ const CetakNilaiPDF = ({kategori, tanggal, pesertaDidik, profilSekolah, kesimpul
                     <View style={{marginTop:30, fontSize:8, width:"95%", alignSelf:"center"}}>
                         <View style={{width:"100%",alignItems:"flex-end"}}>
                             <Text></Text>
-                            <Text>{profilSekolah?.desa.toUpperCase()}, {formatTanggal(tanggal)}</Text>
+                            <Text>{(profilSekolah?.desa || "").toUpperCase()}, {formatTanggal(tanggal)}</Text>
                         </View>
                         <View style={{width:"92%", flexDirection:"row", justifyContent:"space-between", alignSelf:"center", marginTop:17}}>
                             <View style={{height:"65px", justifyContent:"space-between"}}>

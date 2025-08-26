@@ -16,7 +16,6 @@ const ModernPDFViewer = ({
     showZoom = true,
     showFullscreen = true,
     showPrint = true,
-    deps = [],
 }) => {
     const [scale, setScale] = useState(1.0);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -48,9 +47,6 @@ const ModernPDFViewer = ({
         const timer = setTimeout(() => setIsLoading(false), 400);
         return () => clearTimeout(timer);
     }, [children]);
-
-    // Reset viewer ketika dokumen berubah
-    useEffect(() => setViewerKey((prev) => prev + 1), deps);
 
     const toggleFullscreen = () => {
         if (!document.fullscreenEnabled) return;

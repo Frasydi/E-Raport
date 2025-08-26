@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { Login, refreshToken, Logout } = require("./services_auth");
 
+// Route untuk login user
 router.post("/auth/login", async (req, res, next) => {
     const { username, password } = req.body;
     try {
@@ -29,6 +30,7 @@ router.get("/auth/token", async (req, res, next) => {
     }
 });
 
+// Route untuk logout user
 router.post("/auth/logout", async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refresh_token;

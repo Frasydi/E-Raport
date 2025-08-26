@@ -2,7 +2,6 @@ import LayoutMenu from "../containers/layout";
 import ModalInput from "../component/input/ModalInput";
 import Container from "../containers/container";
 import Search from "../component/input/Search";
-import PrevSampul from "../component/cetak_raport/prevSampul";
 import ButtonSubmit from "../component/button/Button_submit";
 import { useSelectedTahunAjaran } from "../hooks/useSelectedTahunAjaran";
 import { useState, useEffect } from "react";
@@ -12,7 +11,6 @@ import PaginationControls from "../component/PaginationControls";
 import usePagination from "../hooks/usePagination";
 import { getDataProfil } from "../api/profil_sekolah";
 import ModernPDFViewer from "../component/cetak_raport/PdfViewer";
-import KeteranganDiriPDF from "../component/cetak_raport/KetaranganDiri";
 import CetakNilaiPDF from "../component/cetak_raport/CetaNilai";
 import Loading from "../component/Loading";
 
@@ -410,57 +408,18 @@ const CetakRaport = () => {
                             <div style={{ width: "100%", height: "600px" }}>
                                 <ModernPDFViewer
                                     style={{ width: "100%", height: "100%" }}
-                                    deps={[buttonClick, selectedPeserta]}
-                                    downloadFileName={
-                                        buttonClick && selectedPeserta
-                                            ? `${buttonClick
-                                                  .replace("cetak ", "")
-                                                  .replace(/\s+/g, "_")}_${
-                                                  selectedPeserta?.pesertaDidik?.nama_lengkap?.replace(
-                                                      /\s+/g,
-                                                      "_"
-                                                  ) || "dokumen"
-                                              }.pdf`
-                                            : "dokumen.pdf"
-                                    }
+                                    downloadFileName="document.pdf"
                                 >
-                                    {buttonClick === "cetak sampul" &&
-                                    selectedPeserta ? (
-                                        <PrevSampul
-                                            namaLengkap={
-                                                selectedPeserta?.pesertaDidik
-                                                    .nama_lengkap
-                                            }
-                                            nomorInduk={
-                                                selectedPeserta?.pesertaDidik
-                                                    .nis
-                                            }
-                                            profilSekolah={profilSekolah}
-                                        />
-                                    ) : buttonClick === "cetak data diri" &&
-                                      selectedPeserta ? (
-                                        <KeteranganDiriPDF
-                                            pesertaDidik={
-                                                selectedPeserta?.pesertaDidik
-                                            }
-                                            desa={profilSekolah?.desa}
-                                            tanggal={selectedTanggalCetak}
-                                        />
-                                    ) : buttonClick === "cetak nilai" &&
-                                      selectedPeserta ? (
-                                        <CetakNilaiPDF
-                                            kategori={selectedPeserta?.kategori}
-                                            pesertaDidik={
-                                                selectedPeserta?.pesertaDidik
-                                            }
-                                            kesimpulan={
-                                                selectedPeserta?.kesimpulan
-                                            }
-                                            guru={selectedPeserta?.guru}
-                                            tanggal={selectedTanggalCetak}
-                                            profilSekolah={profilSekolah}
-                                        />
-                                    ) : null}
+                                    <CetakNilaiPDF
+                                        kategori={selectedPeserta?.kategori}
+                                        pesertaDidik={
+                                            selectedPeserta?.pesertaDidik
+                                        }
+                                        kesimpulan={selectedPeserta?.kesimpulan}
+                                        guru={selectedPeserta?.guru}
+                                        tanggal={selectedTanggalCetak}
+                                        profilSekolah={profilSekolah}
+                                    />
                                 </ModernPDFViewer>
                             </div>
                         )}
