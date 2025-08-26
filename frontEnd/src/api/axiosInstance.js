@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAccessToken } from "./auth";
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:8000",
+    baseURL: import.meta.env.VITE_BASE_API,
     timeout: 10000,
     withCredentials: true,
 });
