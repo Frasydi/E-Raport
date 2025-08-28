@@ -112,8 +112,8 @@ docker compose --profile tools up prisma-studio -d
 
 Once the application is running, you can access:
 
-- **Frontend (React App)**: http://localhost:3000 or http://localhost:80
-- **Backend API**: http://localhost:8000
+- **Frontend (React App)**: http://localhost:3109
+- **Backend API**: http://localhost:8908
 - **Database**: localhost:5432
 - **Prisma Studio**: http://localhost:5555 (when started)
 
@@ -201,8 +201,8 @@ The current Docker setup is optimized for production. For development with hot r
 1. **Port Already in Use**:
    ```bash
    # Check what's using the port
-   sudo lsof -i :3000
-   sudo lsof -i :8000
+   sudo lsof -i :3109
+   sudo lsof -i :8908
    
    # Kill the process if needed
    sudo kill -9 <PID>

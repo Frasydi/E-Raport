@@ -39,7 +39,7 @@ services:
       - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET:-your-secret-key}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET:-your-refresh-secret-key}
     ports:
-      - "8000:8000"
+      - "8908:8000"
     depends_on:
       database:
         condition: service_healthy
@@ -62,8 +62,7 @@ services:
     container_name: eraport-frontend
     restart: unless-stopped
     ports:
-      - "80:8080"
-      - "3000:8080"  # Alternative port mapping
+      - "3109:8080"
     depends_on:
       backend:
         condition: service_healthy

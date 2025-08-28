@@ -18,8 +18,8 @@ case "$1" in
     echo "Starting E-Raport application..."
     $DOCKER_COMPOSE up -d
     echo "Application is starting. Access:"
-    echo "  - Frontend: http://localhost:3000"
-    echo "  - Backend API: http://localhost:8000"
+    echo "  - Frontend: http://localhost:3109"
+    echo "  - Backend API: http://localhost:8908"
     echo "  - Database: localhost:5432"
     ;;
   
