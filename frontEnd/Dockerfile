@@ -15,8 +15,8 @@ COPY --chown=nodejs:nodejs package*.json ./
 # Switch to nodejs user
 USER nodejs
 
-# Install dependencies (use --omit=dev instead of --only=production)
-RUN npm ci --omit=dev && npm cache clean --force
+# Install ALL dependencies (including dev dependencies needed for build)
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY --chown=nodejs:nodejs . .
