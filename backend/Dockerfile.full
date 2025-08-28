@@ -1,12 +1,5 @@
-# Use Node.js LTS version with Debian (better compatibility than Alpine)
-FROM node:18-slim
-
-# Install additional packages needed for Prisma and curl for health checks
-RUN apt-get update && apt-get install -y \
-    openssl \
-    curl \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Use full Node.js LTS version (best compatibility)
+FROM node:18
 
 # Set working directory
 WORKDIR /app

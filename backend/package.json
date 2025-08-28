@@ -7,7 +7,6 @@
         "start": "node index.js",
         "dev": "nodemon index.js",
         "build": "npx prisma generate",
-        "postinstall": "npx prisma generate",
         "seed:kategori": "node src/seed/seedKategori.js",
         "seed:profil": "node src/seed/seedProfilSekolah.js",
         "test": "echo \"Error: no test specified\" && exit 1"
