@@ -335,7 +335,7 @@ const CetakRaport = () => {
                             <div style={{ width: "100%", height: "600px" }}>
                                 <ModernPDFViewer
                                     style={{ width: "100%", height: "100%" }}
-                                    downloadFileName="document.pdf"
+                                    downloadFileName={`Rapor-${selectedPeserta?.pesertaDidik?.nis || "NIS"}-${selectedPeserta?.pesertaDidik?.nama_lengkap || "Nama"}.pdf`}
                                 >
                                     <CetakNilaiPDF
                                         kategori={selectedPeserta?.kategori}
