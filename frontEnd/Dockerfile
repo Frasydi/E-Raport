@@ -4,9 +4,10 @@ FROM node:18-alpine as build
 # Set working directory
 WORKDIR /app
 
-# Create non-root user
+# Create non-root user and set ownership
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
 
 # Copy package files with correct ownership
 COPY --chown=nodejs:nodejs package*.json ./
@@ -14,8 +15,8 @@ COPY --chown=nodejs:nodejs package*.json ./
 # Switch to nodejs user
 USER nodejs
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (use --omit=dev instead of --only=production)
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy source code
 COPY --chown=nodejs:nodejs . .
