@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # Install additional packages needed for Prisma
-RUN apk add --no-cache openssl libc6-compat
+RUN apk add --no-cache openssl libc6-compat curl
 
 # Set working directory
 WORKDIR /app
@@ -18,17 +18,16 @@ COPY --chown=nodejs:nodejs package*.json ./
 # Switch to nodejs user for installation
 USER nodejs
 
-# Install dependencies (use --omit=dev instead of --only=production)
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Copy Prisma schema first
-COPY --chown=nodejs:nodejs prisma ./prisma/
-
-# Generate Prisma client
-RUN npx prisma generate
+# Install dependencies
+RUN npm ci && npm cache clean --force
 
 # Copy the rest of the application
 COPY --chown=nodejs:nodejs . .
+
+# Make startup script executable
+USER root
+RUN chmod +x /app/start.sh
+USER nodejs
 
 # Expose port
 EXPOSE 8000
@@ -37,5 +36,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# Start the application
-CMD ["npm", "start"]
+# Use startup script
+CMD ["/app/start.sh"]
