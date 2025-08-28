@@ -8,7 +8,7 @@ import ModalFormGuru from "../component/Modal/modalGuru";
 import showToast from "../hooks/showToast";
 import ModalEditGuru from "../component/Modal/ModalEditGuru";
 import Loading from "../component/Loading";
-import ModernTable from "../component/table/modernTable";
+import ModernTable from "../component/table/ModernTable";
 import usePagination from "../hooks/usePagination";
 import PaginationControls from "../component/PaginationControls";
 import ConfirmModal from "../component/Modal/confirmModal";
