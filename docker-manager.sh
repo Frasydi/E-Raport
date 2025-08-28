@@ -2,10 +2,21 @@
 
 # E-Raport Docker Management Script
 
+# Check if docker compose or docker-compose is available
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    echo "Error: Neither 'docker-compose' nor 'docker compose' is available."
+    echo "Please install Docker Compose."
+    exit 1
+fi
+
 case "$1" in
   start)
     echo "Starting E-Raport application..."
-    docker-compose up -d
+    $DOCKER_COMPOSE up -d
     echo "Application is starting. Access:"
     echo "  - Frontend: http://localhost:3000"
     echo "  - Backend API: http://localhost:8000"
@@ -14,49 +25,49 @@ case "$1" in
   
   stop)
     echo "Stopping E-Raport application..."
-    docker-compose down
+    $DOCKER_COMPOSE down
     ;;
   
   restart)
     echo "Restarting E-Raport application..."
-    docker-compose down
-    docker-compose up -d
+    $DOCKER_COMPOSE down
+    $DOCKER_COMPOSE up -d
     ;;
   
   logs)
-    docker-compose logs -f
+    $DOCKER_COMPOSE logs -f
     ;;
   
   status)
-    docker-compose ps
+    $DOCKER_COMPOSE ps
     ;;
   
   db-migrate)
     echo "Running database migrations..."
-    docker-compose exec backend npx prisma migrate deploy
+    $DOCKER_COMPOSE exec backend npx prisma migrate deploy
     ;;
   
   db-seed)
     echo "Seeding database..."
-    docker-compose exec backend npm run seed:kategori
-    docker-compose exec backend npm run seed:profil
+    $DOCKER_COMPOSE exec backend npm run seed:kategori
+    $DOCKER_COMPOSE exec backend npm run seed:profil
     ;;
   
   studio)
     echo "Starting Prisma Studio..."
-    docker-compose --profile tools up prisma-studio -d
+    $DOCKER_COMPOSE --profile tools up prisma-studio -d
     echo "Prisma Studio available at: http://localhost:5555"
     ;;
   
   clean)
     echo "Cleaning up Docker resources..."
-    docker-compose down -v
+    $DOCKER_COMPOSE down -v
     docker system prune -f
     ;;
   
   build)
     echo "Building Docker images..."
-    docker-compose build
+    $DOCKER_COMPOSE build
     ;;
   
   *)
