@@ -123,10 +123,10 @@ const Users = () => {
         }
     };
 
-    const handleSaveUser = async()=> {
-        fetchData()
+    const handleSaveUser = async () => {
+        fetchData();
         showToast("success", "data berhasil diupdate");
-    }
+    };
 
     useEffect(() => {
         fetchData();
