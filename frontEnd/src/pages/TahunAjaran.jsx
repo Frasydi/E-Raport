@@ -12,7 +12,7 @@ import Loading from "../component/Loading";
 import usePagination from "../hooks/usePagination";
 import PaginationControls from "../component/PaginationControls";
 import ModalEditTahun from "../component/Modal/ModalTahunAjaran/ModalEditTahun";
-import ModernTable from "../component/table/modernTable";
+import ModernTable from "../component/table/ModernTable";
 import { useTahunAjaranStore } from "../stores/tahun-ajaran";
 
 const TahunAjaran = () => {
