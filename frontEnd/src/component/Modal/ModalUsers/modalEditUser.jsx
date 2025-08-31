@@ -1,54 +1,52 @@
 import { useState, useRef, useEffect } from "react";
-import { updateDataGuru } from "../../api/guru_kelas"; // Import the update function
-import ErrorMessage from "../Error";
-import ConfirmModal from "./confirmModal";
+import ErrorMessage from "../../Error";
+import ConfirmModal from "../confirmModal";
+import { updateData } from "../../../api/user";
 
-const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
+const ModalEditUser = ({ isOpen, onClose, onSave, dataUser }) => {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [form, setForm] = useState({
-        nama_guru: "",
-        NUPTK: "",
-        nama_kelas: "kelompok A",
+        username: "",
+        password: "",
+        role: "",
     });
-
     const modalRef = useRef();
 
+
     useEffect(() => {
-        if (teacherData) {
+        if (dataUser) {
             setForm({
-                nama_guru: teacherData.nama_guru,
-                NUPTK: teacherData.NUPTK,
-                nama_kelas: teacherData.nama_kelas,
+                username: dataUser.username,
+                password: dataUser.password,
+                role: dataUser.role,
             });
         }
-    }, [teacherData]);
+    }, [dataUser]);
 
-    useEffect(() => {
-        if (error) {
-            const timer = setTimeout(() => {
-                setError("");
-            }, 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [error]);
-
+    const resetForm = () => {
+        setForm({
+            username: dataUser?.username,
+            password: dataUser?.password,
+            role: dataUser?.role,
+        });
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
+    const handleClose = () => {
+        setError("");
+        onClose();
+        resetForm(dataUser);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.nama_guru.trim() || !form.NUPTK.trim()) {
+        if (!form.username.trim() || !form.password.trim()) {
             setError("harap lengkapi data terlebih dahulu");
-            return;
-        }
-        if (!/^\d+$/.test(form.NUPTK)) {
-            setError("NUPTK hanya boleh berisi angka");
-            setIsLoading(false);
             return;
         }
         setError("");
@@ -60,10 +58,10 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         setIsLoading(true);
 
         try {
-            await updateDataGuru(teacherData.id_guru, {
-                nama_guru: form.nama_guru,
-                NUPTK: form.NUPTK,
-                nama_kelas: form.nama_kelas,
+            await updateData(dataUser?.id, {
+                username: form.username,
+                password: form.password,
+                role: form.role,
             });
             onSave();
             onClose();
@@ -72,19 +70,6 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const resetForm = (teacherData) => {
-        setForm({
-            nama_guru: teacherData.nama_guru,
-            NUPTK: teacherData.NUPTK,
-            nama_kelas: teacherData.nama_kelas,
-        });
-    };
-    const handleClose = () => {
-        setError("");
-        onClose();
-        resetForm(teacherData);
     };
 
     if (!isOpen) return null;
@@ -98,7 +83,7 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
                 >
                     <div className="flex justify-between items-center p-6 pb-0">
                         <h2 className="text-2xl font-bold text-gray-800">
-                            Edit Data Guru
+                            Edit Data User
                         </h2>
                         <button
                             onClick={handleClose}
@@ -125,51 +110,52 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
                     <div className="flex flex-col mt-3 w-11/12 px-6 p-1">
                         {error && <ErrorMessage error={error} />}
                     </div>
+
                     <form
                         onSubmit={handleSubmit}
                         className="px-6 mb-5 flex flex-col gap-4"
                     >
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
-                                Nama Guru
+                                Username
                             </label>
                             <input
                                 type="text"
-                                name="nama_guru"
-                                value={form.nama_guru}
+                                name="username"
+                                value={form?.username}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                placeholder="Masukkan nama guru"
+                                placeholder="Masukkan username"
                                 disabled={isLoading}
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
-                                NUPTK
+                                Password
                             </label>
                             <input
                                 type="text"
-                                name="NUPTK"
-                                value={form.NUPTK}
+                                name="password"
+                                value={form?.password}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-                                placeholder="Masukkan NUPTK"
+                                placeholder="Masukkan password"
                                 disabled={isLoading}
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">
-                                Kelas
+                                Role
                             </label>
                             <select
-                                name="nama_kelas"
-                                value={form.nama_kelas}
+                                name="role"
+                                value={form.role}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all appearance-none"
                                 disabled={isLoading}
                             >
-                                <option value="kelompok A">kelompok A</option>
-                                <option value="kelompok B">kelompok B</option>
+                                <option value="Operator">Operator</option>
+                                <option value="Ortu">Ortu</option>
                             </select>
                         </div>
                         <div className="flex justify-end gap-3 pt-6">
@@ -218,17 +204,18 @@ const ModalEditGuru = ({ isOpen, onClose, onSave, teacherData }) => {
                     </form>
                 </div>
             </div>
+
             <ConfirmModal
                 isOpen={showConfirm}
                 onCancel={() => {
                     setShowConfirm(false);
                 }}
                 onConfirm={handleConfirm}
-                text={'Pastikan data sudah benar'}
-                title={'Update Data'}
+                text={"Pastikan data sudah benar"}
+                title={"Update Data"}
             />
         </>
     );
 };
 
-export default ModalEditGuru;
+export default ModalEditUser;

@@ -4,8 +4,8 @@ import {
     faChalkboardUser,
     faPenToSquare,
     faPrint,
-    faWindowRestore,
     faCalendar,
+    faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 
 const navItems = [
@@ -13,6 +13,11 @@ const navItems = [
         name: "Profil Sekolah",
         path: "/dashboard",
         icon: faHouse,
+    },
+    {
+        name: "Kelola Users",
+        path: "/kelola-users",
+        icon: faUsers,
     },
     {
         name: "Guru & Kelas",
@@ -41,11 +46,6 @@ const navItems = [
         path: "/cetak-raport",
         icon: faPrint,
     },
-    //{
-    //    name: "Backup dan Restore",
-    //    path: "/backup-restore",
-    //    icon: faWindowRestore,
-    //},
 ];
 
 export default navItems;

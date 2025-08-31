@@ -104,10 +104,11 @@ const Login = () => {
                                 type="text"
                                 id="username"
                                 name="username"
+                                placeholder="masukkan username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 autoComplete="off"
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base placeholder:text-sm"
                             />
                         </div>
 
@@ -123,9 +124,10 @@ const Login = () => {
                                 id="password"
                                 name="password"
                                 value={password}
+                                placeholder="masukkan password"
                                 onChange={(e) => setPassword(e.target.value)}
                                 autoComplete="off"
-                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base placeholder:text-sm"
                             />
                         </div>
 

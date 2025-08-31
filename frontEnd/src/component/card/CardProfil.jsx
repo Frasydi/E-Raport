@@ -27,6 +27,7 @@ const CardProfil = ({
     onEditClick,
     onDeleteClick,
     onNilaiClick,
+    status,
     onSaranClick,
     mode = "default",
 }) => {
@@ -53,6 +54,16 @@ const CardProfil = ({
                 click?.(data);
             }}
         >
+            {mode === "penilaian" && status && (
+                <div className="absolute top-3 left-3 z-10">
+                    {status === "belum lengkap" ? (
+                        <p className="text-red-500 font-bold text-lg">!</p>
+                    ) : (
+                        <p className="text-green-700 font-bold text-lg">✓</p>
+                    )}
+                </div>
+            )}
+
             {/* Avatar */}
             {data.foto ? (
                 <img
@@ -98,7 +109,11 @@ const CardProfil = ({
                     </button>
 
                     {open && (
-                        <div className={`${mode == "penilaian" ? "w-48":"w-40"} mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 text-sm text-gray-700 font-medium absolute right-0 transition-all duration-200 z-50`}>
+                        <div
+                            className={`${
+                                mode == "penilaian" ? "w-48" : "w-40"
+                            } mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 text-sm text-gray-700 font-medium absolute right-0 transition-all duration-200 z-50`}
+                        >
                             {mode === "default" ? (
                                 <>
                                     <button

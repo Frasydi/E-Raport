@@ -42,13 +42,13 @@ const NavbarComponent = ({ path, icon, label }) => {
 
 const Navbar = () => {
   return (
-    <div className="w-xl max-w-lg h-18 rounded-2xl bg-[#cecdcd] flex items-center justify-around">
+    <div className="w-xl max-w-xl h-18 rounded-2xl bg-[#cecdcd] flex items-center justify-around">
       {navItems.map((item, index) => (
         <NavbarComponent
           key={index}
           icon={item.icon}
           path={item.path}
-          label={item.name} // name untuk tooltip
+          label={item.name} 
         />
       ))}
     </div>

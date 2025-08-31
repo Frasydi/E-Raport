@@ -70,7 +70,7 @@ const TahunAjaran = () => {
     }, [error]);
 
     useEffect(() => {
-        resetPagination(); 
+        resetPagination();
     }, [search, sortConfig]);
 
     const handleSort = (key) => {
@@ -193,7 +193,7 @@ const TahunAjaran = () => {
                             sortConfig={sortConfig}
                         />
 
-                        {tahun_ajaran.length > 5 && (
+                        {tahun_ajaran && tahun_ajaran.length > 5 && (
                             <PaginationControls
                                 currentPage={currentPage}
                                 totalPages={totalPages}
