@@ -16,6 +16,7 @@ import KategoriPenilaian from "./component/penilaian/KategoriPenilaian";
 import SubKategoriPenilaian from "./component/penilaian/SubKategoriPenilaian";
 import Nilai from "./component/penilaian/Nilai";
 import OrangTua from "./pages/OrangTua";
+import Users from "./pages/Users";
 
 import RoleRoute from "./component/RoleRoute";
 
@@ -56,6 +57,14 @@ function App() {
                     element={
                         <RoleRoute allowedRoles={["Operator"]}>
                             <Dashboard />
+                        </RoleRoute>
+                    }
+                />
+                <Route
+                    path="/kelola-users"
+                    element={
+                        <RoleRoute allowedRoles={["Operator"]}>
+                            <Users />
                         </RoleRoute>
                     }
                 />

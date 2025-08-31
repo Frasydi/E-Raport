@@ -1,6 +1,6 @@
-const Container = ({children}) => {
+const Container = ({children, className="mt-10"}) => {
     return (
-            <div className={`mt-10 drop-shadow-xl rounded-xl bg-[#ffffff] p-5 text-sm relative`}>
+            <div className={`${className} drop-shadow-xl rounded-xl bg-[#ffffff] p-5 text-sm relative`}>
                 {children}
             </div>
     );

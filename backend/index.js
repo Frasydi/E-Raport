@@ -48,9 +48,10 @@ const tahun_ajaran = require("./src/tahun-ajaran/controller_tahun_ajaran");
 const penilaian = require("./src/penilaian/controller_penilaian");
 const amount = require("./src/amount/controller_amount");
 const kesimpulan = require("./src/kesimpulan/controller_kesimpulan");
-
+const user = require("./src/users/controller_user")
 // Routing untuk setiap fitur
 app.use("/", auth);
+app.use("/users", verifyToken, checkRole(["Operator"]), user)
 app.use("/amount", verifyToken, checkRole(["Operator"]), amount);
 app.use("/profil-sekolah", verifyToken, checkRole(["Operator"]), profilSekolah);
 app.use("/guru", verifyToken, checkRole(["Operator"]), guru);

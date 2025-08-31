@@ -1,10 +1,20 @@
 const prisma = require("../../prisma/prismaClient");
 const throwWithStatus = require("../utils/throwWithStatus");
 
-const insertData = async function (username, password) {
-    return await prisma.users.create({
-        data: { username, password },
-    });
+const insertData = async function (username, password, role) {
+    try {
+        const user = await prisma.users.findFirst({
+            where: {
+                username,
+            },
+        });
+        if (user) throwWithStatus("username sudah ada dalam tabel");
+        return await prisma.users.create({
+            data: { username, password, role },
+        });
+    } catch (error) {
+        throw error;
+    }
 };
 
 const findUsername = async function (username) {
