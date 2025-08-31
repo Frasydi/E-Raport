@@ -3,7 +3,7 @@ import { getGuruKelas, deleteData } from "../api/guru_kelas";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { AddStudentButton } from "../component/button/Button";
 import Search from "../component/input/Search";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import ModalFormGuru from "../component/Modal/modalGuru";
 import showToast from "../hooks/showToast";
 import ModalEditGuru from "../component/Modal/ModalEditGuru";
