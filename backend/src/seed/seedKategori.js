@@ -1,16 +1,13 @@
 const prisma = require("../../prisma/prismaClient");
 const fs = require("fs");
 const path = require("path");
+const { resetKategoriSequences } = require("../utils/resetSequences");
 
 async function main() {
     await prisma.indikator.deleteMany();
     await prisma.subKategori.deleteMany();
     await prisma.kategori.deleteMany();
-    await prisma.$executeRawUnsafe(`ALTER TABLE Kategori AUTO_INCREMENT = 1`);
-    await prisma.$executeRawUnsafe(
-        `ALTER TABLE SubKategori AUTO_INCREMENT = 1`
-    );
-    await prisma.$executeRawUnsafe(`ALTER TABLE Indikator AUTO_INCREMENT = 1`);
+    await resetKategoriSequences();
     const rawData = fs.readFileSync(
         path.join(__dirname, "data/kategori.json"),
         "utf-8"

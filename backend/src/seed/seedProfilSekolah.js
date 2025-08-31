@@ -1,6 +1,7 @@
 const prisma = require("../../prisma/prismaClient");
 const fs = require("fs");
 const path = require("path");
+const { resetProfilSekolahSequence } = require("../utils/resetSequences");
 
 async function seedProfilSekolah() {
     const filePath = path.join(__dirname, "/data/profilSekolah.json");
@@ -19,7 +20,7 @@ async function seedProfilSekolah() {
 
     // Optional: bersihkan data sebelumnya
     await prisma.profilSekolah.deleteMany();
-    await prisma.$executeRawUnsafe(`ALTER TABLE ProfilSekolah AUTO_INCREMENT = 1`);
+    await resetProfilSekolahSequence();
 
     for (const item of data) {
         await prisma.profilSekolah.create({
