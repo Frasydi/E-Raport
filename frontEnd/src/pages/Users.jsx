@@ -2,7 +2,7 @@ import LayoutMenu from "../containers/layout";
 import { displayData, insertData, deleteData } from "../api/user";
 import ModalInput from "../component/input/ModalInput";
 import ButtonSubmit from "../component/button/Button_submit";
-import ModernTable from "../component/table/modernTable";
+import ModernTable from "../component/table/ModernTable";
 import usePagination from "../hooks/usePagination";
 import PaginationControls from "../component/PaginationControls";
 import { useEffect, useState } from "react";
