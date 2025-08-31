@@ -63,7 +63,6 @@ const Penilaian = () => {
         }
     };
 
-    console.log(pesertaDidik);
     useEffect(() => {
         if (selectedTahunAjaran) {
             localStorage.setItem("tahun_ajaran_penilaian", selectedTahunAjaran);
@@ -282,7 +281,7 @@ const Penilaian = () => {
                                     <CardProfil
                                         key={item.id_rekap_nilai}
                                         mode="penilaian"
-                                        status={item.status}
+                                        status={item?.status}
                                         onNilaiClick={(data) => {
                                             navigate(data?.id_rekap_nilai);
                                         }}

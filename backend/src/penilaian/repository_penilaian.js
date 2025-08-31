@@ -54,7 +54,7 @@ const findByTahunSemester = async (tahunAjaranId, semester, nama_kelas) => {
                 semester: {
                     nama: semester,
                 },
-                ...(nama_kelas ? { guru: { nama_kelas } } : {}), 
+                ...(nama_kelas ? { guru: { nama_kelas } } : {}),
             },
             include: {
                 tahunAjaran: true,
@@ -68,9 +68,9 @@ const findByTahunSemester = async (tahunAjaranId, semester, nama_kelas) => {
             },
             orderBy: {
                 pesertaDidik: {
-                    nama_lengkap: "asc"
-                }
-            }
+                    nama_lengkap: "asc",
+                },
+            },
         });
 
         const indikatorList = await getAllIndikator(); // ambil semua indikator
@@ -99,7 +99,9 @@ const findByTahunSemester = async (tahunAjaranId, semester, nama_kelas) => {
 
         // Tambahkan status, lalu hilangkan field penilaian
         const withStatus = response.map(({ penilaian, ...rest }) => {
-            const semuaNilaiTerisi = penilaian.every((p) => p.nilai !== null);
+            const semuaNilaiTerisi =
+                penilaian.length > 0 &&
+                penilaian.every((p) => p.nilai !== null);
             return {
                 ...rest,
                 status: semuaNilaiTerisi ? "lengkap" : "belum lengkap",
@@ -439,7 +441,7 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester, nama_kelas) => {
                 rekapNilai: {
                     tahunAjaranId: id_tahun_ajaran,
                     semesterId: findSemester.id_semester,
-                    ...(nama_kelas ? { guru: { nama_kelas } } : {})
+                    ...(nama_kelas ? { guru: { nama_kelas } } : {}),
                 },
             },
             select: {
@@ -469,11 +471,13 @@ const getPenilaianGrouped = async (id_tahun_ajaran, semester, nama_kelas) => {
                 },
             },
             orderBy: [
-                {rekapNilai: {
-                    pesertaDidik: {
-                        nama_lengkap: "asc"
-                    }
-                }},
+                {
+                    rekapNilai: {
+                        pesertaDidik: {
+                            nama_lengkap: "asc",
+                        },
+                    },
+                },
                 {
                     indikator: {
                         subKategori: { kategori: { id_kategori: "asc" } },

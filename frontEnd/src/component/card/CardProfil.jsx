@@ -27,13 +27,12 @@ const CardProfil = ({
     onEditClick,
     onDeleteClick,
     onNilaiClick,
-    status,
+    status = "belum lengkap",
     onSaranClick,
     mode = "default",
 }) => {
     const [open, setOpen] = useState(false);
     const menuRef = useRef(null);
-
     useEffect(() => {
         function handleClickOutside(event) {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
