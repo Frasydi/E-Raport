@@ -2,7 +2,7 @@ import { Button } from "../component/button/Button";
 
 const Home = () => {
     return (
-        <div className="relative w-full min-h-screen flex flex-col justify-center items-center bg-[url(images/tk_belajar.jpg)] bg-cover bg-center bg-no-repeat overflow-hidden">
+        <div className="relative w-full min-h-screen flex flex-col justify-center items-center bg-[url(/images/tk_belajar.jpg)] bg-cover bg-center bg-no-repeat overflow-hidden">
             {/* Gradient overlay with subtle animation */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-900/70 to-zinc-900/90 backdrop-blur-sm"></div>
 

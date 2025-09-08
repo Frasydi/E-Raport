@@ -5,7 +5,7 @@ const ModalContainer = ({ children, onClose, size, height }) => {
     return (
         <div className="w-full bg-gray-900/50 bg z-50 fixed top-0 flex justify-center h-screen backdrop-blur-sm">
             <div
-                className={`flex ${size} flex-col items-center  drop-shadow-xl rounded-2xl bg-white mt-5 pb-10 ${height} overflow-auto relative`}
+                className={`flex ${size} flex-col items-center drop-shadow-xl md:rounded-2xl bg-white md:mt-5 pb-10 ${height} overflow-auto relative`}
             >
                 <button
                     onClick={onClose}
